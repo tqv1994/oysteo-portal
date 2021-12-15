@@ -1,0 +1,81 @@
+@media (min-width: $break_point) {
+	header {
+		.bx--header__menu-trigger {
+			display: none;
+		}
+		.bx--header-panel--expanded {
+			padding: 0.5rem 1.25rem;
+		}
+	}
+
+	#main-content .nav-section {
+		display: none;
+	}
+
+	#logo {
+		width: 25.25%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transform: translate(-0.4rem, 0);
+		svg {
+			width: 7rem;
+			height: 3rem;
+		}
+	}
+
+	.bx--header__nav {
+		padding-left: 0.5rem;
+		&:before {
+			background-color: #696969;
+		}
+		.bx--header__menu-item {
+			color: black;
+		}
+
+		ul.bx--header__menu-bar {
+			gap: 1.75rem;
+		}
+
+		a.bx--header__menu-item {
+			padding: 0 0.5rem;
+			&:hover,
+			&:focus,
+			&:active {
+				background-color: white;
+				outline: none;
+				border-bottom: 3px solid $blue;
+				color: black;
+			}
+		}
+	}
+	.bx--header__global {
+		margin: 0 8%;
+		position: relative;
+		.bx--header-panel--expanded {
+			position: absolute;
+			right: -18%;
+			height: 4.5rem;
+		}
+		li.bx--switcher__item {
+			margin-top: 0.25rem;
+		}
+	}
+
+	#account-name {
+		display: block;
+		font-size: 0.75rem;
+		color: black;
+		text-align: center;
+		line-height: 1.25rem;
+	}
+
+	li.bx--switcher__item {
+		background: $press-button-color;
+		margin-top: 0.5rem;
+		a {
+			color: white;
+			padding: 0.5rem 3.5rem;
+		}
+	}
+}

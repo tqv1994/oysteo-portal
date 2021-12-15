@@ -1,0 +1,86 @@
+@media (min-width: $break_point) {
+	#main-content > .content {
+		max-width: 50%;
+		margin: 0 auto;
+		margin-top: 1rem;
+	}
+
+	.content {
+		> div[slot='fields'] {
+			width: 100%;
+		}
+	}
+
+	.bx--form-item:first-child {
+		margin-top: 0;
+	}
+
+	.contact-fields,
+	.select-container {
+		display: flex;
+		flex-direction: row;
+		gap: 1rem;
+		.bx--form-item {
+			margin-top: 0rem;
+			flex-basis: 50%;
+		}
+	}
+
+	.title-right-icon {
+		display: inline;
+		color: white;
+		+ svg {
+			display: none;
+		}
+	}
+
+	.list-advisors {
+		> div[slot='value'] {
+			width: 100%;
+		}
+
+		.group {
+			margin-top: 0.75rem !important;
+		}
+	}
+
+	.bx--form .listitem-advisor {
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.listitem-advisor {
+		.label {
+			flex-basis: 50% !important;
+		}
+	}
+
+	.row-item {
+		flex-direction: column;
+		gap: 0.75rem;
+
+		&.data-active {
+			margin: 1rem 0rem !important;
+		}
+	}
+
+	.add-advisor,
+	.add-destination {
+		margin-top: 1rem !important;
+	}
+
+	.business-fields {
+		.bx--form-item,
+		.bx--select,
+		.bx--date-picker-container {
+			flex-direction: row;
+		}
+		.bx--label {
+			flex-basis: 14rem;
+			font-size: 0.875rem;
+		}
+		.bx--date-picker-input__wrapper {
+			width: 100%;
+		}
+	}
+}

@@ -1,0 +1,15 @@
+.DS_Store
+node_modules
+/.svelte-kit
+/package
+/.chrome
+/.vercel_build_output
+yarn-error.log
+/static/smui.css
+/static/smui-dark.css
+/.idea
+!/.env.example
+/.env.production
+yarn.lock
+.vscode
+/*.zip

@@ -1,0 +1,17 @@
+@media (max-width: $break_point - 0.01px) {
+	// Global half width (select)
+	.half-width {
+		.bx--select-input__wrapper {
+			width: 50%;
+		}
+	}
+
+	.agency-advisors-initials,
+	#agency-billing-initials {
+		width: 50%;
+	}
+
+	.title-right-icon {
+		display: none;
+	}
+}

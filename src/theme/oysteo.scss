@@ -1,0 +1,286 @@
+$btn-primary-color: #707070;
+$text-color: #161616;
+$press-button-color: #4c4c4c;
+$right-menu-color: #525252;
+$gray-color: #f3f3f3;
+$gray-primary: #8d8d8d;
+$blue: #0f61fd;
+$blue-primary: #5078bc;
+$blue-secondary: #f0f7f8;
+$white-color: #fff;
+
+$break_point: 1056px;
+
+@import './account.scss';
+@import './header.scss';
+
+@import './mobile/custom_style.scss';
+@import './mobile/modal.scss';
+@import './mobile/content.scss';
+
+@import './desktop/account.scss';
+@import './desktop/header.scss';
+@import './desktop/content.scss';
+@import './desktop/nav_section.scss';
+
+html {
+	scroll-behavior: smooth;
+}
+
+// fix menu expanded
+body,
+html {
+	overflow-x: hidden;
+}
+// @media (max-width: 671.99px) {
+h1 {
+	font-size: 2rem;
+	font-weight: 400;
+	padding-top: 2.75rem;
+	padding-bottom: 1.5rem;
+}
+.btn-cancel {
+	background: #383838;
+	color: $white-color;
+	&:hover {
+		background: $press-button-color;
+		color: $white-color;
+	}
+	&:focus, &:active {
+		background: $press-button-color;
+		--cds-focus: #0353E9;
+	}
+}
+
+#main-content {
+	background-color: $gray-color;
+}
+
+.title-content {
+	h1 {
+		padding-top: 1.1125rem;
+		line-height: 2.5rem;
+	}
+}
+.section {
+	.bx--tile {
+		background: #fff;
+		padding-top: 0;
+	}
+}
+
+.section {
+	.row:first-child {
+		margin-top: 0;
+	}
+}
+
+.bx--form {
+	padding-right: 1rem;
+}
+
+.bx--form-item {
+	margin-top: 0.5rem;
+	margin-bottom: 0.1875rem;
+	.bx--label {
+		margin-bottom: 0.25rem;
+	}
+}
+
+.rules-password {
+	margin-left: 1rem;
+	margin-top: 0.25rem;
+	margin-bottom: 0.78125rem;
+}
+
+// Increase checkbox size 16px -> 28px (Agency - Active Status)
+label[for='agency-active-status'] {
+	&:before {
+		width: 1.75rem;
+		height: 1.75rem;
+	}
+	&:after {
+		width: 0.984375rem;
+		height: 0.546875rem;
+		left: 0.6375rem;
+	}
+}
+
+.rules-password {
+	margin-left: 1rem;
+	margin-top: 0.25rem;
+	margin-bottom: 0.78125rem;
+}
+
+label.bx--btn--primary {
+	background-color: transparent;
+	color: $blue;
+	&:hover {
+		background-color: transparent;
+		span {
+			color: $blue;
+		}
+	}
+	&:focus {
+		box-shadow: none;
+		border: none;
+	}
+}
+
+// Photo grid
+.bx--row {
+	margin-bottom: 0.6rem;
+	.bx--col {
+		padding-left: 0;
+		padding-right: 0.6875rem;
+		position: relative;
+	}
+	.media-destination {
+		border: 1px solid transparent;
+	}
+
+	.media-destination.active {
+		border: 1px solid $blue;
+		opacity: 0.9;
+	}
+	.remove-media-icon {
+		cursor: pointer;
+		position: absolute;
+		background-color: $blue;
+		top: 0.25rem;
+		right: 0.9375rem;
+		visibility: hidden;
+	}
+	.remove-media-icon.active {
+		visibility: visible;
+	}
+	.remove-media-layout {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+	}
+}
+
+.bx--row img {
+	width: 50%;
+}
+
+.group.image-group [slot='fields'] {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.image-group-agency {
+	border-top: none;
+}
+
+// Drop file container
+.bx--file__drop-container {
+	align-items: center;
+	justify-content: center;
+}
+
+#bx--link-add,
+#bx--link-add-network {
+	margin-top: 1rem;
+	cursor: pointer;
+}
+
+// Checkbox planning fee (Advisors)
+.advisor-planning-fee {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 1rem;
+
+	.label {
+		flex: 0 0 6rem !important;
+	}
+}
+
+.aff-item,
+.experiences-container {
+	position: relative;
+	margin-bottom: 1rem;
+	.remove-aff-item,
+	.remove-experiences {
+		position: absolute;
+		top: 0.5rem;
+		right: -1.5rem;
+		cursor: pointer;
+	}
+}
+
+//Button
+.bx--btn {
+	justify-content: center;
+	padding: 0;
+	&.bx--btn--primary{
+		--cds-interactive-01: #0F61FD;
+		&:hover{
+			--cds-interactive-01: #0353E9;
+		}
+		&:focus, &:active{
+			--cds-interactive-01: #0353E9;
+			--cds-active-primary: #0353E9;
+			--cds-focus: #0353E9;
+		}
+	}
+}
+
+// Slot value p
+.agency-address,
+.marketing-info,
+.advisor-profile,
+.affiliation-agency,
+.affiliation-network,
+.affiliation-advisor,
+.advisor-address,
+.destination-insight,
+.advisor-experiences {
+	line-height: 1.5rem;
+	font-size: 0.875rem;
+}
+
+.bx--fieldset {
+	margin-bottom: 0.625rem;
+}
+
+.group-affiliations {
+	.label {
+		font-weight: 600;
+	}
+}
+
+.bx--date-picker {
+	width: 100%;
+	.bx--date-picker-container {
+		width: 100%;
+	}
+	&.bx--date-picker--simple .bx--date-picker__input {
+		width: 100%;
+	}
+}
+
+img,
+video {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.bx--file-container {
+	display: none;
+}
+
+.marketing-info,
+.advisor-profile,
+.destination-insight {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	overflow: hidden;
+}

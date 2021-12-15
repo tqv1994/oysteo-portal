@@ -1,0 +1,48 @@
+@media (min-width: $break_point) {
+	.title-content {
+		position: fixed;
+		top: 3.5rem;
+		left: 0;
+		width: 25%;
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+		h1 {
+			text-align: center;
+		}
+	}
+
+	.advisor-screen {
+		transform: translate(17%, 0);
+	}
+
+	#desktop-nav-section {
+		display: inline-block;
+		transform: translate(22%, 0);
+		margin-top: 0.5rem;
+		&.advisor-screen {
+			transform: translate(17%, 0);
+		}
+		li {
+			padding: 0.875rem 0rem;
+			padding-left: 0.5rem;
+			border-left: 4px solid #e0e0e0;
+			&:hover {
+				border-left-color: #c6c6c6;
+			}
+		}
+
+		li.active {
+			border-left-color: $blue;
+			a {
+				color: black;
+			}
+		}
+
+		a {
+			text-decoration: none;
+			color: #525252;
+			font-size: 1rem;
+		}
+	}
+}

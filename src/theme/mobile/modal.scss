@@ -1,0 +1,68 @@
+@media (max-width: $break_point - 0.01px) {
+	.nav-section {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		padding: 0.6875rem 0.90625rem 0.7rem 1.125rem;
+		border-bottom: 1px solid #707070;
+		margin: -2rem -1rem 0.8125rem -1rem;
+		p {
+			font-size: 0.9rem;
+		}
+	}
+
+	.nav-fixed {
+		position: fixed;
+		left: 0;
+		right: 0;
+		z-index: 7000;
+		background: #f3f3f3;
+		padding-right: 2rem;
+		padding-left: 2rem;
+		& ~ .content h1 {
+			margin-top: 1.8125rem;
+		}
+	}
+
+	.bx--modal {
+		background-color: rgba(112, 111, 111, 0.4);
+		.bx--modal-container {
+			margin: 0rem 2rem;
+			position: fixed;
+			top: auto;
+			width: 60vw;
+			height: auto;
+			.bx--modal-header {
+				display: none;
+			}
+		}
+	}
+
+	.bx--modal-content {
+		margin: 0;
+		padding: 0;
+		li {
+			box-shadow: 0 1px 0 0 #e2e2e2;
+			padding: 0.6875rem 0rem 0.6875rem 1rem;
+			a {
+				text-decoration: none;
+				color: #525252;
+			}
+		}
+	}
+	// fix scroll lock
+	.bx--body--with-modal-open {
+		overflow: visible;
+	}
+}
+
+@media (min-width: 42rem) {
+	.bx--modal-container .bx--modal-content {
+		padding-right: 0;
+	}
+}
+
+//desktop-nav
+#desktop-nav-section {
+	display: none;
+}
