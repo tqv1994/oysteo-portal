@@ -150,6 +150,7 @@
 					// 	await createAgency();
 					// }
 					await createAgency();
+					await createAdvisor();
 
 					redirectLogin();
 				}
