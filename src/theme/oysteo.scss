@@ -39,19 +39,6 @@ h1 {
 	padding-top: 2.75rem;
 	padding-bottom: 1.5rem;
 }
-.btn-cancel {
-	background: #383838;
-	color: $white-color;
-	&:hover {
-		background: $press-button-color;
-		color: $white-color;
-	}
-	&:focus,
-	&:active {
-		background: $press-button-color;
-		--cds-focus: #0353e9;
-	}
-}
 
 #main-content {
 	background-color: $gray-color;
@@ -228,6 +215,19 @@ label.bx--btn--primary {
 		&:active {
 			--cds-interactive-01: #0353e9;
 			--cds-active-primary: #0353e9;
+			--cds-focus: #0353e9;
+		}
+	}
+	&.btn-cancel {
+		background: #383838;
+		color: $white-color;
+		&:hover {
+			background: $press-button-color;
+			color: $white-color;
+		}
+		&:focus,
+		&:active {
+			background: $press-button-color;
 			--cds-focus: #0353e9;
 		}
 	}
