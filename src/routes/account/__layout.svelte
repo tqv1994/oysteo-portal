@@ -1,6 +1,4 @@
 <script lang="ts" context="module">
-	import 'carbon-components-svelte/css/all.css';
-	import '../../theme/oysteo.scss';
 	import {
 		Header,
 		SkipToContent,
@@ -35,6 +33,8 @@
 </script>
 
 <script lang="ts">
+	import 'carbon-components-svelte/css/all.css';
+	import '../../theme/oysteo.scss';
 	let isSideNavOpen = false;
 	let isOpen = false;
 	let selected = '0';
