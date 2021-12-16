@@ -10,6 +10,7 @@
 	import type { Country } from '$lib/store/country';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import { Select, SelectItem, TextInput } from 'carbon-components-svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
@@ -19,11 +20,46 @@
 	export let activeSection: string = '';
 	export let activeLoading: boolean = false;
 	export let type: string;
+	type PhonesInput = {
+		phone_number: string;
+		cell_mobile: string;
+		whatsapp: string;
+		emergency: string;
+		phone_number_code?: string;
+		cell_mobile_code?: string;
+		whatsapp_code?: string;
+		emergency_code?: string;
+	};
+	let phonesInput: PhonesInput;
+
+	const onResetPhonesInput = () => {
+		phonesInput = {
+			phone_number: '',
+			cell_mobile: '',
+			whatsapp: '',
+			emergency: '',
+			phone_number_code: '',
+			cell_mobile_code: '',
+			whatsapp_code: '',
+			emergency_code: ''
+		};
+	};
+
+	onResetPhonesInput();
+
+	onDestroy(() => {
+		onResetPhonesInput();
+	});
+
 	const onEdit = (groupName: string) => {
-		object.phone_number = convert2NationalPhone(object.phone_number, object.phone_number_code);
-		object.cell_mobile = convert2NationalPhone(object.cell_mobile, object.cell_mobile_code);
-		object.whatsapp = convert2NationalPhone(object.whatsapp, object.whatsapp_code);
-		object.emergency = convert2NationalPhone(object.emergency, object.emergency_code);
+		phonesInput.phone_number = convert2NationalPhone(object.phone_number, object.phone_number_code);
+		phonesInput.cell_mobile = convert2NationalPhone(object.cell_mobile, object.cell_mobile_code);
+		phonesInput.whatsapp = convert2NationalPhone(object.whatsapp, object.whatsapp_code);
+		phonesInput.emergency = convert2NationalPhone(object.emergency, object.emergency_code);
+		phonesInput.phone_number_code = object.phone_number_code || '';
+		phonesInput.cell_mobile_code = object.cell_mobile_code || '';
+		phonesInput.whatsapp_code = object.cell_mobile_code || '';
+		phonesInput.emergency_code = object.emergency_code || '';
 		activeSection = groupName;
 	};
 	const onCancel = () => {
@@ -44,7 +80,7 @@
 			const phoneField = ['phone_number', 'cell_mobile', 'whatsapp', 'emergency'];
 			let flag = false;
 			phoneField.forEach((field) => {
-				if (!isValidPhoneNumber(object[field], object[field + '_code'])) {
+				if (!isValidPhoneNumber(phonesInput[field], phonesInput[field + '_code'])) {
 					invalidPhoneNumber.status[field] = true;
 					flag = true;
 				}
@@ -58,30 +94,37 @@
 				return;
 			}
 
-			let data = {
-				phone_number: convert2InternationalPhone(object.phone_number, object.phone_number_code),
-				cell_mobile: convert2InternationalPhone(object.cell_mobile, object.cell_mobile_code),
-				whatsapp: convert2InternationalPhone(object.whatsapp, object.whatsapp_code),
-				emergency: convert2InternationalPhone(object.emergency, object.emergency_code),
-				phone_number_code: object.phone_number_code || '',
-				cell_mobile_code: object.cell_mobile_code || '',
-				whatsapp_code: object.whatsapp_code || '',
-				emergency_code: object.emergency_code || ''
-			};
-
 			activeLoading = true;
 			const res = await fetch(`/common/${type}-${object.id}.json`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ ...data })
+				body: JSON.stringify({ ...phonesInput })
 			});
 			if (res.ok) {
-				alert('Update successfully');
+				object.phone_number = phonesInput.phone_number;
+				object.cell_mobile = phonesInput.cell_mobile;
+				object.whatsapp = phonesInput.whatsapp;
+				object.emergency = phonesInput.emergency;
+				object.phone_number_code = phonesInput.phone_number_code || '';
+				object.cell_mobile_code = phonesInput.cell_mobile_code || '';
+				object.whatsapp_code = phonesInput.cell_mobile_code || '';
+				object.emergency_code = phonesInput.emergency_code || '';
+					window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Update successfully'
+				});
+				onResetPhonesInput();
 				activeSection = '';
 			}
 		} catch (error) {
+			window.openNotification({
+				kind: 'error',
+				title: 'Error',
+				subtitle: error.message
+			});
 			console.log('Update Phone Number : ' + error);
 		}
 		activeLoading = false;
@@ -105,22 +148,23 @@
 			<Select
 				labelText="Country Code"
 				class="half-width"
-				selected={object.phone_number_code}
+				selected={phonesInput.phone_number_code}
 				on:change={(e) => {
-					object.phone_number_code = e.detail;
+					phonesInput.phone_number_code = e.detail;
 				}}
 			>
 				<SelectItem value="" text="Choose ..." />
 				{#each countries as country}
-					<SelectItem value={country.code} text={country.name} />
+					<SelectItem value={country.code} text={`+${country.phone} - ${country.name}`} />
 				{/each}
 			</Select>
 			<TextInput
 				labelText="Number"
 				placeholder="Enter your phone number..."
-				bind:value={object.phone_number}
+				bind:value={phonesInput.phone_number}
 				invalid={invalidPhoneNumber.status.phone_number}
 				invalidText={invalidPhoneNumber.message}
+				type="number"
 			/>
 		</div>
 	</FormRow>
@@ -134,22 +178,23 @@
 			<Select
 				labelText="Country Code"
 				class="half-width"
-				selected={object.cell_mobile_code}
+				selected={phonesInput.cell_mobile_code}
 				on:change={(e) => {
-					object.cell_mobile_code = e.detail;
+					phonesInput.cell_mobile_code = e.detail;
 				}}
 			>
 				<SelectItem value="" text="Choose ..." />
 				{#each countries as country}
-					<SelectItem value={country.code} text={country.name} />
+					<SelectItem value={country.code} text={`+${country.phone} - ${country.name}`} />
 				{/each}
 			</Select>
 			<TextInput
 				labelText="Number"
 				placeholder="Enter cell/mobile number..."
-				bind:value={object.cell_mobile}
+				bind:value={phonesInput.cell_mobile}
 				invalid={invalidPhoneNumber.status.cell_mobile}
 				invalidText={invalidPhoneNumber.message}
+				type="number"
 			/>
 		</div>
 	</FormRow>
@@ -163,22 +208,23 @@
 			<Select
 				labelText="Country Code"
 				class="half-width"
-				selected={object.whatsapp_code}
+				selected={phonesInput.whatsapp_code}
 				on:change={(e) => {
-					object.whatsapp_code = e.detail;
+					phonesInput.whatsapp_code = e.detail;
 				}}
 			>
 				<SelectItem value="" text="Choose ..." />
 				{#each countries as country}
-					<SelectItem value={country.code} text={country.name} />
+					<SelectItem value={country.code} text={`+${country.phone} - ${country.name}`} />
 				{/each}
 			</Select>
 			<TextInput
 				labelText="Number"
 				placeholder="Enter your WhatsApp number..."
-				bind:value={object.whatsapp}
+				bind:value={phonesInput.whatsapp}
 				invalid={invalidPhoneNumber.status.whatsapp}
 				invalidText={invalidPhoneNumber.message}
+				type="number"
 			/>
 		</div>
 	</FormRow>
@@ -192,22 +238,23 @@
 			<Select
 				labelText="Country Code"
 				class="half-width"
-				selected={object.emergency_code}
+				selected={phonesInput.emergency_code}
 				on:change={(e) => {
-					object.emergency_code = e.detail;
+					phonesInput.emergency_code = e.detail;
 				}}
 			>
 				<SelectItem value="" text="Choose ..." />
 				{#each countries as country}
-					<SelectItem value={country.code} text={country.name} />
+					<SelectItem value={country.code} text={`+${country.phone} - ${country.name}`} />
 				{/each}
 			</Select>
 			<TextInput
 				labelText="Number"
 				placeholder="Enter your emergency contact number..."
-				bind:value={object.emergency}
+				bind:value={phonesInput.emergency}
 				invalid={invalidPhoneNumber.status.emergency}
 				invalidText={invalidPhoneNumber.message}
+				type="number"
 			/>
 		</div>
 	</FormRow>

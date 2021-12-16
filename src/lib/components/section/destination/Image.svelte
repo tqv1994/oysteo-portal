@@ -2,7 +2,7 @@
 	import { range } from '$lib/helpers/utils';
 	import { Close16 } from 'carbon-icons-svelte';
 	import type { Destination } from '$lib/store/destination';
-	import { cmsUrlPrefix } from '$lib/utils/_env';
+	import { cmsUrlPrefix, imageUrlPrefix } from '$lib/utils/_env';
 	import { Column, FileUploader, Grid, ImageLoader, Row } from 'carbon-components-svelte';
 
 	import FormGroup from '../../form/group.svelte';
@@ -43,7 +43,6 @@
 			if (content.length > 0) {
 				alert('Upload successfully');
 				destinations[index][field] = [...destinations[index][field], content[0]];
-				activeSection = '';
 			}
 		}
 		activeLoading = false;
@@ -96,11 +95,11 @@
 				{#each range(0, destinations[index].gallery.length, 2) as i}
 					<Row>
 						<Column>
-							<ImageLoader src={cmsUrlPrefix + destinations[index].gallery[i].url} />
+							<ImageLoader src={imageUrlPrefix + destinations[index].gallery[i].url} />
 						</Column>
 						{#if i + 1 < destinations[index].gallery.length}
 							<Column>
-								<ImageLoader src={cmsUrlPrefix + destinations[index].gallery[i + 1].url} />
+								<ImageLoader src={imageUrlPrefix + destinations[index].gallery[i + 1].url} />
 							</Column>
 						{/if}
 					</Row>
@@ -108,12 +107,12 @@
 			</Grid>
 		</div>
 		<div slot="fields">
-			<Grid fullWidth>
+			<Grid fullWidth class="d-pleft-16">
 				{#each range(0, destinations[index].gallery.length, 2) as i}
 					<Row>
 						<Column>
 							<ImageLoader
-								src={cmsUrlPrefix + destinations[index].gallery[i].url}
+								src={imageUrlPrefix + destinations[index].gallery[i].url}
 								class="media-destination {mediaSelected == destinations[index].gallery[i].id
 									? 'active'
 									: ''}"
@@ -139,7 +138,7 @@
 						{#if i + 1 < destinations[index].gallery.length}
 							<Column>
 								<ImageLoader
-									src={cmsUrlPrefix + destinations[index].gallery[i + 1].url}
+									src={imageUrlPrefix + destinations[index].gallery[i + 1].url}
 									class="media-destination {mediaSelected == destinations[index].gallery[i + 1].id
 										? 'active'
 										: ''}"

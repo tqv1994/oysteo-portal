@@ -146,8 +146,6 @@
 			</p>
 			<p class="advisor-address">
 				{handleDisplay('country')}
-			</p>
-			<p class="advisor-address">
 				{handleDisplay('zipcode')}
 			</p>
 		</div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {
 		formatOutputDatePicker,
+		handleDisplayTimeZone,
 		normalizeInputDatePicker,
 		validateMMDDYYYY
 	} from '$lib/helpers/datetime';
@@ -151,12 +152,12 @@
 	groupClass={'group group-aboutme'}
 >
 	<FormRow label="Time Zone" {isEditing}>
-		<div slot="value">{advisor.timezone || ''}</div>
+		<div slot="value">{handleDisplayTimeZone(advisor.timezone)}</div>
 		<div slot="fields">
 			<Select bind:selected={advisor.timezone}>
 				<SelectItem value="" text="Choose ..." />
 				{#each TIME_ZONES as timeZone}
-					<SelectItem value={timeZone.locale} text={timeZone.gmt} />
+					<SelectItem value={timeZone.locale} text={`(${timeZone.gmt}) ${timeZone.zone}`} />
 				{/each}
 			</Select>
 		</div>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { range } from '$lib/helpers/utils';
 	import { Close16 } from 'carbon-icons-svelte';
-	import { cmsUrlPrefix } from '$lib/utils/_env';
+	import { cmsUrlPrefix, imageUrlPrefix } from '$lib/utils/_env';
 	import { Column, FileUploader, Grid, ImageLoader, Row } from 'carbon-components-svelte';
 
 	import FormGroup from '../form/group.svelte';
@@ -70,7 +70,6 @@
 		if (res.ok) {
 			alert('Delete successfully');
 			agency.images = agency.images.filter((item) => item.id != photoSelected);
-			activeSection = '';
 		}
 		activeLoading = false;
 	};
@@ -105,12 +104,12 @@
 			</Grid>
 		</div>
 		<div slot="fields">
-			<Grid fullWidth>
+			<Grid fullWidth class="d-pleft-16">
 				{#each range(0, agency.images.length, 2) as i}
 					<Row>
 						<Column>
 							<ImageLoader
-								src={cmsUrlPrefix + agency.images[i].url}
+								src={imageUrlPrefix + agency.images[i].url}
 								class="media-destination {photoSelected == agency.images[i].id ? 'active' : ''}"
 							/>
 							<Close16
@@ -132,7 +131,7 @@
 						{#if i + 1 < agency.images.length}
 							<Column>
 								<ImageLoader
-									src={cmsUrlPrefix + agency.images[i + 1].url}
+									src={imageUrlPrefix + agency.images[i + 1].url}
 									class="media-destination {photoSelected == agency.images[i + 1].id
 										? 'active'
 										: ''}"

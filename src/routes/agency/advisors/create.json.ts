@@ -16,22 +16,18 @@ export const post: RequestHandler = async (request: Request<Rec<any>, AuthForm>)
 				headers: {
 					Cookie: cookie
 				},
-				method: "POST",
+				method: 'POST',
 				body: JSON.stringify(request.body)
 			});
 			if (res.ok) {
 				const body: Advisor = await res.json();
 				console.log(body);
 				return {
-					body,
+					body
 				};
 			} else {
 				let error = await res.json();
-				return makeErrorResponse(
-					500,
-					'INTERNAL_SERVER_ERROR',
-					error.message
-				);
+				return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', error.message);
 			}
 		}
 	} catch (error) {

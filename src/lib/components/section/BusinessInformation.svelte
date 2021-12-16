@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { formatOutputDatePicker, normalizeInputDatePicker, normalizeInputDatePicker, validateMMDDYYYY } from '$lib/helpers/datetime';
+	import {
+		formatMonthAndYear,
+		formatOutputDatePicker,
+		handleDisplayTimeZone,
+		normalizeInputDatePicker,
+		validateMMDDYYYY
+	} from '$lib/helpers/datetime';
 
 	import type { Agency } from '$lib/store/agency';
 	import { INVALID_DELAY_TIME, TIME_ZONES } from '$lib/utils/constants';
@@ -36,7 +42,7 @@
 				registrationId: agency.registrationId || '',
 				taxId: agency.taxId || '',
 				timezone: agency.timezone || '',
-				established_at: formatOutputDatePicker(agency.established_at),
+				established_at: formatOutputDatePicker(agency.established_at)
 			};
 
 			if (!validateMMDDYYYY(data.established_at)) {
@@ -105,7 +111,7 @@
 	</FormRow>
 	<FormRow label="Business Established" {isEditing} hideLabelEditing>
 		<div slot="value">
-			{agency?.established_at == null ? '' : formatOutputDatePicker(agency?.established_at)}
+			{agency?.established_at == null ? '' : formatMonthAndYear(agency?.established_at)}
 		</div>
 		<div slot="fields" class="business-fields">
 			<DatePicker
@@ -124,12 +130,12 @@
 		</div>
 	</FormRow>
 	<FormRow label="Time Zone" {isEditing} hideLabelEditing>
-		<div slot="value">{agency?.timezone === null ? '' : agency?.timezone}</div>
+		<div slot="value">{handleDisplayTimeZone(agency.timezone)}</div>
 		<div slot="fields" class="business-fields">
 			<Select labelText="Time Zone" bind:selected={agency.timezone}>
 				<SelectItem value="" text="Choose..." />
 				{#each TIME_ZONES as timeZone}
-					<SelectItem value={timeZone.locale} text={timeZone.gmt} />
+					<SelectItem value={timeZone.locale} text={`(${timeZone.gmt}) ${timeZone.zone}`} />
 				{/each}
 			</Select>
 		</div>

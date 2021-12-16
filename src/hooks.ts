@@ -48,28 +48,28 @@ ${uploadFileFieldsFragment}
 `;
 
 const metadataQuery = `query {
-    salutationTypes {
+    salutationTypes (sort:"name"){
         ...salutationTypeFields
     }
-	paymentMethods{
+	paymentMethods (sort:"name"){
 		...paymentMethodFields
 	}
-    countries{
+    countries (sort:"name"){
         ...countryFields
     }
-    languages{
+    languages (sort:"name"){
         ...languageFields
     }
-    experiences {
+    experiences (sort:"name") {
         ...experienceFields
     }
-    affiliateAgencies{
+    affiliateAgencies (sort:"name"){
         ...affiliateAgencyFields
     }
-    affiliateNetworks{
+    affiliateNetworks (sort:"name"){
         ...affiliateNetworkFields
     }
-    affiliateBenefitPrograms{
+    affiliateBenefitPrograms (sort:"name"){
         ...affiliateBenefitProgramFields
     }
 }

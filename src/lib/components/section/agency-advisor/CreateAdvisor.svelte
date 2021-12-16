@@ -104,7 +104,11 @@
 				const auth = getAuth();
 				await auth.setPersistence(inMemoryPersistence);
 				await sendPasswordResetEmail(auth, data.email).then(() => {});
-				window.openNotification({ kind: 'success', title: 'Success', subtitle: "Advisor added successfully" });
+				window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Advisor added successfully'
+				});
 				onCancel();
 			} else {
 				let error = await res.json();

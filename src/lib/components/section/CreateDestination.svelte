@@ -78,7 +78,7 @@
 	on:submit={createDestination}
 	groupClass={'group group-add'}
 >
-	<FormRow label="Destination name" {isEditing} contentClass={'add-destination'}>
+	<FormRow label="Create Destination" {isEditing} class={'create-destination'}>
 		<div slot="fields">
 			<TextInput
 				labelText="Tuscany"

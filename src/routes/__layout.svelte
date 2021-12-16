@@ -24,10 +24,18 @@
 				}
 			} else {
 				if (!session.user.advisorMe && page.path.startsWith('/account/advisor')) {
-					window.openNotification({ kind: 'warning', title: 'Warning', subtitle: "You are not an advisor, so you do not have access to this function." });
+					window.openNotification({
+						kind: 'warning',
+						title: 'Warning',
+						subtitle: 'You are not an advisor, so you do not have access to this function.'
+					});
 					redirect = '/account';
 				} else if (!session.user.agencyMe && page.path.startsWith('/account/agency')) {
-					window.openNotification({ kind: 'warning', title: 'Warning', subtitle: "You are not an agency, so you do not have access to this function." });
+					window.openNotification({
+						kind: 'warning',
+						title: 'Warning',
+						subtitle: 'You are not an agency, so you do not have access to this function.'
+					});
 					redirect = '/account';
 				}
 			}
@@ -50,8 +58,7 @@
 </script>
 
 <script lang="ts">
-import Notification from "$lib/components/Notification.svelte";
-
+	import Notification from '$lib/components/Notification.svelte';
 </script>
 
 <slot />

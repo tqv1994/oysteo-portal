@@ -114,7 +114,7 @@
 			{/each}
 			<Link
 				on:click={() => {
-					affiliate = [{ id: 0, name: '' }, ...affiliate];
+					affiliate = [...affiliate, { id: 0, name: '' }];
 				}}
 				id="bx--link-add">Add Affiliate {name}</Link
 			>

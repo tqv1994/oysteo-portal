@@ -186,13 +186,7 @@
 			agencyId={agency.id}
 			bind:advisors
 		/>
-		<AdvisorList
-			bind:activeSection
-			bind:activeLoading
-			{salutationTypes}
-			agencyId={agency.id}
-			bind:advisors
-		/>
+		<AdvisorList bind:activeSection bind:activeLoading {salutationTypes} bind:advisors />
 	</FormSection>
 
 	<FormSection title="Billing and payments" icon={Wallet20} id="billing-and-payment">

@@ -19,14 +19,14 @@
 								<Row>
 									<Column>
 										<video preload="auto" controls autoplay>
-											<source src={cmsUrlPrefix + destinations[index].videos[i].url} />
+											<source src={imageUrlPrefix + destinations[index].videos[i].url} />
 											<track kind="captions" />
 										</video>
 									</Column>
 									{#if i + 1 < destinations[index].videos.length}
 										<Column>
 											<video preload="auto" controls autoplay>
-												<source src={cmsUrlPrefix + destinations[index].videos[i + 1].url} />
+												<source src={imageUrlPrefix + destinations[index].videos[i + 1].url} />
 												<track kind="captions" />
 											</video>
 										</Column>
@@ -48,7 +48,7 @@
 												? 'active'
 												: ''}"
 										>
-											<source src={cmsUrlPrefix + destinations[index].videos[i].url} />
+											<source src={imageUrlPrefix + destinations[index].videos[i].url} />
 											<track kind="captions" />
 										</video>
 										<Close16
@@ -80,7 +80,7 @@
 													? 'active'
 													: ''}"
 											>
-												<source src={cmsUrlPrefix + destinations[index].videos[i + 1].url} />
+												<source src={imageUrlPrefix + destinations[index].videos[i + 1].url} />
 												<track kind="captions" />
 											</video>
 											<Close16

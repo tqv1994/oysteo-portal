@@ -1,7 +1,13 @@
 <script lang="ts">
 	import type { Agency } from '$lib/store/agency';
-	import { cmsUrlPrefix } from '$lib/utils/_env';
-	import { FileUploaderDropContainer, ImageLoader } from 'carbon-components-svelte';
+	import { cmsUrlPrefix, imageUrlPrefix } from '$lib/utils/_env';
+	import {
+		Column,
+		FileUploaderDropContainer,
+		Grid,
+		ImageLoader,
+		Row
+	} from 'carbon-components-svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
@@ -39,7 +45,6 @@
 				agency.logo = content[0];
 
 				alert('Upload successfully');
-				activeSection = '';
 			}
 		}
 		activeLoading = false;
@@ -91,11 +96,24 @@
 			{#if agency.logo == null}
 				no image selected
 			{:else}
-				<ImageLoader src={cmsUrlPrefix + agency.logo?.url} />
+				<Grid fullWidth>
+					<Row>
+						<Column>
+							<ImageLoader src={imageUrlPrefix + agency.logo?.url} />
+						</Column>
+					</Row>
+				</Grid>
 			{/if}
 		</div>
 		<div slot="fields">
-			<ImageLoader src={cmsUrlPrefix + agency.logo?.url} class="mbottom-8" />
+			<Grid fullWidth class="d-pleft-16 pright-8">
+				<Row>
+					<Column>
+						<ImageLoader src={imageUrlPrefix + agency.logo?.url} class="mbottom-8" />
+					</Column>
+				</Row>
+			</Grid>
+
 			<FileUploaderDropContainer
 				labelText="Upload logo"
 				accept={['image/*']}

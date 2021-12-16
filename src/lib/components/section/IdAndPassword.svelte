@@ -6,13 +6,16 @@
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import { checkPasswordRule } from '$lib/helpers/utils';
 	import {
+		browserSessionPersistence,
+		EmailAuthProvider,
 		getAuth,
 		inMemoryPersistence,
 		onAuthStateChanged,
+		reauthenticateWithCredential,
 		signInWithEmailAndPassword,
 		updatePassword
 	} from 'firebase/auth';
-import { firebaseConfig } from '$lib/utils/_env';
+	import { redirect } from '$lib/utils/router';
 
 	export let user: User | undefined;
 	export let activeSection: string = '';
@@ -64,31 +67,57 @@ import { firebaseConfig } from '$lib/utils/_env';
 		}
 
 		try {
-			const auth = await getAuth();
-			await auth.setPersistence(inMemoryPersistence);
 			activeLoading = true;
-			console.log(auth);
-			// const user = await auth.currentUser
-			await auth.onAuthStateChanged(async(user) => {
-				console.log(user);
+			const auth = await getAuth();
+			await auth.setPersistence(browserSessionPersistence); // To get the user from browser session
+			await auth.onAuthStateChanged(async (user) => {
 				if (user) {
-						const user = auth.currentUser;
-						await updatePassword(user, passwordData.newPassword)
-							.then(() => {
-								window.openNotification({ kind: 'success', title: 'Success', subtitle: "Change password successfully" });
-								activeSection = '';
-							})
-							.catch((error) => {
-								window.openNotification({ kind: 'error', title: 'Error', subtitle: "Password change failed" });
+					// Check current password
+					const credential = EmailAuthProvider.credential(user.email, passwordData.currentPassword);
+					await reauthenticateWithCredential(user, credential)
+						.then(async () => {
+							// Current password is valid
+							await updatePassword(user, passwordData.newPassword)
+								.then(() => {
+									window.openNotification({
+										kind: 'success',
+										title: 'Success',
+										subtitle: 'Change password successfully'
+									});
+									// After changing the password, Firebase will refresh the token
+									redirect('/login', 1000);
+								})
+								.catch((error) => {
+									window.openNotification({
+										kind: 'error',
+										title: 'Error',
+										subtitle: 'Password change failed'
+									});
+								});
+						})
+						.catch((error) => {
+							// Current password is invalid
+							window.openNotification({
+								kind: 'error',
+								title: 'Error',
+								subtitle: 'Password was wrong'
 							});
-					} else {
-						window.openNotification({ kind: 'error', title: 'Error', subtitle: 'Password was wrong' });
-						return;
-					}
-					// ...
-				});
+						});
+				} else {
+					window.openNotification({
+						kind: 'warning',
+						title: 'Warning',
+						subtitle: 'The account has expired. Please log in again.'
+					});
+					redirect('/login', 500);
+				}
+			});
 		} catch (error) {
-			console.log(error);
+			window.openNotification({
+				kind: 'error',
+				title: 'Error',
+				subtitle: error.message
+			});
 		}
 		activeLoading = false;
 	};

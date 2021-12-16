@@ -25,7 +25,7 @@
 		PasswordInput
 	} from 'carbon-components-svelte';
 
-	import { getAuth, inMemoryPersistence, signInWithEmailAndPassword } from 'firebase/auth';
+	import { browserSessionPersistence, getAuth, inMemoryPersistence, signInWithEmailAndPassword } from 'firebase/auth';
 	import { authStore } from '$lib/store/auth';
 	import { checkPasswordRule, validateEmail } from '$lib/helpers/utils';
 	import { redirect } from '$lib/utils/router';
@@ -56,10 +56,9 @@
 
 		try {
 			const auth = getAuth();
-			await auth.setPersistence(inMemoryPersistence);
+			await auth.setPersistence(browserSessionPersistence); // To save user after logging into the browser session
 			const cred = await signInWithEmailAndPassword(auth, loginData.email, loginData.password);
 			if (cred && cred.user) {
-				await auth.setPersistence(inMemoryPersistence);
 				const token = await cred.user.getIdToken();
 				const res = await fetch('/auth.json', {
 					method: 'POST',
@@ -88,10 +87,6 @@
 			console.error('Error login', error);
 		}
 	}
-
-	const passwordPattern = '(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}';
-	const emailPattern =
-		'/^(([^<>()[]\\.,;:s@"]+(.[^<>()[]\\.,;:s@"]+)*)|(".+"))@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}])|(([a-zA-Z-0-9]+.)+[a-zA-Z]{2,}))$/';
 </script>
 
 <div class="login-container">

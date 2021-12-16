@@ -95,7 +95,7 @@
 			{/each}
 			<Link
 				on:click={() => {
-					experiences = [{ id: 0, name: '', description: '' }, ...experiences];
+					experiences = [...experiences, { id: 0, name: '', description: '' }];
 				}}
 				id="bx--link-add">Add Experience</Link
 			>

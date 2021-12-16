@@ -5,6 +5,7 @@
 	import type { Agency } from '$lib/store/agency';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import { TextInput } from 'carbon-components-svelte';
+	import { onDestroy } from 'svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
@@ -14,7 +15,30 @@
 	export let activeLoading: boolean = false;
 	export let type: string;
 
+	type ContactInput = {
+		name: string;
+		email: string;
+	};
+
+	let contactInput: ContactInput;
+
+	const onResetContactInput = () => {
+		contactInput = {
+			name: '',
+			email: ''
+		};
+	};
+
+	onResetContactInput();
+	onDestroy(() => {
+		onResetContactInput();
+	});
+
 	const onEdit = (groupName: string) => {
+		contactInput = {
+			name: object.name,
+			email: object.email
+		};
 		activeSection = groupName;
 	};
 	const onCancel = () => {
@@ -27,12 +51,7 @@
 	};
 	const updateContact = async (field: string) => {
 		try {
-			let data = {
-				name: object.name || '',
-				email: object.email || ''
-			};
-
-			if (field == 'email' && !validateEmail(object[field])) {
+			if (field == 'email' && !validateEmail(contactInput[field])) {
 				invalidContactEmail.status = true;
 				setTimeout(() => {
 					invalidContactEmail.status = false;
@@ -47,13 +66,26 @@
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ ...data })
+				body: JSON.stringify({ ...contactInput })
 			});
 			if (res.ok) {
-				alert('Update successfully');
-				activeSection = '';
+				object.name = contactInput.name;
+				object.email = contactInput.email;
+				window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Update successfully'
+				});
+				onResetContactInput();
+				onCancel();
 			}
-		} catch (error) {}
+		} catch (error) {
+			window.openNotification({
+				kind: 'success',
+				title: 'Success',
+				subtitle: error.message
+			});
+		}
 		activeLoading = false;
 	};
 </script>
@@ -69,9 +101,9 @@
 		<div slot="value">{object?.name === null ? '' : object?.name}</div>
 		<div slot="fields">
 			<TextInput
-				labelText={object?.name === null ? '' : object?.name}
+				labelText={contactInput?.name === null ? '' : contactInput?.name}
 				placeholder={`Enter ${type == 'advisor' ? 'your' : "agency manager's"} name...`}
-				bind:value={object.name}
+				bind:value={contactInput.name}
 			/>
 		</div>
 	</FormRow>
@@ -88,8 +120,8 @@
 		<div slot="value">{object?.email === null ? '' : object?.email}</div>
 		<div slot="fields">
 			<TextInput
-				labelText={object?.email === null ? '' : object?.email}
-				bind:value={object.email}
+				labelText={contactInput?.email === null ? '' : contactInput?.email}
+				bind:value={contactInput.email}
 				placeholder="Enter email address..."
 				invalid={invalidContactEmail.status}
 				invalidText={invalidContactEmail.message}

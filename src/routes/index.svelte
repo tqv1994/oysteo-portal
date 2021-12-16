@@ -178,11 +178,15 @@
 	}
 
 	const onChangeType = (event: CustomEvent) => {
-		if(event.detail === 'ADVISOR'){
-			window.openNotification({kind:'warning',title:"Warning",subtitle:"You need an invitation from an agency to sign up as an advisor"});
-			registerData.type = "AGENCY";
+		if (event.detail === 'ADVISOR') {
+			window.openNotification({
+				kind: 'warning',
+				title: 'Warning',
+				subtitle: 'You need an invitation from an agency to sign up as an advisor'
+			});
+			registerData.type = 'AGENCY';
 		}
-	}
+	};
 
 	const passwordPattern = '(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}';
 	const emailPattern =
@@ -235,7 +239,11 @@
 			</div>
 			<div class="section-radio">
 				<FormGroup legendText="Choose one of the following:" class="radio-group-desktop">
-					<RadioButtonGroup orientation="horizontal" selected={registerData.type} on:change={onChangeType}>
+					<RadioButtonGroup
+						orientation="horizontal"
+						selected={registerData.type}
+						on:change={onChangeType}
+					>
 						<RadioButton labelText="ADVISOR" value="ADVISOR" />
 						<RadioButton labelText="AGENCY" value="AGENCY" />
 					</RadioButtonGroup>
@@ -253,7 +261,11 @@
 		<div class="section-signup">
 			<Form on:submit={handleSubmit}>
 				<FormGroup legendText="Choose one of the following:" class="radio-group">
-					<RadioButtonGroup orientation="vertical" selected={registerData.type} on:change={onChangeType}>
+					<RadioButtonGroup
+						orientation="vertical"
+						selected={registerData.type}
+						on:change={onChangeType}
+					>
 						<RadioButton labelText="ADVISOR" value="ADVISOR" />
 						<RadioButton labelText="AGENCY" value="AGENCY" />
 						<small class="both-radio-button">*Advisor & Agency</small>

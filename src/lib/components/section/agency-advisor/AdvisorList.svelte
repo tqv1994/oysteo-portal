@@ -10,19 +10,18 @@
 	import FormRow from '../../form/row.svelte';
 	import FormGroup from '../../form/group.svelte';
 
-	export let agencyId: string;
 	export let advisors: AdvisorAgency[];
 	export let salutationTypes: SalutationType[];
 	export let activeSection: string = '';
 	export let activeLoading: boolean;
 
 	type AdvisorInput = {
-		name: string
-		initials: string
-		email: string
-		reference: string
-		active: boolean
-		salutationType: string|null
+		name: string;
+		initials: string;
+		email: string;
+		reference: string;
+		active: boolean;
+		salutationType: string | null;
 	};
 
 	const onEdit = (groupName: string) => {
@@ -33,7 +32,7 @@
 		}
 	};
 
-	const advisorInputs: AdvisorInput[] = advisors.reduce((acc: AdvisorInput[] , advisor)=>{
+	const advisorInputs: AdvisorInput[] = advisors.reduce((acc: AdvisorInput[], advisor) => {
 		acc.push({
 			name: advisor.name,
 			initials: advisor.initials,
@@ -43,7 +42,7 @@
 			salutationType: advisor.salutationType?.id || null
 		});
 		return acc;
-	},[]);
+	}, []);
 	const onCancel = () => {
 		activeSection = '';
 	};
@@ -90,7 +89,11 @@
 				activeSection = '';
 				const dataUpdate = await res.json();
 				advisors[advisorIndex] = dataUpdate.updateAdvisor.advisor;
-				window.openNotification({ kind: 'success', title: 'Success', subtitle: "Advisor updated successfully" });
+				window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Advisor updated successfully'
+				});
 			}
 		} catch (error) {
 			console.log(error);

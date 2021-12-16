@@ -26,7 +26,7 @@
 	}
 </script>
 
-<div class={groupClass}>
+<div class={groupClass + (isEditing ? ' group-border' : '')}>
 	{#if isEditing}
 		<div class="form {groupClass.includes('group-add') ? 'mtop-16 mbottom-32' : ''}">
 			<Form on:submit={onSubmit}>
@@ -81,6 +81,11 @@
 
 	.group-add {
 		padding: 0;
+		&.group-border {
+			border-bottom: 1px solid #707070;
+			padding-bottom: 2rem;
+			padding-top: 1rem;
+		}
 		& + .row {
 			margin-top: 0rem;
 		}
