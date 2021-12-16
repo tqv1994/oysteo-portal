@@ -61,7 +61,11 @@
 				});
 				if (res_assign.ok) {
 					destinations = [...destinations, destinationInserted];
-					alert('Create successfully');
+					window.openNotification({
+						kind: 'success',
+						title: 'Success',
+						subtitle: 'Create successfully'
+					});
 					activeSection = '';
 				}
 			}

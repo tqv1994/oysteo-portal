@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts" context="module">
 	import 'carbon-components-svelte/css/all.css';
 	import '../../theme/oysteo.scss';
 	import {
@@ -18,12 +18,28 @@
 	import { User20 } from 'carbon-icons-svelte';
 	import { expoIn } from 'svelte/easing';
 	import { authStore } from '$lib/store/auth';
-import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
+	import type { Load } from '@sveltejs/kit';
+	import type { Locals } from '$lib/store/local';
+	export const load: Load<{ session: Locals }> = async ({ session, page }) => {
+		return {
+			props: {
+				navSelected: page.path.startsWith('/account/agency')
+					? 'agency'
+					: page.path.startsWith('/account/advisor')
+					? 'advisor'
+					: ''
+			}
+		};
+	};
+</script>
 
+<script lang="ts">
 	let isSideNavOpen = false;
 	let isOpen = false;
 	let selected = '0';
-
+	export let navSelected: string;
+	console.log(navSelected);
 	let transitions = {
 		'0': {
 			text: 'Default (duration: 200ms)',
@@ -39,40 +55,39 @@ import { onMount } from 'svelte';
 		}
 	};
 
-	onMount(()=>{
+	onMount(() => {
 		const desktopNavSectionEl = document.getElementById('desktop-nav-section');
 		const contentEl = document.querySelector('.content');
-		if(desktopNavSectionEl && contentEl){
-			desktopNavSectionEl.querySelectorAll('a').forEach((element)=>{
-				element.addEventListener("click",(e)=>{
+		if (desktopNavSectionEl && contentEl) {
+			desktopNavSectionEl.querySelectorAll('a').forEach((element) => {
+				element.addEventListener('click', (e) => {
 					e.preventDefault();
-					const target = element.getAttribute("href");
-					window.scrollTo(0,getOffset(contentEl.querySelector(target)).top);
+					const target = element.getAttribute('href');
+					window.scrollTo(0, getOffset(contentEl.querySelector(target)).top);
 				});
 				return false;
 			});
 		}
 	});
 
-	const onScroll = () =>{
+	const onScroll = () => {
 		const doc = document.documentElement;
 		const desktopNavSectionEl = document.getElementById('desktop-nav-section');
 		const contentEl = document.querySelector('.content');
-		if(desktopNavSectionEl){
-			let scrollDistance: number = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
-			contentEl.querySelectorAll('.section').forEach((sectionEl, key)=>{
-				if(getOffset(sectionEl).top <= scrollDistance){
-					desktopNavSectionEl.querySelectorAll('li.active').forEach(activeEl=>{
-						activeEl.classList.remove("active");
+		if (desktopNavSectionEl) {
+			let scrollDistance: number = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+			contentEl.querySelectorAll('.section').forEach((sectionEl, key) => {
+				if (getOffset(sectionEl).top <= scrollDistance) {
+					desktopNavSectionEl.querySelectorAll('li.active').forEach((activeEl) => {
+						activeEl.classList.remove('active');
 					});
-					if(desktopNavSectionEl.querySelectorAll('li')[key]){
-						desktopNavSectionEl.querySelectorAll('li')[key].classList.add("active");
+					if (desktopNavSectionEl.querySelectorAll('li')[key]) {
+						desktopNavSectionEl.querySelectorAll('li')[key].classList.add('active');
 					}
 				}
 			});
-
 		}
-	}
+	};
 
 	const getOffset = (el: Element) => {
 		const rect = el.getBoundingClientRect();
@@ -80,11 +95,10 @@ import { onMount } from 'svelte';
 			left: rect.left + window.scrollX,
 			top: rect.top + window.scrollY
 		};
-	}
+	};
 </script>
-<svelte:window
-on:scroll={onScroll}
-/>
+
+<svelte:window on:scroll={onScroll} />
 <Header
 	bind:isSideNavOpen
 	persistentHamburgerMenu={true}
@@ -107,8 +121,8 @@ on:scroll={onScroll}
 
 	<HeaderNav>
 		<HeaderNavItem href="/account" text="My Oysteo" />
-		<HeaderNavItem href="/account/advisor" text="Advisor" />
-		<HeaderNavItem href="/account/agency" text="Agency" />
+		<HeaderNavItem isSelected={navSelected == 'advisor'} href="/account/advisor" text="Advisor" />
+		<HeaderNavItem isSelected={navSelected == 'agency'} href="/account/agency" text="Agency" />
 	</HeaderNav>
 	<HeaderUtilities>
 		<HeaderAction
@@ -128,8 +142,18 @@ on:scroll={onScroll}
 <SideNav isOpen={isSideNavOpen} id="main-sidebar">
 	<SideNavItems>
 		<SideNavLink text="My Oysteo" href="/account" on:click={() => (isSideNavOpen = false)} />
-		<SideNavLink text="Advisors" href="/account/advisor" on:click={() => (isSideNavOpen = false)} />
-		<SideNavLink text="Agency" href="/account/agency" on:click={() => (isSideNavOpen = false)} />
+		<SideNavLink
+			text="Advisors"
+			href="/account/advisor"
+			isSelected={navSelected == 'advisor'}
+			on:click={() => (isSideNavOpen = false)}
+		/>
+		<SideNavLink
+			text="Agency"
+			href="/account/agency"
+			isSelected={navSelected == 'agency'}
+			on:click={() => (isSideNavOpen = false)}
+		/>
 	</SideNavItems>
 </SideNav>
 

@@ -12,6 +12,7 @@
 	export let activeSection: string = '';
 	export let activeLoading: boolean;
 
+	console.log(agency);
 	let disabledRemove: boolean = true;
 	let photoSelected: number;
 
@@ -24,27 +25,34 @@
 		activeSection = '';
 	};
 
-	const uploadFile = async (e: CustomEvent) => {
+	const uploadFile = async (e: Event) => {
 		activeLoading = true;
+		try {
+			const formData: FormData = new FormData();
+			let file = e.target.files[0];
+			formData.append('files', file);
+			formData.append('ref', 'agency');
+			formData.append('refId', agency.id.toString());
+			formData.append('field', 'images');
+			const res = await fetch(cmsUrlPrefix + '/upload', {
+				method: 'POST',
+				body: formData
+			});
 
-		const formData: FormData = new FormData();
-		let file = e.detail[0];
-		formData.append('files', file);
-		formData.append('ref', 'agency');
-		formData.append('refId', agency.id.toString());
-		formData.append('field', 'photo');
-		const res = await fetch(cmsUrlPrefix + '/upload', {
-			method: 'POST',
-			body: formData
-		});
+			if (res.ok) {
 
-		if (res.ok) {
-			const content = await res.json();
-			if (content.length > 0) {
-				agency.images = [...agency.images, content[0]];
-				alert('Upload successfully');
-				activeSection = '';
+				const content = await res.json();
+				if (content.length > 0) {
+					agency.images = [...agency.images, content[0]];
+					window.openNotification({
+						kind: 'success',
+						title: 'Success',
+						subtitle: 'Upload successfully'
+					});
+				}
 			}
+		} catch (error) {
+			console.log(error);
 		}
 		activeLoading = false;
 	};
@@ -68,7 +76,11 @@
 		});
 
 		if (res.ok) {
-			alert('Delete successfully');
+			window.openNotification({
+				kind: 'success',
+				title: 'Success',
+				subtitle: 'Delete successfully'
+			});
 			agency.images = agency.images.filter((item) => item.id != photoSelected);
 		}
 		activeLoading = false;
@@ -165,7 +177,7 @@
 					buttonLabel="Add photo"
 					accept={['image/*']}
 					status="complete"
-					on:add={(e) => uploadFile(e)}
+					on:change={(e) => uploadFile(e)}
 				/>
 			</div>
 		</div>

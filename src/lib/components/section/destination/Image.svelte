@@ -24,9 +24,9 @@
 		activeSection = '';
 	};
 
-	const uploadFile = async (e: CustomEvent, index: number, field: string) => {
+	const uploadFile = async (e: Event, index: number, field: string) => {
 		const formData: FormData = new FormData();
-		let file = e.detail[0];
+		let file = e.target.files[0];
 		formData.append('files', file);
 		formData.append('ref', 'destination');
 		formData.append('refId', destinations[index].id.toString());
@@ -41,7 +41,11 @@
 		if (res.ok) {
 			const content = await res.json();
 			if (content.length > 0) {
-				alert('Upload successfully');
+				window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Upload successfully'
+				});
 				destinations[index][field] = [...destinations[index][field], content[0]];
 			}
 		}
@@ -67,7 +71,11 @@
 		});
 
 		if (res.ok) {
-			alert('Delete successfully');
+			window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Delete successfully'
+				});
 			destinations[destinationIndex].gallery = destinations[destinationIndex].gallery.filter(
 				(item) => item.id != mediaSelected
 			);
@@ -172,7 +180,7 @@
 					buttonLabel="Add photo"
 					accept={['image/*']}
 					status="complete"
-					on:add={(e) => uploadFile(e, index, 'gallery')}
+					on:change={(e) => uploadFile(e, index, 'gallery')}
 				/>
 			</div>
 		</div>

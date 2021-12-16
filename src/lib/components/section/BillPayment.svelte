@@ -160,8 +160,12 @@
 					payments = data.updateAgency.agency.payments;
 				}
 				console.log('abc', payments[0]);
-				alert('Update successfully');
-				activeSection = '';
+				window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Update successfully'
+				});
+				onCancel();
 			}
 		} catch (error) {
 			console.log('update payment', error);

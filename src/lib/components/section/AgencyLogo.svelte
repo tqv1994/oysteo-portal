@@ -44,7 +44,11 @@
 				await removeLogo(true);
 				agency.logo = content[0];
 
-				alert('Upload successfully');
+				window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Upload successfully'
+				});
 			}
 		}
 		activeLoading = false;
@@ -72,8 +76,12 @@
 		if (res.ok) {
 			agency.logo = null;
 			if (!isOldLogo) {
-				alert('Delete successfully');
-				activeSection = '';
+				window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Delete successfully'
+				});
+				onCancel();
 			}
 		}
 		activeLoading = false;

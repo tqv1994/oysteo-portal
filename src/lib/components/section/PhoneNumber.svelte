@@ -100,7 +100,13 @@
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ ...phonesInput })
+				body: JSON.stringify({
+					...phonesInput,
+					phone_number: phonesInput.phone_number + '',
+					cell_mobile: phonesInput.phone_number + '',
+					whatsapp: phonesInput.whatsapp + '',
+					emergency: phonesInput.emergency + ''
+				})
 			});
 			if (res.ok) {
 				object.phone_number = phonesInput.phone_number;
@@ -111,7 +117,7 @@
 				object.cell_mobile_code = phonesInput.cell_mobile_code || '';
 				object.whatsapp_code = phonesInput.cell_mobile_code || '';
 				object.emergency_code = phonesInput.emergency_code || '';
-					window.openNotification({
+				window.openNotification({
 					kind: 'success',
 					title: 'Success',
 					subtitle: 'Update successfully'

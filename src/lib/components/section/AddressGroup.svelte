@@ -114,8 +114,12 @@
 						address = data.updateAdvisor.advisor.address;
 					}
 				}
-				alert('Update successfully');
-				activeSection = '';
+				window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Update successfully'
+				});
+				onCancel();
 			}
 		} catch (error) {}
 		activeLoading = false;

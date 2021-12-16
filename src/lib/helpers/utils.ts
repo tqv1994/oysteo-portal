@@ -99,8 +99,9 @@ export function checkPasswordRule(password: string) {
 	} else if (!checkLowerCase(password)) {
 		status = true;
 	}
-	if(status == true){
-		message = 'Password must be at least 8 characters (Including 1 uppercase letter, 1 number and 1 lowercase letter).';
+	if (status == true) {
+		message =
+			'Password must be at least 8 characters (Including 1 uppercase letter, 1 number and 1 lowercase letter).';
 	}
 	return {
 		status,

@@ -46,9 +46,10 @@ h1 {
 		background: $press-button-color;
 		color: $white-color;
 	}
-	&:focus, &:active {
+	&:focus,
+	&:active {
 		background: $press-button-color;
-		--cds-focus: #0353E9;
+		--cds-focus: #0353e9;
 	}
 }
 
@@ -218,15 +219,16 @@ label.bx--btn--primary {
 .bx--btn {
 	justify-content: center;
 	padding: 0;
-	&.bx--btn--primary{
-		--cds-interactive-01: #0F61FD;
-		&:hover{
-			--cds-interactive-01: #0353E9;
+	&.bx--btn--primary {
+		--cds-interactive-01: #0f61fd;
+		&:hover {
+			--cds-interactive-01: #0353e9;
 		}
-		&:focus, &:active{
-			--cds-interactive-01: #0353E9;
-			--cds-active-primary: #0353E9;
-			--cds-focus: #0353E9;
+		&:focus,
+		&:active {
+			--cds-interactive-01: #0353e9;
+			--cds-active-primary: #0353e9;
+			--cds-focus: #0353e9;
 		}
 	}
 }

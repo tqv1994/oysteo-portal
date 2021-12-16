@@ -62,8 +62,12 @@
 				} else if (type == 'agency') {
 					affiliate = data.updateAgency.agency[`affiliate_${handleName(name)}`];
 				}
-				alert('Update successfully');
-				activeSection = '';
+				window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Update successfully'
+				});
+				onCancel();
 			}
 		} catch (error) {}
 		activeLoading = false;

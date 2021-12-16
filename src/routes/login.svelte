@@ -25,7 +25,12 @@
 		PasswordInput
 	} from 'carbon-components-svelte';
 
-	import { browserSessionPersistence, getAuth, inMemoryPersistence, signInWithEmailAndPassword } from 'firebase/auth';
+	import {
+		browserSessionPersistence,
+		getAuth,
+		inMemoryPersistence,
+		signInWithEmailAndPassword
+	} from 'firebase/auth';
 	import { authStore } from '$lib/store/auth';
 	import { checkPasswordRule, validateEmail } from '$lib/helpers/utils';
 	import { redirect } from '$lib/utils/router';

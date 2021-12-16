@@ -44,8 +44,12 @@
 			if (res.ok) {
 				const data = await res.json();
 				experiences = data.updateAdvisor.advisor.experiences;
-				alert('Update successfully');
-				activeSection = '';
+				window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Update successfully'
+				});
+				onCancel();
 			}
 		} catch (error) {}
 		activeLoading = false;

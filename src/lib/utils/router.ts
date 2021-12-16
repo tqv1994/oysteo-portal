@@ -1,5 +1,5 @@
 export const redirect = (endpoint: string, delay: number = 0) => {
-	setTimeout(()=>{
+	setTimeout(() => {
 		window.location.href = endpoint;
 	}, delay);
 };

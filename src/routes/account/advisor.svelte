@@ -173,8 +173,12 @@
 				body: JSON.stringify({ ...data })
 			});
 			if (res.ok) {
-				alert('Update successfully');
-				activeSection = '';
+				window.openNotification({
+					kind: 'success',
+					title: 'Success',
+					subtitle: 'Update successfully'
+				});
+				onCancel();
 			}
 		} catch (error) {}
 		activeLoading = false;
