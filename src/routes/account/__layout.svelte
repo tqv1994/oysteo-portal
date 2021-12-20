@@ -16,7 +16,7 @@
 	import { User20 } from 'carbon-icons-svelte';
 	import { expoIn } from 'svelte/easing';
 	import { authStore } from '$lib/store/auth';
-	import { onMount } from 'svelte';
+	import { afterUpdate, beforeUpdate, onDestroy, onMount } from 'svelte';
 	import type { Load } from '@sveltejs/kit';
 	import type { Locals } from '$lib/store/local';
 	export const load: Load<{ session: Locals }> = async ({ session, page }) => {
@@ -54,7 +54,7 @@
 		}
 	};
 
-	onMount(() => {
+	const onLoad = () => {
 		const marginTop = 60;
 		const desktopNavSectionEl = document.getElementById('desktop-nav-section');
 		const contentEl = document.querySelector('.content');
@@ -105,7 +105,7 @@
 			});
 		}
 
-	});
+	};
 
 	const onScroll = () => {
 		const marginTop = 60;
@@ -134,6 +134,8 @@
 			top: rect.top + window.scrollY
 		};
 	};
+
+  	afterUpdate(onLoad);
 </script>
 
 <svelte:window on:scroll={onScroll} />

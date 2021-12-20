@@ -90,7 +90,6 @@
 		<div slot="value">{object?.name === null ? '' : object?.name}</div>
 		<div slot="fields">
 			<TextInput
-				labelText={contactInput.name === null ? '' : contactInput?.name}
 				placeholder={`Enter ${type == 'advisor' ? 'your' : "agency manager's"} name...`}
 				bind:value={contactInput.name}
 			/>
@@ -109,7 +108,6 @@
 		<div slot="value">{object?.email === null ? '' : object?.email}</div>
 		<div slot="fields">
 			<TextInput
-				labelText={contactInput?.email === null ? '' : contactInput?.email}
 				bind:value={contactInput.email}
 				placeholder="Enter email address..."
 				invalid={invalidContactEmail.status}
