@@ -1,41 +1,25 @@
-<!-- Custom loading -->
-<div id="loading" />
+<script lang="ts">
+	import { Loading } from 'carbon-components-svelte';
+	export let activeLoading: boolean = false;
+	export let label: string;
+</script>
 
-<style>
-	#loading {
-		width: 40px;
-		height: 40px;
-		background-color: #333;
-		margin: 100px auto;
-		margin-top: 35vh;
-		-webkit-animation: sk-rotateplane 1.2s infinite ease-in-out;
-		animation: sk-rotateplane 1.2s infinite ease-in-out;
-	}
+{#if activeLoading}
+	<Loading active={activeLoading} />
+	<p>{label}</p>
+{/if}
 
-	@-webkit-keyframes sk-rotateplane {
-		0% {
-			-webkit-transform: perspective(120px);
-		}
-		50% {
-			-webkit-transform: perspective(120px) rotateY(180deg);
-		}
-		100% {
-			-webkit-transform: perspective(120px) rotateY(180deg) rotateX(180deg);
-		}
-	}
-
-	@keyframes sk-rotateplane {
-		0% {
-			transform: perspective(120px) rotateX(0deg) rotateY(0deg);
-			-webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg);
-		}
-		50% {
-			transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
-			-webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
-		}
-		100% {
-			transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
-			-webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
-		}
+<style lang="scss">
+	p {
+		position: fixed;
+		z-index: 6100;
+		top: 4rem;
+		left: 0;
+		display: flex;
+		width: 100%;
+		height: 100%;
+		align-items: center;
+		justify-content: center;
+		color: #eee;
 	}
 </style>

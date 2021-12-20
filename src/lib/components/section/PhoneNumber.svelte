@@ -109,28 +109,13 @@
 				})
 			});
 			if (res.ok) {
-				object.phone_number = phonesInput.phone_number;
-				object.cell_mobile = phonesInput.cell_mobile;
-				object.whatsapp = phonesInput.whatsapp;
-				object.emergency = phonesInput.emergency;
-				object.phone_number_code = phonesInput.phone_number_code || '';
-				object.cell_mobile_code = phonesInput.cell_mobile_code || '';
-				object.whatsapp_code = phonesInput.cell_mobile_code || '';
-				object.emergency_code = phonesInput.emergency_code || '';
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Update successfully'
-				});
+				for (const key in phonesInput) {
+					object[key] = phonesInput[key];
+				}
 				onResetPhonesInput();
 				activeSection = '';
 			}
 		} catch (error) {
-			window.openNotification({
-				kind: 'error',
-				title: 'Error',
-				subtitle: error.message
-			});
 			console.log('Update Phone Number : ' + error);
 		}
 		activeLoading = false;
@@ -161,7 +146,7 @@
 			>
 				<SelectItem value="" text="Choose ..." />
 				{#each countries as country}
-					<SelectItem value={country.code} text={`+${country.phone} - ${country.name}`} />
+					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}
 			</Select>
 			<TextInput
@@ -170,7 +155,6 @@
 				bind:value={phonesInput.phone_number}
 				invalid={invalidPhoneNumber.status.phone_number}
 				invalidText={invalidPhoneNumber.message}
-				type="number"
 			/>
 		</div>
 	</FormRow>
@@ -191,7 +175,7 @@
 			>
 				<SelectItem value="" text="Choose ..." />
 				{#each countries as country}
-					<SelectItem value={country.code} text={`+${country.phone} - ${country.name}`} />
+					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}
 			</Select>
 			<TextInput
@@ -200,7 +184,6 @@
 				bind:value={phonesInput.cell_mobile}
 				invalid={invalidPhoneNumber.status.cell_mobile}
 				invalidText={invalidPhoneNumber.message}
-				type="number"
 			/>
 		</div>
 	</FormRow>
@@ -221,7 +204,7 @@
 			>
 				<SelectItem value="" text="Choose ..." />
 				{#each countries as country}
-					<SelectItem value={country.code} text={`+${country.phone} - ${country.name}`} />
+					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}
 			</Select>
 			<TextInput
@@ -230,7 +213,6 @@
 				bind:value={phonesInput.whatsapp}
 				invalid={invalidPhoneNumber.status.whatsapp}
 				invalidText={invalidPhoneNumber.message}
-				type="number"
 			/>
 		</div>
 	</FormRow>
@@ -251,7 +233,7 @@
 			>
 				<SelectItem value="" text="Choose ..." />
 				{#each countries as country}
-					<SelectItem value={country.code} text={`+${country.phone} - ${country.name}`} />
+					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}
 			</Select>
 			<TextInput
@@ -260,7 +242,6 @@
 				bind:value={phonesInput.emergency}
 				invalid={invalidPhoneNumber.status.emergency}
 				invalidText={invalidPhoneNumber.message}
-				type="number"
 			/>
 		</div>
 	</FormRow>

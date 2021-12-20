@@ -56,14 +56,33 @@
 	};
 
 	onMount(() => {
+		const marginTop = 60;
 		const desktopNavSectionEl = document.getElementById('desktop-nav-section');
 		const contentEl = document.querySelector('.content');
-		if (desktopNavSectionEl && contentEl) {
+		const divFakeHeight = document.getElementById('fake-height');
+		if (desktopNavSectionEl && contentEl && divFakeHeight) {
 			desktopNavSectionEl.querySelectorAll('a').forEach((element) => {
 				element.addEventListener('click', (e) => {
 					e.preventDefault();
 					const target = element.getAttribute('href');
-					window.scrollTo(0, getOffset(contentEl.querySelector(target)).top);
+					// Handling when the height of the screen is not enough, can't scroll to the position of the last sections
+					let heightOfSections = 0;
+					let keyActive = null;
+					const sectionActive = contentEl.querySelector(target);
+					contentEl.querySelectorAll('.section').forEach((sectionEl, key) => {
+						if(sectionEl.id == sectionActive.id){
+							keyActive = key;
+							heightOfSections += sectionEl.clientHeight;
+						}else if(keyActive !== null && key > keyActive){
+							heightOfSections += sectionEl.clientHeight;
+						}
+					});
+					if(heightOfSections < screen.height){
+						divFakeHeight.style.height = (screen.height - heightOfSections + marginTop)+"px";
+					}else{
+						divFakeHeight.style.height = "0";
+					}
+					window.scrollTo(0, getOffset(sectionActive).top - marginTop);
 				});
 				return false;
 			});
@@ -71,13 +90,14 @@
 	});
 
 	const onScroll = () => {
+		const marginTop = 60;
 		const doc = document.documentElement;
 		const desktopNavSectionEl = document.getElementById('desktop-nav-section');
 		const contentEl = document.querySelector('.content');
 		if (desktopNavSectionEl) {
 			let scrollDistance: number = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
 			contentEl.querySelectorAll('.section').forEach((sectionEl, key) => {
-				if (getOffset(sectionEl).top <= scrollDistance) {
+				if ((getOffset(sectionEl).top - marginTop) <= scrollDistance) {
 					desktopNavSectionEl.querySelectorAll('li.active').forEach((activeEl) => {
 						activeEl.classList.remove('active');
 					});

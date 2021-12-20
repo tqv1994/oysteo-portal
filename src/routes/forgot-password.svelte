@@ -7,8 +7,9 @@
 	import { getAuth, inMemoryPersistence, sendPasswordResetEmail } from 'firebase/auth';
 	import { validateEmail } from '$lib/helpers/utils';
 	import { INVALID_DELAY_TIME, TIME_RESEND_EMAIL_FORGOT_PW } from '$lib/utils/constants';
+import { Code16 } from 'carbon-icons-svelte';
 
-	let foregotPasswordData = {
+	let forgotPasswordData = {
 		email: '',
 		emailSend: false
 	};
@@ -35,7 +36,7 @@
 	};
 
 	async function handleSubmit() {
-		if (!validateEmail(foregotPasswordData.email)) {
+		if (!validateEmail(forgotPasswordData.email)) {
 			invalidEmail.status = true;
 			setTimeout(() => {
 				invalidEmail.status = false;
@@ -44,15 +45,47 @@
 		}
 
 		try {
-			const auth = getAuth();
-			await auth.setPersistence(inMemoryPersistence);
-			await sendPasswordResetEmail(auth, foregotPasswordData.email).then(() => {
-				if (foregotPasswordData.emailSend) {
+			const res = await fetch('/auth/forgot-password.json', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({email:forgotPasswordData.email})
+			});
+			if(res.ok){
+				if (forgotPasswordData.emailSend) {
 					countDownStart = true;
 					countDown();
 				}
-				foregotPasswordData.emailSend = true;
-			});
+				forgotPasswordData.emailSend = true;
+			}else{
+				console.log(res);
+				const err = await res.json();
+				setTimeout(() => {
+					invalidPassword.status = false;
+				}, INVALID_DELAY_TIME);
+				if (err.code == 'auth/user-not-found') {
+					invalidEmail = {
+						status: true,
+						message: 'Email does not exist'
+					};
+					setTimeout(() => {
+						invalidEmail.status = false;
+					}, INVALID_DELAY_TIME);
+				}else{
+					if(Array.isArray(err.message) && err.message.length > 0){
+						if(err.message[0].messages.length > 0){
+							invalidEmail = {
+								status: true,
+								message: err.message[0].messages[0].message
+							};
+							setTimeout(() => {
+								invalidEmail.status = false;
+							}, INVALID_DELAY_TIME);
+						}
+					}
+				}
+			}
 		} catch (error) {
 			invalidPassword = {
 				status: true,
@@ -61,7 +94,6 @@
 			setTimeout(() => {
 				invalidPassword.status = false;
 			}, INVALID_DELAY_TIME);
-			console.error('Error login', error);
 			if (error.code == 'auth/user-not-found') {
 				invalidEmail = {
 					status: true,
@@ -70,6 +102,8 @@
 				setTimeout(() => {
 					invalidEmail.status = false;
 				}, INVALID_DELAY_TIME);
+			}else{
+				console.log(error.message);
 			}
 		}
 	}
@@ -95,12 +129,12 @@
 		</div>
 		<div class="section-login">
 			<Form on:submit={handleSubmit}>
-				{#if !foregotPasswordData.emailSend}
+				{#if !forgotPasswordData.emailSend}
 					<FormGroup class="signup-login">
 						<TextInput
 							labelText=""
 							placeholder="EMAIL *"
-							bind:value={foregotPasswordData.email}
+							bind:value={forgotPasswordData.email}
 							required
 							invalid={invalidEmail.status}
 							invalidText={invalidEmail.message}
@@ -110,7 +144,7 @@
 				{:else}
 					<div class="section-login--messenge">
 						<p>
-							We have sent a password reset link to email <b>{foregotPasswordData.email}</b>. Please
+							We have sent a password reset link to email <b>{forgotPasswordData.email}</b>. Please
 							check your email again
 						</p>
 						<p>If you do not receive our email, please click the <b>Resend</b> Button</p>

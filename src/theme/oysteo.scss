@@ -263,7 +263,7 @@ label.bx--btn--primary {
 		width: 100%;
 	}
 	&.bx--date-picker--simple .bx--date-picker__input {
-		width: 100%;
+		width: 100% !important;
 	}
 }
 
@@ -285,4 +285,16 @@ video {
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 3;
 	overflow: hidden;
+}
+
+.flatpickr-calendar {
+	top: 4rem !important;
+	left: 0 !important;
+}
+
+.bx--date-picker-input__wrapper {
+	width: 100%;
+	input {
+		width: 100% !important;
+	}
 }

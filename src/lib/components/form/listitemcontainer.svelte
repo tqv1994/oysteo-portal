@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, Form, FormGroup, Link } from 'carbon-components-svelte';
-	import { Edit16 } from 'carbon-icons-svelte';
+	import { RequestQuote16 } from 'carbon-icons-svelte';
 	import { createEventDispatcher } from 'svelte';
 
 	export let isEditing = false;
@@ -38,7 +38,7 @@
 			<slot {isEditing} />
 		</div>
 		<div class="actions">
-			<Link icon={Edit16} on:click={onEdit}>Edit</Link>
+			<Link on:click={onEdit}>Edit&nbsp;<RequestQuote16 /></Link>
 		</div>
 	{/if}
 </div>

@@ -38,7 +38,7 @@
 		AffiliateBenefitPrograms,
 		AffiliateNetwork
 	} from '$lib/store/affiliate';
-
+	import OverlayLoading from '$lib/components/form/loading.svelte';
 	import type { Metadata } from '$lib/store/metadata';
 	import IdAndPassword from '$lib/components/section/IdAndPassword.svelte';
 	import PhoneNumber from '$lib/components/section/PhoneNumber.svelte';
@@ -117,6 +117,7 @@
 	export let experienceList: Experience[];
 
 	let activeSection = '';
+	let loadingLabel = 'Saving ...';
 	let y, prevY;
 	let navFixed = '';
 	let activeLoading = false;
@@ -173,12 +174,7 @@
 				body: JSON.stringify({ ...data })
 			});
 			if (res.ok) {
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Update successfully'
-				});
-				onCancel();
+				setEditing('');
 			}
 		} catch (error) {}
 		activeLoading = false;
@@ -190,7 +186,7 @@
 </script>
 
 <svelte:window bind:scrollY={y} />
-<Loading active={activeLoading} />
+<OverlayLoading bind:activeLoading bind:label={loadingLabel} />
 <NavigationSection items={advisorSections} class={navFixed} />
 
 <div class="content">
@@ -246,6 +242,7 @@
 			bind:activeLoading
 			advisorId={advisor.id}
 			bind:destinations
+			bind:loadingLabel
 		/>
 
 		{#each destinations as destination, index}
@@ -264,7 +261,13 @@
 				on:submit={updateDestination}
 			/>
 
-			<DestinationImage bind:activeSection bind:activeLoading bind:destinations {index} />
+			<DestinationImage
+				bind:activeSection
+				bind:loadingLabel
+				bind:activeLoading
+				bind:destinations
+				{index}
+			/>
 
 			<DestinationDateVisited
 				bind:activeSection
@@ -316,4 +319,5 @@
 			list={affiliateBenefitProgramList}
 		/>
 	</FormSection>
+	<div id="fake-height"></div>
 </div>

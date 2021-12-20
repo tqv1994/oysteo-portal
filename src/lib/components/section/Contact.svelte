@@ -71,21 +71,10 @@
 			if (res.ok) {
 				object.name = contactInput.name;
 				object.email = contactInput.email;
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Update successfully'
-				});
 				onResetContactInput();
 				onCancel();
 			}
-		} catch (error) {
-			window.openNotification({
-				kind: 'success',
-				title: 'Success',
-				subtitle: error.message
-			});
-		}
+		} catch (error) {}
 		activeLoading = false;
 	};
 </script>
@@ -101,7 +90,7 @@
 		<div slot="value">{object?.name === null ? '' : object?.name}</div>
 		<div slot="fields">
 			<TextInput
-				labelText={contactInput?.name === null ? '' : contactInput?.name}
+				labelText={contactInput.name === null ? '' : contactInput?.name}
 				placeholder={`Enter ${type == 'advisor' ? 'your' : "agency manager's"} name...`}
 				bind:value={contactInput.name}
 			/>

@@ -32,7 +32,6 @@
 	.section {
 		margin-bottom: 1em;
 		position: relative;
-		scroll-margin-top: 5rem;
 	}
 	h4 {
 		border-bottom: 2px solid #707070;

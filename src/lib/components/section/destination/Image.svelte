@@ -12,6 +12,7 @@
 	export let destinations: Destination[];
 	export let activeSection: string = '';
 	export let activeLoading: boolean;
+	export let loadingLabel: string;
 
 	let disabledRemove: boolean = true;
 	let mediaSelected: number;
@@ -32,6 +33,7 @@
 		formData.append('refId', destinations[index].id.toString());
 		formData.append('field', field);
 		activeLoading = true;
+		loadingLabel = 'Uploading ...';
 
 		const res = await fetch(cmsUrlPrefix + '/upload', {
 			method: 'POST',
@@ -41,15 +43,11 @@
 		if (res.ok) {
 			const content = await res.json();
 			if (content.length > 0) {
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Upload successfully'
-				});
 				destinations[index][field] = [...destinations[index][field], content[0]];
 			}
 		}
 		activeLoading = false;
+		loadingLabel = 'Saving ...';
 	};
 
 	const removeMedia = async (destinationIndex: number) => {
@@ -61,6 +59,7 @@
 			return;
 		}
 		activeLoading = true;
+		loadingLabel = 'Removing ...';
 
 		const res = await fetch('/file.json', {
 			method: 'DELETE',
@@ -71,11 +70,6 @@
 		});
 
 		if (res.ok) {
-			window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Delete successfully'
-				});
 			destinations[destinationIndex].gallery = destinations[destinationIndex].gallery.filter(
 				(item) => item.id != mediaSelected
 			);
@@ -83,6 +77,7 @@
 			activeSection = '';
 		}
 		activeLoading = false;
+		loadingLabel = 'Saving ...';
 	};
 </script>
 
@@ -108,6 +103,9 @@
 						{#if i + 1 < destinations[index].gallery.length}
 							<Column>
 								<ImageLoader src={imageUrlPrefix + destinations[index].gallery[i + 1].url} />
+							</Column>{:else}
+							<Column>
+								<div style="width:100%" />
 							</Column>
 						{/if}
 					</Row>
@@ -168,6 +166,10 @@
 									}}
 									class="remove-media-layout"
 								/>
+							</Column>
+						{:else}
+							<Column>
+								<div style="width:100%" />
 							</Column>
 						{/if}
 					</Row>

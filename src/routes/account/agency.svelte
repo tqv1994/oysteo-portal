@@ -13,8 +13,7 @@
 		Wallet20
 	} from 'carbon-icons-svelte';
 	import FormSection from '$lib/components/form/section.svelte';
-	import FormRow from '$lib/components/form/row.svelte';
-	import FormGroup from '$lib/components/form/group.svelte';
+	import OverlayLoading from '$lib/components/form/loading.svelte';
 	import NavigationSection from '$lib/components/navigation/modal.svelte';
 	import DesktopNavigationSection from '$lib/components/navigation/desktop_nav_section.svelte';
 
@@ -99,6 +98,7 @@
 	export let paymentMethods: PaymentMethod[] = [];
 
 	let activeSection: string = '';
+	let loadingLabel = 'Saving ...';
 	let y: number, prevY: number;
 	let navFixed: string = '';
 	let activeLoading = false;
@@ -113,7 +113,7 @@
 		{ id: 'contacts', text: 'Contacts' },
 		{ id: 'address', text: 'Address' },
 		{ id: 'business-infomation', text: 'Business Information' },
-		{ id: 'marketing-infomation', text: 'Markeing Information' },
+		{ id: 'marketing-infomation', text: 'Marketing Information' },
 		{ id: 'advisors', text: 'Advisors' },
 		{ id: 'billing-and-payment', text: 'Billing & Payment' },
 		{ id: 'affiliations', text: 'Affiliations' }
@@ -126,7 +126,7 @@
 </script>
 
 <svelte:window bind:scrollY={y} />
-<Loading active={activeLoading} />
+<OverlayLoading bind:activeLoading bind:label={loadingLabel} />
 <NavigationSection items={agencySections} class={navFixed} />
 <div class="content">
 	<div class="title-content">
@@ -166,8 +166,8 @@
 
 	<FormSection title="Marketing Information" icon={Bullhorn20} id="marketing-infomation">
 		<MarketingInfo bind:activeSection bind:activeLoading {agency} {type}>
-			<AgencyLogo bind:activeSection bind:activeLoading {agency} />
-			<AgencyPhoto bind:activeSection bind:activeLoading {agency} />
+			<AgencyLogo bind:activeSection bind:loadingLabel bind:activeLoading {agency} />
+			<AgencyPhoto bind:activeSection bind:loadingLabel bind:activeLoading {agency} />
 		</MarketingInfo>
 	</FormSection>
 
@@ -221,4 +221,5 @@
 			list={affiliateNetworkList}
 		/>
 	</FormSection>
+	<div id="fake-height"></div>
 </div>

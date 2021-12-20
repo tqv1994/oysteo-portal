@@ -22,7 +22,8 @@
 		Button,
 		Link,
 		TextInput,
-		PasswordInput
+		PasswordInput,
+	Loading
 	} from 'carbon-components-svelte';
 
 	import {
@@ -50,6 +51,8 @@
 		message: 'Invalid email'
 	};
 
+	let activeLoading = false;
+
 	async function handleSubmit() {
 		if (!validateEmail(loginData.email)) {
 			invalidEmail.status = true;
@@ -58,7 +61,7 @@
 			}, INVALID_DELAY_TIME);
 			return;
 		}
-
+		activeLoading = true;
 		try {
 			const auth = getAuth();
 			await auth.setPersistence(browserSessionPersistence); // To save user after logging into the browser session
@@ -91,9 +94,10 @@
 			}, INVALID_DELAY_TIME);
 			console.error('Error login', error);
 		}
+		activeLoading = false;
 	}
 </script>
-
+<Loading active={activeLoading} />
 <div class="login-container">
 	<div class="login-wrapper">
 		<div class="section-logo">

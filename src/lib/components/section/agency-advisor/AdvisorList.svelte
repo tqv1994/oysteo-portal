@@ -89,11 +89,6 @@
 				activeSection = '';
 				const dataUpdate = await res.json();
 				advisors[advisorIndex] = dataUpdate.updateAdvisor.advisor;
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Advisor updated successfully'
-				});
 			}
 		} catch (error) {
 			console.log(error);
@@ -102,7 +97,7 @@
 	};
 </script>
 
-<FormRow label="Name" class={'mbottom-32'} contentClass={'mtop-d16 list-advisors'}>
+<FormRow label="" class={'mbottom-32'} contentClass={'mtop-d16 list-advisors'}>
 	<div slot="value">
 		{#each advisors as advisor, index}
 			<ListItemContainer

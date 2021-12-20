@@ -154,7 +154,6 @@
 
 					redirectLogin();
 				}
-				console.error('Error authenticating: ', res);
 			}
 		} catch (error) {
 			console.error('Error registering: ', error);

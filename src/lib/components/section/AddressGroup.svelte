@@ -1,7 +1,8 @@
 <script lang="ts">
-	import type { Address } from '$lib/store/address';
-	import type { Country } from '$lib/store/country';
+	import type { Address, AddressInput } from '$lib/store/address';
+	import type { Country, Country } from '$lib/store/country';
 	import { Select, SelectItem, TextInput } from 'carbon-components-svelte';
+	import { onDestroy } from 'svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
@@ -12,21 +13,50 @@
 	export let activeLoading: boolean = false;
 	export let address: Address[];
 	export let countries: Country[];
+
+	let haveAddress: boolean;
+	type AddressInput = {
+		line1: string;
+		line2: string;
+		locality: string;
+		zipcode: string;
+		country: string | null;
+		province: string;
+	};
+
+	let addressInput: AddressInput;
+
+	const resetAddresInput = () => {
+		addressInput = {
+			line1: '',
+			line2: '',
+			locality: '',
+			zipcode: '',
+			country: null,
+			province: ''
+		};
+	};
+
+	resetAddresInput();
+	onDestroy(() => {
+		resetAddresInput();
+	});
+
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
 		if (address.length == 0) {
-			address = [
-				{
-					id: null,
-					line1: '',
-					line2: '',
-					locality: '',
-					zipcode: '',
-					country: null,
-					province: '',
-					city: null
-				}
-			];
+			haveAddress = false;
+			resetAddresInput();
+		} else {
+			haveAddress = true;
+			addressInput = {
+				line1: address[0].line1 || '',
+				line2: address[0].line2 || '',
+				locality: address[0].locality || '',
+				zipcode: address[0].zipcode || '',
+				country: address[0].country?.id || null,
+				province: address[0].province || ''
+			};
 		}
 	};
 	const onCancel = () => {
@@ -47,22 +77,12 @@
 	const createAddress = async () => {
 		activeLoading = true;
 		try {
-			let createData = {
-				line1: address[0].line1,
-				line2: address[0].line2,
-				province: address[0].province,
-				locality: address[0].locality,
-				city: address[0].city,
-				zipcode: address[0].zipcode,
-				country: address[0].country?.id || null,
-				users_permissions_user: userId
-			};
 			const res = await fetch(`/address/create.json`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ ...createData })
+				body: JSON.stringify({ ...addressInput })
 			});
 			if (res.ok) {
 				const data = await res.json();
@@ -73,27 +93,17 @@
 
 	const updateAddress = async () => {
 		try {
-			let addressData;
-			let addressId: string;
-			let isAvailable = false;
-			if (address[0].id == null) {
-				addressId = await createAddress();
-			} else {
-				isAvailable = true;
-				addressData = { ...address[0] };
-			}
+			let data: string | AddressInput;
+			let url: string = ``;
 
-			let data: string | Address[];
-			let url = ``;
-			if (isAvailable) {
-				url = `/address/update-${addressData.id}.json`;
-				delete addressData.users_permissions_user;
-				delete addressData.__typename;
-				(addressData.country = addressData.country?.id || null), (data = { ...addressData });
+			if (haveAddress) {
+				// true when address created
+				url = `/address/update-${address[0].id}.json`;
+				data = { ...addressInput };
 				activeLoading = true;
 			} else {
+				data = await createAddress();
 				url = `/address/assign-${type}-${objectId}.json`;
-				data = addressId;
 			}
 
 			const res = await fetch(url, {
@@ -105,7 +115,7 @@
 			});
 			if (res.ok) {
 				const data = await res.json();
-				if (isAvailable) {
+				if (haveAddress) {
 					address[0] = data.updateAddress.address;
 				} else {
 					if (type == 'agency') {
@@ -114,11 +124,7 @@
 						address = data.updateAdvisor.advisor.address;
 					}
 				}
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Update successfully'
-				});
+				resetAddresInput();
 				onCancel();
 			}
 		} catch (error) {}
@@ -159,17 +165,12 @@
 					on:change={(e) => {
 						const countrySelected = countries.filter((ele) => ele.id.toString() == e.detail);
 						if (countrySelected.length > 0) {
-							address[0].country = {
-								id: countrySelected[0].id,
-								name: countrySelected[0].name,
-								code: countrySelected[0].code,
-								phone: countrySelected[0].phone
-							};
+							addressInput.country = countrySelected[0].id;
 						} else {
-							address[0].country = null;
+							addressInput.country = null;
 						}
 					}}
-					labelText="Country / Region"
+					labelText="Country"
 					selected={address == null || address.length == 0
 						? ''
 						: address[0].country == null
@@ -184,31 +185,31 @@
 
 				<TextInput
 					labelText="Province / State"
-					placeholder="Enter your province or state ..."
-					bind:value={address[0].province}
+					placeholder="Your province or state ..."
+					bind:value={addressInput.province}
 				/>
 			</div>
 
 			<TextInput
 				labelText="Street address #1"
-				placeholder="Enter your address #1..."
-				bind:value={address[0].line1}
+				placeholder="Your street #1..."
+				bind:value={addressInput.line1}
 			/>
 			<TextInput
 				labelText="Street address #2"
-				placeholder="Enter your address #2..."
-				bind:value={address[0].line2}
+				placeholder="Your street #2..."
+				bind:value={addressInput.line2}
 			/>
 			<div class="select-container">
 				<TextInput
 					labelText="Locality"
-					placeholder="Enter your locality..."
-					bind:value={address[0].locality}
+					placeholder="Your locality..."
+					bind:value={addressInput.locality}
 				/>
 				<TextInput
 					labelText="Zip code / Postal code"
-					placeholder="Enter your zip code..."
-					bind:value={address[0].zipcode}
+					placeholder="Your zip code..."
+					bind:value={addressInput.zipcode}
 				/>
 			</div>
 		</div>

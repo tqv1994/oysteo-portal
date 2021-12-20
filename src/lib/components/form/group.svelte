@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, Form, FormGroup, Link } from 'carbon-components-svelte';
-	import { Edit16 } from 'carbon-icons-svelte';
+	import { RequestQuote16 } from 'carbon-icons-svelte';
 	import { createEventDispatcher } from 'svelte';
 
 	export let isEditing = false;
@@ -52,11 +52,11 @@
 
 		{#if groupName === '' && !hideEditButton}
 			<div class="actions">
-				<Link icon={Edit16} on:click={onEdit}>{editLabel}</Link>
+				<Link on:click={onEdit}>{editLabel}&nbsp;<RequestQuote16 /></Link>
 			</div>
 		{:else}
 			<div class="group-name">
-				<Link>{groupName}</Link>
+				<p>{groupName}</p>
 			</div>
 		{/if}
 	{/if}
@@ -106,8 +106,11 @@
 		cursor: pointer;
 	}
 	.group-name {
-		flex: 0 0 4rem;
+		flex: 0 0 3.5rem;
 		padding-left: 0.925rem;
+		p {
+			font-size: 14px;
+		}
 	}
 	.group-buttons {
 		margin-bottom: -2rem;

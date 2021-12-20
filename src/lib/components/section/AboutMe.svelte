@@ -7,7 +7,7 @@
 	} from '$lib/helpers/datetime';
 	import { validateEmail, validateWebsite } from '$lib/helpers/utils';
 	import type { Advisor } from '$lib/store/advisor';
-	import type { Language } from '$lib/store/language';
+	import type { Language, Language } from '$lib/store/language';
 	import { INVALID_DELAY_TIME, TIME_ZONES } from '$lib/utils/constants';
 	import {
 		DatePicker,
@@ -16,6 +16,7 @@
 		SelectItem,
 		TextInput
 	} from 'carbon-components-svelte';
+	import { onDestroy } from 'svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
@@ -25,8 +26,44 @@
 	export let languages: Language[];
 	export let activeSection: string = '';
 	export let activeLoading: boolean = false;
+
+	type AboutMeInput = {
+		email2: string;
+		website: string;
+		language1: string | null;
+		timezone: string;
+		joined_at: string | null;
+		languageSelected: Language | null;
+	};
+
+	let aboutMeInput: AboutMeInput;
+
+	const resetAboutMe = () => {
+		aboutMeInput = {
+			email2: '',
+			website: '',
+			language1: null,
+			timezone: '',
+			joined_at: null,
+			languageSelected: null
+		};
+	};
+
+	resetAboutMe();
+	onDestroy(() => {
+		resetAboutMe();
+	});
+
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
+		aboutMeInput = {
+			email2: advisor.email2 || '',
+			website: advisor.website || '',
+			language1: advisor.language1?.id || null,
+			timezone: advisor.timezone || '',
+			joined_at: advisor.joined_at || null,
+			languageSelected: advisor.language1 || null
+		};
 	};
 	const onCancel = () => {
 		activeSection = '';
@@ -45,15 +82,9 @@
 		message: 'Invalid date'
 	};
 	const updateAboutMe = async (field: string) => {
+		console.log(aboutMeInput.joined_at);
 		try {
-			let data = {
-				email2: advisor.email2 || '',
-				website: advisor.website || '',
-				language1: advisor.language1?.id || null,
-				timezone: advisor.timezone || '',
-				joined_at: advisor.joined_at || null
-			};
-			if (field == 'email2' && !validateEmail(advisor[field])) {
+			if (field == 'email2' && !validateEmail(aboutMeInput.email2)) {
 				invalidAlternativeEmail.status = true;
 				setTimeout(() => {
 					invalidAlternativeEmail.status = false;
@@ -61,7 +92,7 @@
 				return;
 			}
 
-			if (field == 'website' && !validateWebsite(advisor[field])) {
+			if (field == 'website' && !validateWebsite(aboutMeInput.website)) {
 				invalidAdvisorWebsite.status = true;
 				setTimeout(() => {
 					invalidAdvisorWebsite.status = false;
@@ -70,19 +101,19 @@
 			}
 
 			if (field == 'joined_at') {
-				data.joined_at = formatOutputDatePicker(data.joined_at);
-				if (!validateMMDDYYYY(data.joined_at)) {
+				aboutMeInput.joined_at = formatOutputDatePicker(aboutMeInput.joined_at);
+				if (!validateMMDDYYYY(aboutMeInput.joined_at)) {
 					invalidJoinedAt.status = true;
 					setTimeout(() => {
 						invalidJoinedAt.status = false;
 					}, INVALID_DELAY_TIME);
 					return;
 				}
-				data.joined_at = normalizeInputDatePicker(data.joined_at);
+				aboutMeInput.joined_at = normalizeInputDatePicker(aboutMeInput.joined_at);
 			}
-			console.log(data);
 			activeLoading = true;
-
+			const { languageSelected, ...data } = aboutMeInput;
+			console.log(data);
 			const res = await fetch(`/common/${type}-${advisor.id}.json`, {
 				method: 'PUT',
 				headers: {
@@ -91,11 +122,14 @@
 				body: JSON.stringify({ ...data })
 			});
 			if (res.ok) {
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Update successfully'
-				});
+				for (const key in aboutMeInput) {
+					if (key == 'language1') {
+						advisor[key] = languageSelected;
+					} else {
+						advisor[key] = aboutMeInput[key];
+					}
+				}
+				resetAboutMe();
 				onCancel();
 			}
 		} catch (error) {}
@@ -116,7 +150,7 @@
 		<div slot="fields">
 			<TextInput
 				labelText={advisor.website || ''}
-				bind:value={advisor.website}
+				bind:value={aboutMeInput.website}
 				placeholder="Enter website ..."
 				invalid={invalidAdvisorWebsite.status}
 				invalidText={invalidAdvisorWebsite.message}
@@ -138,7 +172,7 @@
 		<div slot="fields">
 			<TextInput
 				labelText={advisor.email2 || ''}
-				bind:value={advisor.email2}
+				bind:value={aboutMeInput.email2}
 				placeholder="Enter alternate email ..."
 				invalid={invalidAlternativeEmail.status}
 				invalidText={invalidAlternativeEmail.message}
@@ -158,7 +192,7 @@
 	<FormRow label="Time Zone" {isEditing}>
 		<div slot="value">{handleDisplayTimeZone(advisor.timezone)}</div>
 		<div slot="fields">
-			<Select bind:selected={advisor.timezone}>
+			<Select bind:selected={aboutMeInput.timezone}>
 				<SelectItem value="" text="Choose ..." />
 				{#each TIME_ZONES as timeZone}
 					<SelectItem value={timeZone.locale} text={`(${timeZone.gmt}) ${timeZone.zone}`} />
@@ -185,12 +219,14 @@
 				on:change={(e) => {
 					const languageSelected = languages.filter((ele) => ele.id.toString() == e.detail);
 					if (languageSelected.length > 0) {
-						advisor.language1 = {
+						aboutMeInput.languageSelected = {
 							id: languageSelected[0].id,
 							name: languageSelected[0].name
 						};
+						aboutMeInput.language1 = languageSelected[0].id;
 					} else {
-						advisor.language1 = null;
+						aboutMeInput.languageSelected = null;
+						aboutMeInput.language1 = null;
 					}
 				}}
 				labelText={advisor?.language1 === null ? '' : advisor?.language1.name}
@@ -217,12 +253,13 @@
 		<div slot="value">
 			{advisor?.joined_at === null ? '' : formatOutputDatePicker(advisor?.joined_at)}
 		</div>
-		<div slot="fields">
+		<div slot="fields" style="position:relative">
 			<DatePicker
 				on:change={(e) => {
-					advisor.joined_at = e.detail.toString();
+					aboutMeInput.joined_at = e.detail.dateStr;
 				}}
 				value={formatOutputDatePicker(advisor.joined_at)}
+				datePickerType="single"
 			>
 				<DatePickerInput
 					labelText="joined at"

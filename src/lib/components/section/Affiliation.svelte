@@ -11,6 +11,7 @@
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
+	import { onDestroy } from 'svelte';
 
 	export let type: string;
 	export let name: string;
@@ -19,8 +20,20 @@
 	export let objectId: string;
 	export let activeSection: string = '';
 	export let activeLoading: boolean = false;
+
+	let affiliateInput: AffiliateAgencies[] | AffiliateBenefitPrograms[] | AffiliateNetwork[];
+
+	const resetAffiliateInput = () => {
+		affiliateInput = [];
+	};
+
+	resetAffiliateInput();
+	onDestroy(() => {
+		resetAffiliateInput();
+	});
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
+		affiliateInput = [...affiliate];
 	};
 	const onCancel = () => {
 		activeSection = '';
@@ -35,12 +48,9 @@
 
 	const updateAffiliate = async () => {
 		try {
-			let affID = [];
-			affiliate.forEach((aff) => {
-				if (aff.id != 0) {
-					affID = [...affID, aff.id];
-				}
-			});
+			let affID: string[] = [];
+			affID = affiliateInput.filter((item) => item.id !== '0').map((item) => item.id);
+
 			if (affID.length == 0) {
 				return;
 			}
@@ -62,11 +72,7 @@
 				} else if (type == 'agency') {
 					affiliate = data.updateAgency.agency[`affiliate_${handleName(name)}`];
 				}
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Update successfully'
-				});
+				resetAffiliateInput();
 				onCancel();
 			}
 		} catch (error) {}
@@ -89,17 +95,17 @@
 			{/each}
 		</div>
 		<div slot="fields">
-			{#each affiliate as aff, index}
+			{#each affiliateInput as aff, index}
 				<div class="aff-item">
 					<Select
 						labelText={`Affiliation ${name}`}
 						hideLabel
-						name="affiliate-{index}"
+						name="InaffiliateInput-{index}"
 						selected={aff.id.toString()}
 						on:change={(e) => {
 							const affSelected = list.filter((ele) => ele.id.toString() == e.detail);
 							if (affSelected.length > 0) {
-								affiliate[index] = affSelected[0];
+								affiliateInput[index] = affSelected[0];
 							}
 						}}
 					>
@@ -111,14 +117,14 @@
 					<CloseOutline20
 						class="remove-aff-item"
 						on:click={() => {
-							affiliate = affiliate.filter((ele) => ele.id !== affiliate[index].id);
+							affiliateInput = affiliateInput.filter((ele) => ele.id !== affiliateInput[index].id);
 						}}
 					/>
 				</div>
 			{/each}
 			<Link
 				on:click={() => {
-					affiliate = [...affiliate, { id: 0, name: '' }];
+					affiliateInput = [...affiliateInput, { id: '0', name: '' }];
 				}}
 				id="bx--link-add">Add Affiliate {name}</Link
 			>

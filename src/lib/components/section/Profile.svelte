@@ -2,6 +2,7 @@
 	import type { Advisor } from '$lib/store/advisor';
 
 	import { Checkbox, TextArea, TextInput } from 'carbon-components-svelte';
+	import { onDestroy } from 'svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
@@ -10,8 +11,45 @@
 	export let advisor: Advisor;
 	export let activeSection: string = '';
 	export let activeLoading: boolean = false;
+
+	type ProfileInput = {
+		facebook: string;
+		instagram: string;
+		twitter: string;
+		pinterest: string;
+		linkedIn: string;
+		description: string;
+		planningFee?: boolean;
+	};
+
+	let profileInput: ProfileInput;
+
+	const resetProfileInput = () => {
+		profileInput = {
+			facebook: '',
+			instagram: '',
+			twitter: '',
+			pinterest: '',
+			linkedIn: '',
+			description: ''
+		};
+	};
+
+	resetProfileInput();
+	onDestroy(() => {
+		resetProfileInput();
+	});
+
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
+		profileInput = {
+			facebook: advisor.facebook || '',
+			instagram: advisor.instagram || '',
+			twitter: advisor.twitter || '',
+			pinterest: advisor.pinterest || '',
+			linkedIn: advisor.linkedIn || '',
+			description: advisor.description || ''
+		};
 	};
 	const onCancel = () => {
 		activeSection = '';
@@ -24,16 +62,17 @@
 				: isPlanningFee
 				? !advisor.planningFee
 				: advisor.planningFee;
-
-		let data = {
-			facebook: advisor.facebook || '',
-			instagram: advisor.instagram || '',
-			twitter: advisor.twitter || '',
-			pinterest: advisor.pinterest || '',
-			linkedIn: advisor.linkedIn || '',
-			description: advisor.description || '',
-			planningFee: planningFee
-		};
+		if (isPlanningFee) {
+			profileInput = {
+				facebook: advisor.facebook || '',
+				instagram: advisor.instagram || '',
+				twitter: advisor.twitter || '',
+				pinterest: advisor.pinterest || '',
+				linkedIn: advisor.linkedIn || '',
+				description: advisor.description || ''
+			};
+		}
+		profileInput.planningFee = planningFee;
 		try {
 			activeLoading = true;
 
@@ -42,15 +81,14 @@
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ ...data })
+				body: JSON.stringify({ ...profileInput })
 			});
 
 			if (res.ok) {
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Update successfully'
-				});
+				for (const key in profileInput) {
+					advisor[key] = profileInput[key];
+				}
+				resetProfileInput();
 				onCancel();
 			}
 		} catch (error) {
@@ -77,7 +115,7 @@
 			<TextArea
 				labelText="Add biography"
 				placeholder="Enter your biography ..."
-				bind:value={advisor.description}
+				bind:value={profileInput.description}
 			/>
 		</div>
 	</FormRow>
@@ -106,14 +144,14 @@
 			<TextInput
 				labelText={advisor?.instagram === null ? '' : advisor?.instagram}
 				placeholder="Enter ..."
-				bind:value={advisor.instagram}
+				bind:value={profileInput.instagram}
 			/>
 		</div>
 	</FormRow>
 	<FormRow label="Twitter" {isEditing}>
 		<div slot="value">{advisor?.twitter === null ? '' : advisor?.twitter}</div>
 		<div slot="fields">
-			<TextInput labelText="" placeholder="Enter ..." bind:value={advisor.twitter} />
+			<TextInput labelText="" placeholder="Enter ..." bind:value={profileInput.twitter} />
 		</div>
 	</FormRow>
 	<FormRow label="Facebook" {isEditing}>
@@ -122,7 +160,7 @@
 			<TextInput
 				labelText={advisor?.facebook === null ? '' : advisor?.facebook}
 				placeholder="Enter ..."
-				bind:value={advisor.facebook}
+				bind:value={profileInput.facebook}
 			/>
 		</div>
 	</FormRow>
@@ -132,7 +170,7 @@
 			<TextInput
 				labelText={advisor?.linkedIn === null ? '' : advisor?.linkedIn}
 				placeholder="Enter ..."
-				bind:value={advisor.linkedIn}
+				bind:value={profileInput.linkedIn}
 			/>
 		</div>
 	</FormRow>
@@ -142,7 +180,7 @@
 			<TextInput
 				labelText={advisor?.pinterest === null ? '' : advisor?.pinterest}
 				placeholder="Enter ..."
-				bind:value={advisor.pinterest}
+				bind:value={profileInput.pinterest}
 			/>
 		</div>
 	</FormRow>

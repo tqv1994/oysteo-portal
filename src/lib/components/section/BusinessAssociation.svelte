@@ -2,6 +2,7 @@
 	import type { Agency } from '$lib/store/agency';
 
 	import { TextInput } from 'carbon-components-svelte';
+	import { onDestroy } from 'svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
@@ -10,8 +11,42 @@
 	export let agency: Agency;
 	export let activeSection: string = '';
 	export let activeLoading: boolean = false;
+
+	type BusinessAssociationInput = {
+		iata: string;
+		abta: string;
+		atol: string;
+		arc: string;
+		tids: string;
+		clia: string;
+	};
+
+	let businessAssociationInput: BusinessAssociationInput;
+
+	const resetBusinessInfoInput = () => {
+		businessAssociationInput = {
+			iata: '',
+			abta: '',
+			atol: '',
+			arc: '',
+			tids: '',
+			clia: ''
+		};
+	};
+	resetBusinessInfoInput();
+	onDestroy(() => {
+		resetBusinessInfoInput();
+	});
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
+		businessAssociationInput = {
+			iata: agency.iata || '',
+			abta: agency.abta || '',
+			atol: agency.atol || '',
+			arc: agency.arc || '',
+			tids: agency.tids || '',
+			clia: agency.clia || ''
+		};
 	};
 	const onCancel = () => {
 		activeSection = '';
@@ -19,15 +54,6 @@
 
 	const updateBusinessAssociation = async () => {
 		try {
-			let data = {
-				iata: agency.iata || '',
-				abta: agency.abta || '',
-				atol: agency.atol || '',
-				arc: agency.arc || '',
-				tids: agency.tids || '',
-				clia: agency.clia || ''
-			};
-
 			activeLoading = true;
 
 			const res = await fetch(`/common/${type}-${agency.id}.json`, {
@@ -35,14 +61,12 @@
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ ...data })
+				body: JSON.stringify({ ...businessAssociationInput })
 			});
 			if (res.ok) {
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Update successfully'
-				});
+				for (const key in businessAssociationInput) {
+					agency[key] = businessAssociationInput[key];
+				}
 				onCancel();
 			}
 		} catch (error) {}
@@ -60,37 +84,37 @@
 	<FormRow label="IATA" {isEditing} contentClass={'mtop-4-5'}>
 		<div slot="value">{agency.iata === null ? '' : agency.iata}</div>
 		<div slot="fields">
-			<TextInput placeholder="Enter IATA" bind:value={agency.iata} />
+			<TextInput placeholder="Enter IATA" bind:value={businessAssociationInput.iata} />
 		</div>
 	</FormRow>
 	<FormRow label="ABTA" {isEditing} contentClass={'mtop-4-5'} class={'mtop-17-5'}>
 		<div slot="value">{agency.abta === null ? '' : agency.abta}</div>
 		<div slot="fields">
-			<TextInput labelText="" placeholder="Enter ABTA" bind:value={agency.abta} />
+			<TextInput labelText="" placeholder="Enter ABTA" bind:value={businessAssociationInput.abta} />
 		</div>
 	</FormRow>
 	<FormRow label="ATOL" {isEditing} contentClass={'mtop-4-5'} class={'mtop-17-5'}>
 		<div slot="value">{agency.atol === null ? '' : agency.atol}</div>
 		<div slot="fields">
-			<TextInput placeholder="Enter ATOL" bind:value={agency.atol} />
+			<TextInput placeholder="Enter ATOL" bind:value={businessAssociationInput.atol} />
 		</div>
 	</FormRow>
 	<FormRow label="ARC" {isEditing} contentClass={'mtop-4-5'} class={'mtop-17-5'}>
 		<div slot="value">{agency.arc === null ? '' : agency.arc}</div>
 		<div slot="fields">
-			<TextInput labelText="" placeholder="Enter ARC" bind:value={agency.arc} />
+			<TextInput labelText="" placeholder="Enter ARC" bind:value={businessAssociationInput.arc} />
 		</div>
 	</FormRow>
 	<FormRow label="TIDS" {isEditing} contentClass={'mtop-4-5'} class={'mtop-17-5'}>
 		<div slot="value">{agency.tids === null ? '' : agency.tids}</div>
 		<div slot="fields">
-			<TextInput labelText="" placeholder="Enter TIDS" bind:value={agency.tids} />
+			<TextInput labelText="" placeholder="Enter TIDS" bind:value={businessAssociationInput.tids} />
 		</div>
 	</FormRow>
 	<FormRow label="CLIA" {isEditing} contentClass={'mtop-4-5'} class={'mtop-17-5'}>
 		<div slot="value">{agency.clia === null ? '' : agency.clia}</div>
 		<div slot="fields">
-			<TextInput labelText="" placeholder="Enter CLIA" bind:value={agency.clia} />
+			<TextInput labelText="" placeholder="Enter CLIA" bind:value={businessAssociationInput.clia} />
 		</div>
 	</FormRow>
 </FormGroup>

@@ -5,6 +5,7 @@
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 
 	import { TextArea, TextInput } from 'carbon-components-svelte';
+	import { onDestroy } from 'svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
@@ -15,10 +16,35 @@
 	export let activeLoading: boolean = false;
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
+		marketingInfoInput = {
+			description: agency.description,
+			profile: agency.profile,
+			website: agency.website
+		};
 	};
 	const onCancel = () => {
 		activeSection = '';
 	};
+
+	type MarketingInfoInput = {
+		description: string;
+		profile: string;
+		website: string;
+	};
+
+	let marketingInfoInput: MarketingInfoInput;
+	const onResetMarketingInfoInput = () => {
+		marketingInfoInput = {
+			description: '',
+			profile: '',
+			website: ''
+		};
+	};
+
+	onResetMarketingInfoInput();
+	onDestroy(() => {
+		onResetMarketingInfoInput();
+	});
 
 	let invalidMarketingWebsite = {
 		status: false,
@@ -26,13 +52,7 @@
 	};
 	const updateMarketingInformation = async () => {
 		try {
-			const data = {
-				description: agency.description || '',
-				profile: agency.profile || '',
-				website: agency.website || ''
-			};
-
-			if (!validateWebsite(data.website)) {
+			if (!validateWebsite(marketingInfoInput.website)) {
 				invalidMarketingWebsite.status = true;
 				setTimeout(() => {
 					invalidMarketingWebsite.status = false;
@@ -46,15 +66,14 @@
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ ...data })
+				body: JSON.stringify({ ...marketingInfoInput })
 			});
 			if (res.ok) {
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Update successfully'
-				});
+				for (const key in marketingInfoInput) {
+					agency[key] = marketingInfoInput[key];
+				}
 				onCancel();
+				onResetMarketingInfoInput();
 			}
 		} catch (error) {}
 		activeLoading = false;
@@ -81,7 +100,7 @@
 				placeholder="Enter agency description..."
 				rows={4}
 				maxlength={100}
-				bind:value={agency.description}
+				bind:value={marketingInfoInput.description}
 			/>
 		</div>
 	</FormRow>
@@ -98,7 +117,7 @@
 				placeholder="Enter agency profile..."
 				rows={5}
 				maxlength={750}
-				bind:value={agency.profile}
+				bind:value={marketingInfoInput.profile}
 			/>
 		</div>
 	</FormRow>
@@ -118,7 +137,7 @@
 		<div slot="fields">
 			<TextInput
 				placeholder="Enter your website"
-				bind:value={agency.website}
+				bind:value={marketingInfoInput.website}
 				invalid={invalidMarketingWebsite.status}
 				invalidText={invalidMarketingWebsite.message}
 			/>

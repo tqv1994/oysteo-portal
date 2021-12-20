@@ -1,8 +1,9 @@
 <script lang="ts">
 	import type { Advisor } from '$lib/store/advisor';
-	import type { Experience } from '$lib/store/experience';
+	import type { Experience, Experience } from '$lib/store/experience';
 	import { Link, Select, SelectItem } from 'carbon-components-svelte';
 	import { CloseOutline20 } from 'carbon-icons-svelte';
+	import { onDestroy } from 'svelte';
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
 
@@ -12,26 +13,41 @@
 	export let experienceList: Experience[];
 	export let activeSection: string = '';
 	export let activeLoading: boolean = false;
+
+	let experienceInput: Experience[];
+
+	const resetExperienceInput = () => {
+		experienceInput = [];
+	};
+
+	resetExperienceInput();
+	onDestroy(() => {
+		resetExperienceInput();
+	});
+
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
+		experienceInput = [...experiences];
 	};
 	const onCancel = () => {
 		activeSection = '';
 	};
 	const updateExperience = async () => {
 		try {
-			let experienceId = [];
-			experiences.forEach((experience) => {
-				if (experience.id != 0) {
-					experienceId = [...experienceId, experience.id];
-				}
-			});
-			if (experienceId.length == 0) {
+			let experienceIdSelected: string[];
+			experienceIdSelected = experienceInput
+				.filter((item) => item.id !== '0')
+				.map((item) => item.id);
+
+			if (experienceIdSelected.length == 0) {
 				return;
 			}
+
 			const data = {
-				experiences: experienceId
+				experiences: experienceIdSelected
 			};
+			console.log(data);
+
 			activeLoading = true;
 
 			const res = await fetch(`/common/${type}-${advisorId}.json`, {
@@ -44,11 +60,7 @@
 			if (res.ok) {
 				const data = await res.json();
 				experiences = data.updateAdvisor.advisor.experiences;
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Update successfully'
-				});
+				resetExperienceInput();
 				onCancel();
 			}
 		} catch (error) {}
@@ -70,17 +82,17 @@
 			{/each}
 		</div>
 		<div slot="fields">
-			{#each experiences as experience, index}
+			{#each experienceInput as experience, index}
 				<div class="experiences-container">
 					<Select
 						labelText="Experience"
 						hideLabel
-						name="experiences-{index}"
+						name="experiences-{experience.id}"
 						selected={experience.id.toString()}
 						on:change={(e) => {
 							const expSelected = experienceList.filter((ele) => ele.id.toString() == e.detail);
 							if (expSelected.length > 0) {
-								experiences[index] = expSelected[0];
+								experienceInput[index] = expSelected[0];
 							}
 						}}
 					>
@@ -92,14 +104,16 @@
 					<CloseOutline20
 						class="remove-experiences"
 						on:click={() => {
-							experiences = experiences.filter((ele) => ele.id !== experiences[index].id);
+							experienceInput = experienceInput.filter(
+								(ele) => ele.id !== experienceInput[index].id
+							);
 						}}
 					/>
 				</div>
 			{/each}
 			<Link
 				on:click={() => {
-					experiences = [...experiences, { id: 0, name: '', description: '' }];
+					experienceInput = [...experienceInput, { id: '0', name: '' }];
 				}}
 				id="bx--link-add">Add Experience</Link
 			>

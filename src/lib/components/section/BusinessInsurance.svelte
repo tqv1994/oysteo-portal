@@ -2,6 +2,7 @@
 	import type { Agency } from '$lib/store/agency';
 
 	import { TextInput } from 'carbon-components-svelte';
+	import { onDestroy } from 'svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
@@ -10,8 +11,31 @@
 	export let agency: Agency;
 	export let activeSection: string = '';
 	export let activeLoading: boolean = false;
+
+	type BusinessInsuranceInput = {
+		insurance_company: string;
+		insurance_policy: string;
+	};
+
+	let businessInsuranceInput: BusinessInsuranceInput;
+
+	const resetBusinessInsuranceInput = () => {
+		businessInsuranceInput = {
+			insurance_company: '',
+			insurance_policy: ''
+		};
+	};
+
+	resetBusinessInsuranceInput();
+	onDestroy(() => {
+		resetBusinessInsuranceInput();
+	});
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
+		businessInsuranceInput = {
+			insurance_company: agency.insurance_company || '',
+			insurance_policy: agency.insurance_policy || ''
+		};
 	};
 	const onCancel = () => {
 		activeSection = '';
@@ -19,10 +43,6 @@
 
 	const updateBusinessInsurance = async () => {
 		try {
-			let data = {
-				insurance_company: agency.insurance_company || '',
-				insurance_policy: agency.insurance_policy || ''
-			};
 			activeLoading = true;
 
 			const res = await fetch(`/common/${type}-${agency.id}.json`, {
@@ -30,14 +50,13 @@
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ ...data })
+				body: JSON.stringify({ ...businessInsuranceInput })
 			});
 			if (res.ok) {
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Update successfully'
-				});
+				for (const key in businessInsuranceInput) {
+					agency[key] = businessInsuranceInput[key];
+				}
+				resetBusinessInsuranceInput();
 				onCancel();
 			}
 		} catch (error) {}
@@ -52,15 +71,16 @@
 	on:cancel={onCancel}
 	on:submit={updateBusinessInsurance}
 >
-	<FormRow label="Insurance Company" {isEditing}>
+	<FormRow label="Insurance Company" {isEditing} contentClass="d-mtop-0">
 		<div slot="value">
 			{agency.insurance_company || ''}
 		</div>
 		<div slot="fields">
 			<TextInput
 				labelText={agency.insurance_company || ''}
+				hideLabel
 				placeholder="Enter your business insurance company..."
-				bind:value={agency.insurance_company}
+				bind:value={businessInsuranceInput.insurance_company}
 			/>
 		</div>
 	</FormRow>
@@ -69,8 +89,9 @@
 		<div slot="fields">
 			<TextInput
 				labelText={agency.insurance_policy || ''}
+				hideLabel
 				placeholder="Enter your business insurance policy ..."
-				bind:value={agency.insurance_policy}
+				bind:value={businessInsuranceInput.insurance_policy}
 			/>
 		</div>
 	</FormRow>

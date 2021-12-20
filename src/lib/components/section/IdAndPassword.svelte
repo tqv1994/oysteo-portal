@@ -79,11 +79,6 @@
 							// Current password is valid
 							await updatePassword(user, passwordData.newPassword)
 								.then(() => {
-									window.openNotification({
-										kind: 'success',
-										title: 'Success',
-										subtitle: 'Change password successfully'
-									});
 									// After changing the password, Firebase will refresh the token
 									redirect('/login', 1000);
 								})
@@ -97,11 +92,14 @@
 						})
 						.catch((error) => {
 							// Current password is invalid
-							window.openNotification({
-								kind: 'error',
-								title: 'Error',
-								subtitle: 'Password was wrong'
-							});
+							invalidPassword.currentPassword = {
+								status: true,
+								message: 'Password was wrong'
+							};
+							setTimeout(() => {
+								invalidPassword.currentPassword.status = false;
+							}, INVALID_DELAY_TIME);
+							return;
 						});
 				} else {
 					window.openNotification({

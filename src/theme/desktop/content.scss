@@ -81,8 +81,9 @@
 			flex-basis: 14rem;
 			font-size: 0.875rem;
 		}
-		.bx--date-picker-input__wrapper {
-			width: 100%;
+		.flatpickr-calendar {
+			left: 32% !important;
+			top: 3rem !important;
 		}
 	}
 }

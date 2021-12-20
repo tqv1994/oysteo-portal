@@ -10,6 +10,7 @@
 	export let destinations: Destination[];
 	export let activeSection: string = '';
 	export let activeLoading: boolean = false;
+	export let loadingLabel: string;
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
 	};
@@ -35,6 +36,7 @@
 			return;
 		}
 		activeLoading = true;
+		loadingLabel = 'Creating ...';
 		try {
 			const res = await fetch('/destination/create.json', {
 				method: 'POST',
@@ -61,16 +63,12 @@
 				});
 				if (res_assign.ok) {
 					destinations = [...destinations, destinationInserted];
-					window.openNotification({
-						kind: 'success',
-						title: 'Success',
-						subtitle: 'Create successfully'
-					});
 					activeSection = '';
 				}
 			}
 		} catch (error) {}
 		activeLoading = false;
+		loadingLabel = 'Saving ...';
 	};
 </script>
 

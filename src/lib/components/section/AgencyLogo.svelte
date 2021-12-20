@@ -15,6 +15,7 @@
 	export let agency: Agency;
 	export let activeSection: string = '';
 	export let activeLoading: boolean = false;
+	export let loadingLabel: string;
 	let disabledRemoveLogo: boolean = false;
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
@@ -25,14 +26,14 @@
 	};
 
 	const uploadFile = async (e: CustomEvent) => {
-		activeLoading = true;
-
 		const formData: FormData = new FormData();
 		let file = e.detail[0];
 		formData.append('files', file);
 		formData.append('ref', 'agency');
 		formData.append('refId', agency.id.toString());
 		formData.append('field', 'logo');
+		activeLoading = true;
+		loadingLabel = 'Uploading ...';
 		const res = await fetch(cmsUrlPrefix + '/upload', {
 			method: 'POST',
 			body: formData
@@ -43,15 +44,10 @@
 			if (content.length > 0) {
 				await removeLogo(true);
 				agency.logo = content[0];
-
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Upload successfully'
-				});
 			}
 		}
 		activeLoading = false;
+		loadingLabel = 'Saving ...';
 	};
 	const removeLogo = async (isOldLogo = false) => {
 		if (agency.logo == null) {
@@ -64,6 +60,7 @@
 			}
 		}
 		activeLoading = true;
+		loadingLabel = 'Removing ...';
 
 		const res = await fetch('/file.json', {
 			method: 'DELETE',
@@ -76,15 +73,11 @@
 		if (res.ok) {
 			agency.logo = null;
 			if (!isOldLogo) {
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Delete successfully'
-				});
 				onCancel();
 			}
 		}
 		activeLoading = false;
+		loadingLabel = 'Saving ...';
 	};
 </script>
 

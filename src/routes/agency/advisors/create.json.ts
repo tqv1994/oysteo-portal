@@ -14,7 +14,8 @@ export const post: RequestHandler = async (request: Request<Rec<any>, AuthForm>)
 		if (cookie) {
 			const res = await fetch(`${cmsUrlPrefix}/advisors/createAdvisor`, {
 				headers: {
-					Cookie: cookie
+					Cookie: cookie,
+					'Content-Type': 'application/json'
 				},
 				method: 'POST',
 				body: JSON.stringify(request.body)

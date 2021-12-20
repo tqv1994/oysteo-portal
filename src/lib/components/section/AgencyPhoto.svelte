@@ -11,8 +11,8 @@
 	export let agency: Agency;
 	export let activeSection: string = '';
 	export let activeLoading: boolean;
+	export let loadingLabel: string;
 
-	console.log(agency);
 	let disabledRemove: boolean = true;
 	let photoSelected: number;
 
@@ -27,6 +27,7 @@
 
 	const uploadFile = async (e: Event) => {
 		activeLoading = true;
+		loadingLabel = 'Uploading ...';
 		try {
 			const formData: FormData = new FormData();
 			let file = e.target.files[0];
@@ -40,32 +41,29 @@
 			});
 
 			if (res.ok) {
-
 				const content = await res.json();
 				if (content.length > 0) {
 					agency.images = [...agency.images, content[0]];
-					window.openNotification({
-						kind: 'success',
-						title: 'Success',
-						subtitle: 'Upload successfully'
-					});
 				}
 			}
 		} catch (error) {
 			console.log(error);
 		}
 		activeLoading = false;
+		loadingLabel = 'Saving ...';
 	};
 
 	const removePhoto = async () => {
 		if (photoSelected == 0) {
 			return;
 		}
+		console.log(photoSelected);
 		const confirmDelete = confirm('Are you sure you want to remove this item?');
 		if (!confirmDelete) {
 			return;
 		}
 		activeLoading = true;
+		loadingLabel = 'Removing ...';
 
 		const res = await fetch('/file.json', {
 			method: 'DELETE',
@@ -76,14 +74,11 @@
 		});
 
 		if (res.ok) {
-			window.openNotification({
-				kind: 'success',
-				title: 'Success',
-				subtitle: 'Delete successfully'
-			});
 			agency.images = agency.images.filter((item) => item.id != photoSelected);
+			onCancel();
 		}
 		activeLoading = false;
+		loadingLabel = 'Saving ...';
 	};
 </script>
 
@@ -100,20 +95,28 @@
 >
 	<FormRow label="Images" {isEditing}>
 		<div slot="value">
-			<Grid fullWidth>
-				{#each range(0, agency.images.length, 2) as i}
-					<Row>
-						<Column>
-							<ImageLoader src={cmsUrlPrefix + agency.images[i].url} />
-						</Column>
-						{#if i + 1 < agency.images.length}
+			{#if agency.images.length == 0}
+				no image selected
+			{:else}
+				<Grid fullWidth>
+					{#each range(0, agency.images.length, 2) as i}
+						<Row>
 							<Column>
-								<ImageLoader src={cmsUrlPrefix + agency.images[i + 1].url} />
+								<ImageLoader src={cmsUrlPrefix + agency.images[i].url} />
 							</Column>
-						{/if}
-					</Row>
-				{/each}
-			</Grid>
+							{#if i + 1 < agency.images.length}
+								<Column>
+									<ImageLoader src={cmsUrlPrefix + agency.images[i + 1].url} />
+								</Column>
+							{:else}
+								<Column>
+									<div style="width:100%" />
+								</Column>
+							{/if}
+						</Row>
+					{/each}
+				</Grid>
+			{/if}
 		</div>
 		<div slot="fields">
 			<Grid fullWidth class="d-pleft-16">
@@ -165,6 +168,10 @@
 									}}
 									class="remove-media-layout"
 								/>
+							</Column>
+						{:else}
+							<Column>
+								<div style="width:100%" />
 							</Column>
 						{/if}
 					</Row>
