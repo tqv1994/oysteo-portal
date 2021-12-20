@@ -233,6 +233,15 @@ label.bx--btn--primary {
 	}
 }
 
+//Modal
+.bx--modal{
+	.bx--modal-footer{
+		.bx--btn{
+			padding: 0;
+		}
+	}
+}
+
 // Slot value p
 .agency-address,
 .marketing-info,

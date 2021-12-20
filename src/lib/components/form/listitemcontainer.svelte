@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Button, Form, FormGroup, Link } from 'carbon-components-svelte';
+	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
+	import { Button, Form, FormGroup, Link, Modal } from 'carbon-components-svelte';
 	import { RequestQuote16 } from 'carbon-icons-svelte';
 	import { createEventDispatcher } from 'svelte';
 
@@ -8,15 +9,27 @@
 	const dispatch = createEventDispatcher();
 
 	function onEdit() {
-		dispatch('edit');
+		if ($formChangeStatusStore.changing === false) {
+			dispatch('edit');
+			setTimeout(() => {
+				const form = document.querySelector('form');
+				form.addEventListener('input', function () {
+					formChangeStatusStore.set({ changing: true });
+				});
+			}, 0);
+		} else {
+			window.openWarningSaveForm({handleConfirm: onEdit});
+		}
 	}
 
 	function onSubmit() {
 		dispatch('submit');
+		formChangeStatusStore.set({ changing: false });
 	}
 
 	function onCancel() {
 		dispatch('cancel');
+		formChangeStatusStore.set({ changing: false });
 	}
 </script>
 

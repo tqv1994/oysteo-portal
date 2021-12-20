@@ -1,4 +1,6 @@
 <script lang="ts">
+import { formChangeStatusStore } from '$lib/store/formChangeStatus';
+
 	import { Tile } from 'carbon-components-svelte';
 	import { Add20 } from 'carbon-icons-svelte';
 	import { createEventDispatcher } from 'svelte';
@@ -11,7 +13,17 @@
 	export let titleRightIcon = '';
 
 	const handleClick = () => {
-		dispatch('add');
+		if ($formChangeStatusStore.changing === false) {
+			dispatch('add');
+			setTimeout(() => {
+				const form = document.querySelector('form');
+				form.addEventListener('input', function () {
+					formChangeStatusStore.set({ changing: true });
+				});
+			}, 0);
+		} else {
+			window.openWarningSaveForm({handleConfirm: handleClick});
+		}
 	};
 </script>
 

@@ -33,8 +33,11 @@
 </script>
 
 <script lang="ts">
+	import PopupWarningSaveForm from '$lib/components/form/PopupWarningSaveForm.svelte';
 	import 'carbon-components-svelte/css/all.css';
 	import '../../theme/oysteo.scss';
+	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
+import { goto } from '$app/navigation';
 	let isSideNavOpen = false;
 	let isOpen = false;
 	let selected = '0';
@@ -69,17 +72,17 @@
 					let keyActive = null;
 					const sectionActive = contentEl.querySelector(target);
 					contentEl.querySelectorAll('.section').forEach((sectionEl, key) => {
-						if(sectionEl.id == sectionActive.id){
+						if (sectionEl.id == sectionActive.id) {
 							keyActive = key;
 							heightOfSections += sectionEl.clientHeight;
-						}else if(keyActive !== null && key > keyActive){
+						} else if (keyActive !== null && key > keyActive) {
 							heightOfSections += sectionEl.clientHeight;
 						}
 					});
-					if(heightOfSections < screen.height){
-						divFakeHeight.style.height = (screen.height - heightOfSections + marginTop)+"px";
-					}else{
-						divFakeHeight.style.height = "0";
+					if (heightOfSections < screen.height) {
+						divFakeHeight.style.height = screen.height - heightOfSections + marginTop + 'px';
+					} else {
+						divFakeHeight.style.height = '0';
 					}
 					window.scrollTo(0, getOffset(sectionActive).top - marginTop);
 				});
@@ -88,23 +91,24 @@
 			// The event handler after clicking the edit button will be on top to the section
 			contentEl.querySelectorAll('.section .btn-edit').forEach((btnEl, key) => {
 				btnEl.addEventListener('click', (e: PointerEvent) => {
-					if(e.path && Array.isArray(e.path)){
-						const sectionCurrent = e.path.reduce((acc: Element ,item: Element)=>{
-							if(item.classList && item.classList.contains('section')){
-								acc = item;
-							}
-							return acc;
-						}, null);
-						desktopNavSectionEl.querySelectorAll('a').forEach((element) => {
-							if(element.getAttribute('href') == `#${sectionCurrent.id}`){
-								element.click();
-							}
-						});
+					if ($formChangeStatusStore.changing === false) {
+						if (e.path && Array.isArray(e.path)) {
+							const sectionCurrent = e.path.reduce((acc: Element, item: Element) => {
+								if (item.classList && item.classList.contains('section')) {
+									acc = item;
+								}
+								return acc;
+							}, null);
+							desktopNavSectionEl.querySelectorAll('a').forEach((element) => {
+								if (element.getAttribute('href') == `#${sectionCurrent.id}`) {
+									element.click();
+								}
+							});
+						}
 					}
 				});
 			});
 		}
-
 	};
 
 	const onScroll = () => {
@@ -115,7 +119,7 @@
 		if (desktopNavSectionEl) {
 			let scrollDistance: number = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
 			contentEl.querySelectorAll('.section').forEach((sectionEl, key) => {
-				if ((getOffset(sectionEl).top - marginTop) <= scrollDistance) {
+				if (getOffset(sectionEl).top - marginTop <= scrollDistance) {
 					desktopNavSectionEl.querySelectorAll('li.active').forEach((activeEl) => {
 						activeEl.classList.remove('active');
 					});
@@ -135,7 +139,44 @@
 		};
 	};
 
-  	afterUpdate(onLoad);
+	afterUpdate(onLoad);
+
+	const gotoAgency = () => {
+		if(!$formChangeStatusStore.changing){
+			goto('/account/agency');
+			isSideNavOpen = false;
+		}else{
+			window.openWarningSaveForm({handleConfirm: gotoAgency});
+		}
+		
+	}
+
+	const gotoAdvisor = () => {
+		if(!$formChangeStatusStore.changing){
+			goto('/account/advisor');
+			isSideNavOpen = false;
+		}else{
+			window.openWarningSaveForm({handleConfirm: gotoAdvisor});
+		}
+	}
+
+	const gotoAccount = () => {
+		if(!$formChangeStatusStore.changing){
+			goto('/account/agency');
+			isSideNavOpen = false;
+		}else{
+			window.openWarningSaveForm({handleConfirm: gotoAdvisor});
+		}
+	}
+
+	const gotoLogout = () => {
+		if(!$formChangeStatusStore.changing){
+			goto('/account/logout');
+			isSideNavOpen = false;
+		}else{
+			window.openWarningSaveForm({handleConfirm: gotoLogout});
+		}
+	}
 </script>
 
 <svelte:window on:scroll={onScroll} />
@@ -160,9 +201,9 @@
 	</div>
 
 	<HeaderNav>
-		<HeaderNavItem href="/account" text="My Oysteo" />
-		<HeaderNavItem isSelected={navSelected == 'advisor'} href="/account/advisor" text="Advisor" />
-		<HeaderNavItem isSelected={navSelected == 'agency'} href="/account/agency" text="Agency" />
+		<HeaderNavItem href="#" text="My Oysteo" on:click={gotoAccount}/>
+		<HeaderNavItem isSelected={navSelected == 'advisor'} href="#" text="Advisor" on:click={() => {gotoAdvisor()}}/>
+		<HeaderNavItem isSelected={navSelected == 'agency'} href="#" text="Agency" on:click={() => {gotoAgency()}}/>
 	</HeaderNav>
 	<HeaderUtilities>
 		<HeaderAction
@@ -173,7 +214,7 @@
 		>
 			<HeaderPanelLinks>
 				<p id="account-name">{$authStore.user?.email || ''}</p>
-				<HeaderPanelLink class="btn-logout" href="/account/logout">Logout</HeaderPanelLink>
+				<HeaderPanelLink class="btn-logout" href="#" on:click={gotoLogout}>Logout</HeaderPanelLink>
 			</HeaderPanelLinks>
 		</HeaderAction>
 	</HeaderUtilities>
@@ -181,18 +222,18 @@
 
 <SideNav isOpen={isSideNavOpen} id="main-sidebar">
 	<SideNavItems>
-		<SideNavLink text="My Oysteo" href="/account" on:click={() => (isSideNavOpen = false)} />
+		<SideNavLink text="My Oysteo" href="#" on:click={gotoAccount} />
 		<SideNavLink
 			text="Advisors"
-			href="/account/advisor"
+			href="#"
 			isSelected={navSelected == 'advisor'}
-			on:click={() => (isSideNavOpen = false)}
+			on:click={() => {gotoAdvisor()}}
 		/>
 		<SideNavLink
 			text="Agency"
-			href="/account/agency"
+			href="#"
 			isSelected={navSelected == 'agency'}
-			on:click={() => (isSideNavOpen = false)}
+			on:click={() => {gotoAgency()}}
 		/>
 	</SideNavItems>
 </SideNav>
@@ -200,6 +241,7 @@
 <Content>
 	<slot {isSideNavOpen} />
 </Content>
+<PopupWarningSaveForm />
 
 <style lang="scss">
 	:global(#main-sidebar) {
