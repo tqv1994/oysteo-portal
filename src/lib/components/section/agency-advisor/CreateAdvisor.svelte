@@ -172,7 +172,7 @@
 			/>
 
 			<fieldset class="bx--fieldset">
-				<legend class="bx--label">Check if actives</legend>
+				<legend class="bx--label">Check if active</legend>
 				<Checkbox id="agency-active-status" bind:checked={createAdvisorData.active} />
 			</fieldset>
 		</div>

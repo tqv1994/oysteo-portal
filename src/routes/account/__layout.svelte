@@ -39,7 +39,6 @@
 	let isOpen = false;
 	let selected = '0';
 	export let navSelected: string;
-	console.log(navSelected);
 	let transitions = {
 		'0': {
 			text: 'Default (duration: 200ms)',
@@ -86,7 +85,26 @@
 				});
 				return false;
 			});
+			// The event handler after clicking the edit button will be on top to the section
+			contentEl.querySelectorAll('.section .btn-edit').forEach((btnEl, key) => {
+				btnEl.addEventListener('click', (e: PointerEvent) => {
+					if(e.path && Array.isArray(e.path)){
+						const sectionCurrent = e.path.reduce((acc: Element ,item: Element)=>{
+							if(item.classList && item.classList.contains('section')){
+								acc = item;
+							}
+							return acc;
+						}, null);
+						desktopNavSectionEl.querySelectorAll('a').forEach((element) => {
+							if(element.getAttribute('href') == `#${sectionCurrent.id}`){
+								element.click();
+							}
+						});
+					}
+				});
+			});
 		}
+
 	});
 
 	const onScroll = () => {

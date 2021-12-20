@@ -22,7 +22,7 @@
 		<slot />
 	</Tile>
 	{#if rightIcon}
-		<div class="right-icon" on:click={handleClick}>
+		<div class="right-icon btn-edit" on:click={handleClick}>
 			<span class="title-right-icon">{titleRightIcon}</span><Add20 style="fill:white;" />
 		</div>
 	{/if}

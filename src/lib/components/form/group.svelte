@@ -52,7 +52,7 @@
 
 		{#if groupName === '' && !hideEditButton}
 			<div class="actions">
-				<Link on:click={onEdit}>{editLabel}&nbsp;<RequestQuote16 /></Link>
+				<Link on:click={onEdit} class="btn-edit">{editLabel}&nbsp;<RequestQuote16 /></Link>
 			</div>
 		{:else}
 			<div class="group-name">

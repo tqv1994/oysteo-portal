@@ -38,7 +38,7 @@
 			<slot {isEditing} />
 		</div>
 		<div class="actions">
-			<Link on:click={onEdit}>Edit&nbsp;<RequestQuote16 /></Link>
+			<Link on:click={onEdit} class="btn-edit">Edit&nbsp;<RequestQuote16 /></Link>
 		</div>
 	{/if}
 </div>
