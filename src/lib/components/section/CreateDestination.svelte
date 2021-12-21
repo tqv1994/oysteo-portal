@@ -11,18 +11,29 @@
 	export let activeSection: string = '';
 	export let activeLoading: boolean = false;
 	export let loadingLabel: string;
-	const onEdit = (groupName: string) => {
-		activeSection = groupName;
+
+	type CreateDestinationInput = {
+		name: string;
+		location: string;
+		description: string;
 	};
+
 	const onCancel = () => {
 		activeSection = '';
 	};
 
-	let createDestinationData = {
-		name: '',
-		location: '',
-		description: ''
+	let createDestinationData: CreateDestinationInput;
+
+	const resetCreateDestination = () => {
+		createDestinationData = {
+			name: '',
+			location: '',
+			description: ''
+		};
 	};
+
+	resetCreateDestination();
+
 	let invalidLocation = {
 		status: false,
 		message: 'Location is required'
@@ -75,7 +86,6 @@
 <FormGroup
 	let:isEditing
 	isEditing={activeSection === 'destination-add'}
-	on:edit={() => onEdit('destination-add')}
 	on:cancel={onCancel}
 	on:submit={createDestination}
 	groupClass={'group group-add'}
@@ -83,7 +93,7 @@
 	<FormRow label="Create Destination" {isEditing} class={'create-destination'}>
 		<div slot="fields">
 			<TextInput
-				labelText="Tuscany"
+				labelText="Add name"
 				placeholder="Enter destination name..."
 				bind:value={createDestinationData.name}
 			/>

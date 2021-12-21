@@ -15,19 +15,21 @@
 	export let salutationTypes: SalutationType[];
 	export let activeSection: string = '';
 	export let activeLoading: boolean;
+	let firstName: string = '';
+	let lastName: string = '';
 
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
 		createAdvisorData = {
 			salutationType: '',
-			firstName: '',
-			lastName: '',
 			name: '',
 			initials: '',
 			email: '',
 			reference: '',
 			active: false
 		};
+		firstName = "";
+		lastName = "";
 	};
 	const onCancel = () => {
 		activeSection = '';
@@ -35,8 +37,6 @@
 
 	let createAdvisorData = {
 		salutationType: '',
-		firstName: '',
-		lastName: '',
 		name: '',
 		initials: '',
 		email: '',
@@ -63,14 +63,14 @@
 			}, INVALID_DELAY_TIME);
 			return;
 		}
-		if (createAdvisorData.firstName == '') {
+		if (firstName == '') {
 			invalidAdvisorFirstName.status = true;
 			setTimeout(() => {
 				invalidAdvisorFirstName.status = false;
 			}, INVALID_DELAY_TIME);
 			return;
 		}
-		if (createAdvisorData.lastName == '') {
+		if (lastName == '') {
 			invalidAdvisorLastName.status = true;
 			setTimeout(() => {
 				invalidAdvisorLastName.status = false;
@@ -78,12 +78,7 @@
 			return;
 		}
 
-		createAdvisorData.name = mergeName({
-			firstName: createAdvisorData.firstName,
-			lastName: createAdvisorData.lastName
-		});
-		delete createAdvisorData.firstName;
-		delete createAdvisorData.lastName;
+		createAdvisorData.name = firstName + ' ' + lastName;
 
 		activeLoading = true;
 		try {
@@ -102,8 +97,8 @@
 				advisors.push(data);
 
 				const auth = getAuth();
-				await auth.setPersistence(inMemoryPersistence);
-				await sendPasswordResetEmail(auth, data.email).then(() => {});
+				lastName = "";
+				firstName = "";
 				onCancel();
 			} else {
 				let error = await res.json();
@@ -112,8 +107,6 @@
 		} catch (error) {
 			window.openNotification({ kind: 'error', title: 'Error', subtitle: error.message });
 		}
-		createAdvisorData.lastName = "";
-		createAdvisorData.firstName = "";
 		activeLoading = false;
 	};
 </script>
@@ -140,12 +133,12 @@
 			<TextInput
 				labelText="First name"
 				placeholder="Enter advisor firstname"
-				bind:value={createAdvisorData.firstName}
+				bind:value={firstName}
 				invalid={invalidAdvisorFirstName.status}
 				invalidText={invalidAdvisorFirstName.message}
 			/>
 			<TextInput
-				labelText="Initials (optional)"
+				labelText="Middle Initial (optional)"
 				placeholder=""
 				class="agency-advisors-initials"
 				bind:value={createAdvisorData.initials}
@@ -153,7 +146,7 @@
 			<TextInput
 				labelText="Last name"
 				placeholder="Enter advisor lastname"
-				bind:value={createAdvisorData.lastName}
+				bind:value={lastName}
 				invalid={invalidAdvisorLastName.status}
 				invalidText={invalidAdvisorLastName.message}
 			/>

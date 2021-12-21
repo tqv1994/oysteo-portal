@@ -269,7 +269,7 @@
 				? convert2InternationalPhone(payments[0].phone, payments[0].countryCode)
 				: ''}
 		</div>
-		<div slot="fields">
+		<div slot="fields" class="phone-billing">
 			<Select
 				labelText="Country Code"
 				class="half-width"

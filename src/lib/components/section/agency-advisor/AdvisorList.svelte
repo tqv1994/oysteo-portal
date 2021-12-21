@@ -24,14 +24,6 @@
 		salutationType: string | null;
 	};
 
-	const onEdit = (groupName: string) => {
-		activeSection = groupName;
-		if (groupName.includes('advisor--')) {
-			const advisorIndex = parseInt(groupName.split('--')[1]);
-			advisorNameData = separateFirstAndLastName(advisors[advisorIndex].name);
-		}
-	};
-
 	const advisorInputs: AdvisorInput[] = advisors.reduce((acc: AdvisorInput[], advisor) => {
 		acc.push({
 			name: advisor.name,
@@ -43,6 +35,26 @@
 		});
 		return acc;
 	}, []);
+
+	console.log(advisorInputs);
+
+	const onEdit = (groupName: string) => {
+		activeSection = groupName;
+		if (groupName.includes('advisor--')) {
+			const advisorIndex = parseInt(groupName.split('--')[1]);
+			advisorNameData = separateFirstAndLastName(advisors[advisorIndex].name);
+			if(!advisorInputs[advisorIndex]){
+				advisorInputs.push({
+					name: advisors[advisorIndex].name,
+					initials: advisors[advisorIndex].initials,
+					email: advisors[advisorIndex].email,
+					reference: advisors[advisorIndex].reference,
+					active: advisors[advisorIndex].active,
+					salutationType: advisors[advisorIndex].salutationType?.id || null
+				})
+			}
+		}
+	};
 	const onCancel = () => {
 		activeSection = '';
 	};
@@ -130,7 +142,7 @@
 							bind:value={advisorNameData.firstName}
 						/>
 						<TextInput
-							labelText="Initials (optional)"
+							labelText="Middle Initial (optional)"
 							placeholder=""
 							class="agency-advisors-initials"
 							bind:value={advisorInputs[index].initials}

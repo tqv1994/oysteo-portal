@@ -34,7 +34,7 @@
 		<div slot="value">{destinations[index].name == null ? '' : destinations[index].name}</div>
 		<div slot="fields">
 			<TextInput
-				labelText={destinations[index].name}
+				labelText="Edit Name"
 				placeholder="Enter destination name..."
 				bind:value={destinations[index].name}
 			/>

@@ -9,13 +9,12 @@
 		browserSessionPersistence,
 		EmailAuthProvider,
 		getAuth,
-		inMemoryPersistence,
-		onAuthStateChanged,
 		reauthenticateWithCredential,
 		signInWithEmailAndPassword,
-		updatePassword
 	} from 'firebase/auth';
 	import { redirect } from '$lib/utils/router';
+	import { authStore } from '$lib/store/auth';
+	import { onDestroy } from 'svelte';
 
 	export let user: User | undefined;
 	export let activeSection: string = '';
@@ -46,6 +45,19 @@
 			message: ''
 		}
 	};
+
+	const resetPasswordData = () => {
+		passwordData = {
+			currentPassword: '',
+			newPassword: '',
+			confirmPassword: ''
+		};
+	};
+
+	onDestroy(() => {
+		resetPasswordData();
+	});
+
 	const onUpdatePassword = async () => {
 		invalidPassword.newPassword = checkPasswordRule(passwordData.newPassword);
 		if (invalidPassword.newPassword.status) {
@@ -70,46 +82,72 @@
 			activeLoading = true;
 			const auth = await getAuth();
 			await auth.setPersistence(browserSessionPersistence); // To get the user from browser session
-			await auth.onAuthStateChanged(async (user) => {
-				if (user) {
-					// Check current password
-					const credential = EmailAuthProvider.credential(user.email, passwordData.currentPassword);
-					await reauthenticateWithCredential(user, credential)
-						.then(async () => {
-							// Current password is valid
-							await updatePassword(user, passwordData.newPassword)
-								.then(() => {
-									// After changing the password, Firebase will refresh the token
-									redirect('/login', 1000);
-								})
-								.catch((error) => {
-									window.openNotification({
-										kind: 'error',
-										title: 'Error',
-										subtitle: 'Password change failed'
-									});
-								});
-						})
-						.catch((error) => {
-							// Current password is invalid
-							invalidPassword.currentPassword = {
-								status: true,
-								message: 'Password was wrong'
-							};
-							setTimeout(() => {
-								invalidPassword.currentPassword.status = false;
-							}, INVALID_DELAY_TIME);
-							return;
+			const user = auth.currentUser;
+			if (user) {
+				// Check current password
+				const credential = EmailAuthProvider.credential(user.email, passwordData.currentPassword);
+				await reauthenticateWithCredential(user, credential)
+					.then(async () => {
+						//Current password is valid
+						const res = await fetch('/auth/change-password.json', {
+							method: 'PUT',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify({
+								password: passwordData.newPassword,
+								passwordConfirmation: passwordData.confirmPassword
+							})
 						});
-				} else {
-					window.openNotification({
-						kind: 'warning',
-						title: 'Warning',
-						subtitle: 'The account has expired. Please log in again.'
+						if (res.ok) {
+							await signInWithEmailAndPassword(auth, user.email, passwordData.newPassword).then(
+								async (cred) => {
+									if (cred.user) {
+										const token = await cred.user.getIdToken();
+										const res = await fetch('/auth.json', {
+											method: 'POST',
+											headers: {
+												'Content-Type': 'application/json'
+											},
+											body: JSON.stringify({
+												token
+											})
+										});
+										if (res.ok) {
+											const user = await res.json();
+											authStore.set({ user });
+											activeSection = "";
+										} else {
+											const error = await res.json();
+											console.log(error);
+										}
+									}
+								}
+							);
+						} else {
+							const error = await res.json();
+							console.log(error);
+						}
+					})
+					.catch((error) => {
+						// Current password is invalid
+						invalidPassword.currentPassword = {
+							status: true,
+							message: 'Password was wrong'
+						};
+						setTimeout(() => {
+							invalidPassword.currentPassword.status = false;
+						}, INVALID_DELAY_TIME);
+						return;
 					});
-					redirect('/login', 500);
-				}
-			});
+			} else {
+				window.openNotification({
+					kind: 'warning',
+					title: 'Warning',
+					subtitle: 'The account has expired. Please log in again.'
+				});
+				redirect('/login', 500);
+			}
 		} catch (error) {
 			window.openNotification({
 				kind: 'error',

@@ -38,7 +38,7 @@
 		</div>
 		<div slot="fields">
 			<TextArea
-				labelText="Add Insight"
+				labelText="Edit Insight"
 				placeholder="Enter insight..."
 				bind:value={destinations[index].description}
 			/>

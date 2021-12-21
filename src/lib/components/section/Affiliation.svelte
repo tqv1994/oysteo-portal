@@ -106,6 +106,8 @@
 							const affSelected = list.filter((ele) => ele.id.toString() == e.detail);
 							if (affSelected.length > 0) {
 								affiliateInput[index] = affSelected[0];
+							}else{
+								affiliateInput[index] = { id: '0', name: '' };
 							}
 						}}
 					>
