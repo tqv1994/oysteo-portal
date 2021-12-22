@@ -20,8 +20,16 @@
 
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
+		resetAdvisorData();
+	};
+	const onCancel = () => {
+		activeSection = '';
+		resetAdvisorData();
+	};
+
+	const resetAdvisorData = () =>{
 		createAdvisorData = {
-			salutationType: '',
+			salutationType: salutationTypes[0]?.id || '',
 			name: '',
 			initials: '',
 			email: '',
@@ -30,10 +38,7 @@
 		};
 		firstName = "";
 		lastName = "";
-	};
-	const onCancel = () => {
-		activeSection = '';
-	};
+	}
 
 	let createAdvisorData = {
 		salutationType: '',
@@ -43,6 +48,7 @@
 		reference: '',
 		active: false
 	};
+	resetAdvisorData();
 	let invalidAdvisorEmail = {
 		status: false,
 		message: 'Invalid email'
@@ -95,10 +101,7 @@
 			if (res.ok) {
 				const data: AdvisorAgency = await res.json();
 				advisors.push(data);
-
 				const auth = getAuth();
-				lastName = "";
-				firstName = "";
 				onCancel();
 			} else {
 				let error = await res.json();

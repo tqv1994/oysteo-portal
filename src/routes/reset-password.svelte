@@ -8,14 +8,15 @@
 		TextInput,
 		PasswordInput
 	} from 'carbon-components-svelte';
-	import { getAuth, inMemoryPersistence, sendPasswordResetEmail } from 'firebase/auth';
+	import { getAuth, inMemoryPersistence, confirmPasswordReset, browserSessionPersistence } from 'firebase/auth';
 	import { checkPasswordRule, validateEmail } from '$lib/helpers/utils';
 	import { INVALID_DELAY_TIME, TIME_RESEND_EMAIL_FORGOT_PW } from '$lib/utils/constants';
 	import type { Locals } from '$lib/store/local';
 	import type { Load } from '@sveltejs/kit';
 	export const load: Load<{ session: Locals }> = async ({ session, page }) => {
-		const resetPasswordToken = page.query.get('token');
-		if (!resetPasswordToken) {
+		const resetPasswordToken = page.query.get('oobCode');
+		const mode = page.query.get('mode');
+		if (!resetPasswordToken || mode !== 'resetPassword') {
 			return {
 				status: 302,
 				redirect: '/'
@@ -68,63 +69,17 @@
 			}, INVALID_DELAY_TIME);
 			return;
 		}
-
-		try {
-			const res = await fetch('/auth/reset-password.json', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					code: resetPasswordToken,
-					password: resetPasswordData.newPassword,
-					passwordConfirmation: resetPasswordData.confirmPassword
-				})
-			});
-			if (res.ok) {
-				goto('/login');
-				window.openNotification({
-					kind: 'success',
-					title: 'Success',
-					subtitle: 'Password update successful'
-				});
-				return;
-			} else {
-				const error = await res.json();
-				if (Array.isArray(error.message)) {
-					if (error.message.length > 0 && error.message[0].messages.length > 0) {
-						const messageError = error.message[0].messages[0];
-						if (messageError.id === 'Auth.form.error.code.provide') {
-							window.openNotification({
-								kind: 'warning',
-								title: 'Warning',
-								subtitle: 'Your password reset request has expired. Please send us a password reset request'
-							});
-							goto('/forgot-password');
-							return;
-						}else{
-							window.openNotification({
-								kind: 'error',
-								title: 'Error',
-								subtitle: messageError.message
-							});
-						}
-					}
-				} else {
-					window.openNotification({
-						kind: 'error',
-						title: 'Error',
-						subtitle: error.message
-					});
-				}
-			}
-		} catch (error) {
+		const auth = getAuth();
+		await auth.setPersistence(browserSessionPersistence); // To save user after logging into the browser session
+		await confirmPasswordReset(auth ,resetPasswordToken, resetPasswordData.newPassword).then((res)=>{
+			goto('/login');
+		}).catch(error=>{
 			window.openNotification({
 				kind: 'error',
 				title: 'Error',
 				subtitle: error.message
 			});
-		}
+		});
 	}
 </script>
 

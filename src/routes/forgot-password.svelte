@@ -3,11 +3,9 @@
 	import '../theme/oysteo.scss';
 	import '$lib/utils/firebase';
 	import { Form, FormGroup, Button, Link, TextInput } from 'carbon-components-svelte';
-
 	import { getAuth, inMemoryPersistence, sendPasswordResetEmail } from 'firebase/auth';
 	import { validateEmail } from '$lib/helpers/utils';
 	import { INVALID_DELAY_TIME, TIME_RESEND_EMAIL_FORGOT_PW } from '$lib/utils/constants';
-import { Code16 } from 'carbon-icons-svelte';
 
 	let forgotPasswordData = {
 		email: '',
@@ -43,69 +41,25 @@ import { Code16 } from 'carbon-icons-svelte';
 			}, INVALID_DELAY_TIME);
 			return;
 		}
-
-		try {
-			const res = await fetch('/auth/forgot-password.json', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({email:forgotPasswordData.email})
-			});
-			if(res.ok){
-				if (forgotPasswordData.emailSend) {
-					countDownStart = true;
-					countDown();
-				}
-				forgotPasswordData.emailSend = true;
-			}else{
-				console.log(res);
-				const err = await res.json();
-				setTimeout(() => {
-					invalidPassword.status = false;
-				}, INVALID_DELAY_TIME);
-				if (err.code == 'auth/user-not-found') {
-					invalidEmail = {
-						status: true,
-						message: 'Email does not exist'
-					};
-					setTimeout(() => {
-						invalidEmail.status = false;
-					}, INVALID_DELAY_TIME);
-				}else{
-					if(Array.isArray(err.message) && err.message.length > 0){
-						if(err.message[0].messages.length > 0){
-							invalidEmail = {
-								status: true,
-								message: err.message[0].messages[0].message
-							};
-							setTimeout(() => {
-								invalidEmail.status = false;
-							}, INVALID_DELAY_TIME);
-						}
-					}
-				}
+		const auth = getAuth();
+		sendPasswordResetEmail(auth, forgotPasswordData.email)
+		.then(() => {
+			if (forgotPasswordData.emailSend) {
+				countDownStart = true;
+				countDown();
 			}
-		} catch (error) {
-			invalidPassword = {
+			forgotPasswordData.emailSend = true;
+		})
+		.catch((error) => {
+			invalidEmail = {
 				status: true,
-				message: 'An error occurred while sending the password reset email'
+				message: error.message
 			};
 			setTimeout(() => {
-				invalidPassword.status = false;
+				invalidEmail.status = false;
 			}, INVALID_DELAY_TIME);
-			if (error.code == 'auth/user-not-found') {
-				invalidEmail = {
-					status: true,
-					message: 'Email does not exist'
-				};
-				setTimeout(() => {
-					invalidEmail.status = false;
-				}, INVALID_DELAY_TIME);
-			}else{
-				console.log(error.message);
-			}
-		}
+			// ..
+		});
 	}
 
 	const passwordPattern = '(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}';

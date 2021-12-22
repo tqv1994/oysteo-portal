@@ -102,11 +102,11 @@
 					{#each range(0, agency.images.length, 2) as i}
 						<Row>
 							<Column>
-								<ImageLoader src={cmsUrlPrefix + agency.images[i].url} />
+								<ImageLoader src={agency.images[i].url} />
 							</Column>
 							{#if i + 1 < agency.images.length}
 								<Column>
-									<ImageLoader src={cmsUrlPrefix + agency.images[i + 1].url} />
+									<ImageLoader src={agency.images[i + 1].url} />
 								</Column>
 							{:else}
 								<Column>

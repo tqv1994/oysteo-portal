@@ -9,7 +9,6 @@ import { getSessionCookie } from '$lib/utils/session';
  */
 
 export const post: RequestHandler = async (request: Request<Rec<any>, AuthForm>) => {
-    console.log(request.body.email);
     try {
         const res = await fetch(`${cmsUrlPrefix}/auth/forgot-password`, {
             method: 'POST',
@@ -25,6 +24,7 @@ export const post: RequestHandler = async (request: Request<Rec<any>, AuthForm>)
             };
         } else {
             let error = await res.json();
+            console.log(error);
             return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', error.message);
         }
     } catch (error) {

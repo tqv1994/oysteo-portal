@@ -24,6 +24,7 @@ export const post: RequestHandler = async (request: Request<Rec<any>, AuthForm>)
             };
         } else {
             let error = await res.json();
+            console.log(error);
             return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', error.message);
         }
     } catch (error) {
