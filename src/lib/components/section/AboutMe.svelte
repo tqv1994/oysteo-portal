@@ -149,7 +149,6 @@
 		<div slot="value">{advisor.website || ''}</div>
 		<div slot="fields">
 			<TextInput
-				labelText={advisor.website || ''}
 				bind:value={aboutMeInput.website}
 				placeholder="Enter website ..."
 				invalid={invalidAdvisorWebsite.status}
@@ -171,7 +170,6 @@
 		<div slot="value">{advisor.email2 || ''}</div>
 		<div slot="fields">
 			<TextInput
-				labelText={advisor.email2 || ''}
 				bind:value={aboutMeInput.email2}
 				placeholder="Enter alternate email ..."
 				invalid={invalidAlternativeEmail.status}
@@ -229,7 +227,6 @@
 						aboutMeInput.language1 = null;
 					}
 				}}
-				labelText={advisor?.language1 === null ? '' : advisor?.language1.name}
 				selected={advisor?.language1 === null ? '' : advisor?.language1.id.toString()}
 			>
 				<SelectItem value="" text="Choose ..." />
@@ -262,7 +259,7 @@
 				datePickerType="single"
 			>
 				<DatePickerInput
-					labelText="joined at"
+					labelText=""
 					placeholder="mm/dd/yyyy"
 					invalid={invalidJoinedAt.status}
 					invalidText={invalidJoinedAt.message}

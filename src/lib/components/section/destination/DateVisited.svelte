@@ -40,7 +40,8 @@
 				? ''
 				: formatOutputDatePicker(destinations[index]?.date_visited)}
 		</div>
-		<div slot="fields">
+		<div slot="fields" style="position:relative"
+		>
 			<DatePicker
 				on:change={(e) => {
 					console.log(e.detail);
