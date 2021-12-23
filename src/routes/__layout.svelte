@@ -14,7 +14,7 @@
 		let redirect = null;
 		if (session.user) {
 			authStore.set({ user: session.user });
-			if (page.path === '/' || page.path.startsWith('/login')) {
+			if (!page.path.startsWith('/account')) {
 				if (session.user.advisorMe) {
 					redirect = '/account/advisor';
 				} else if (session.user.agencyMe) {

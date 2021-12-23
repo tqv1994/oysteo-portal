@@ -22,6 +22,7 @@
 	const dispatcher = createEventDispatcher();
 	const onUpdate = (field: string) => {
 		dispatcher('submit', { index, field });
+		activeSection = '';
 	};
 </script>
 
@@ -42,9 +43,11 @@
 		<div slot="fields">
 			<DatePicker
 				on:change={(e) => {
-					destinations[index].date_visited = e.detail.toString();
+					console.log(e.detail);
+					destinations[index].date_visited = e.detail?.dateStr || '';
 				}}
 				value={formatOutputDatePicker(destinations[index].date_visited)}
+				datePickerType="single"
 			>
 				<DatePickerInput
 					labelText="date visited"
