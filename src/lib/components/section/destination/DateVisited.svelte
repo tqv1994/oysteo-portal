@@ -7,7 +7,7 @@
 
 	import FormGroup from '../../form/group.svelte';
 	import FormRow from '../../form/row.svelte';
-	import { formatOutputDatePicker } from '$lib/helpers/datetime';
+	import { formatMonthAndYear, formatOutputDatePicker } from '$lib/helpers/datetime';
 
 	export let index: number;
 	export let invalidDateVisited: { status: boolean; message: string };
@@ -38,7 +38,7 @@
 		<div slot="value">
 			{destinations[index]?.date_visited === null
 				? ''
-				: formatOutputDatePicker(destinations[index]?.date_visited)}
+				: formatMonthAndYear(destinations[index]?.date_visited)}
 		</div>
 		<div slot="fields" style="position:relative"
 		>
