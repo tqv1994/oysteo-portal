@@ -2,6 +2,7 @@
 	import { Modal } from 'carbon-components-svelte';
 	import '../../../theme/oysteo.scss';
 	import { TableOfContents20 } from 'carbon-icons-svelte';
+	import { goto } from '$app/navigation';
 	let open = false;
 	export let items;
 	export let selectedItem = 'ID and Password';
@@ -19,8 +20,12 @@
 		{#each items as item (item.id)}
 			<li>
 				<a
-					href="#{item.id}"
+					href={item.link || `#${item.id}`}
 					on:click={() => {
+						if (item.link) {
+							goto(item.link);
+							return;
+						}
 						selectedItem = item.text;
 						open = false;
 					}}>{item.text}</a

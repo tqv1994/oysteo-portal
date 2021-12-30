@@ -141,14 +141,6 @@
 				if (res.ok) {
 					const user = await res.json();
 					authStore.set({ user });
-					// if (registerData.type === 'ADVISOR') {
-					// 	await createAdvisor();
-					// } else if (registerData.type === 'AGENCY') {
-					// 	await createAgency();
-					// } else if (registerData.type === 'BOTH') {
-					// 	await createAdvisor();
-					// 	await createAgency();
-					// }
 					await createAgency();
 					await createAdvisor();
 

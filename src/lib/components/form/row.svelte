@@ -49,7 +49,6 @@
 		}
 		.content {
 			flex: 1;
-			display: flex;
 			margin-top: 0em;
 		}
 		.label {

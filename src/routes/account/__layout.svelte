@@ -65,26 +65,28 @@ import { goto } from '$app/navigation';
 		if (desktopNavSectionEl && contentEl && divFakeHeight) {
 			desktopNavSectionEl.querySelectorAll('a').forEach((element) => {
 				element.addEventListener('click', (e) => {
-					e.preventDefault();
 					const target = element.getAttribute('href');
-					// Handling when the height of the screen is not enough, can't scroll to the position of the last sections
-					let heightOfSections = 0;
-					let keyActive = null;
-					const sectionActive = contentEl.querySelector(target);
-					contentEl.querySelectorAll('.section').forEach((sectionEl, key) => {
-						if (sectionEl.id == sectionActive.id) {
-							keyActive = key;
-							heightOfSections += sectionEl.clientHeight;
-						} else if (keyActive !== null && key > keyActive) {
-							heightOfSections += sectionEl.clientHeight;
+					if(target.indexOf('#') >0){
+						e.preventDefault();
+						// Handling when the height of the screen is not enough, can't scroll to the position of the last sections
+						let heightOfSections = 0;
+						let keyActive = null;
+						const sectionActive = contentEl.querySelector(target);
+						contentEl.querySelectorAll('.section').forEach((sectionEl, key) => {
+							if (sectionEl.id == sectionActive.id) {
+								keyActive = key;
+								heightOfSections += sectionEl.clientHeight;
+							} else if (keyActive !== null && key > keyActive) {
+								heightOfSections += sectionEl.clientHeight;
+							}
+						});
+						if (heightOfSections < screen.height) {
+							divFakeHeight.style.height = screen.height - heightOfSections + marginTop + 'px';
+						} else {
+							divFakeHeight.style.height = '0';
 						}
-					});
-					if (heightOfSections < screen.height) {
-						divFakeHeight.style.height = screen.height - heightOfSections + marginTop + 'px';
-					} else {
-						divFakeHeight.style.height = '0';
+						window.scrollTo(0, getOffset(sectionActive).top - marginTop);
 					}
-					window.scrollTo(0, getOffset(sectionActive).top - marginTop);
 				});
 				return false;
 			});
@@ -162,10 +164,10 @@ import { goto } from '$app/navigation';
 
 	const gotoAccount = () => {
 		if(!$formChangeStatusStore.changing){
-			goto('/account/agency');
+			goto('/account');
 			isSideNavOpen = false;
 		}else{
-			window.openWarningSaveForm({handleConfirm: gotoAdvisor});
+			window.openWarningSaveForm({handleConfirm: gotoAccount});
 		}
 	}
 

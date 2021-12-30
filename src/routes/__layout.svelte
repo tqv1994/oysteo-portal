@@ -11,17 +11,14 @@
 		insertToStore(countryStore, session.metadata?.countries, false);
 		insertToStore(languageStore, session.metadata?.languages, false);
 		insertToStore(salutationTypeStore, session.metadata?.salutationTypes, false);
+		insertToStore(interestTypeStore, session.metadata?.interestTypes, false);
+		insertToStore(travelPreferenceTypeStore, session.metadata?.travelPreferenceTypes, false);
+		insertToStore(personalPreferenceTypeStore, session.metadata?.personalPreferenceTypes, false);
 		let redirect = null;
 		if (session.user) {
 			authStore.set({ user: session.user });
 			if (!page.path.startsWith('/account')) {
-				if (session.user.advisorMe) {
-					redirect = '/account/advisor';
-				} else if (session.user.agencyMe) {
-					redirect = '/account/agency';
-				} else {
-					redirect = '/account';
-				}
+				redirect = '/account';
 			} else {
 				if (!session.user.advisorMe && page.path.startsWith('/account/advisor')) {
 					window.openNotification({
@@ -58,8 +55,13 @@
 </script>
 
 <script lang="ts">
-	import Notification from '$lib/components/Notification.svelte';
+	import Loading from '$lib/components/form/loading.svelte';
+import Notification from '$lib/components/Notification.svelte';
+import { interestTypeStore } from '$lib/store/interest';
+import { travellerFieldsFragment } from '$lib/store/traveller';
+import { personalPreferenceTypeStore, travelPreferenceTypeStore } from '$lib/store/preference';
 </script>
 
 <slot />
 <svelte:component this={Notification} />
+<svelte:component this={Loading}/>

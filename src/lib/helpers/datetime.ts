@@ -41,7 +41,7 @@ export function formatMonthAndYear(date: string) {
 		'November',
 		'December'
 	];
-	return months[myDate.getMonth()] + ', ' + myDate.getFullYear();
+	return months[myDate.getMonth()] + ' ' + myDate.getFullYear();
 }
 
 export function validateMMDDYYYY(date: string) {
@@ -65,4 +65,17 @@ export function handleDisplayTimeZone(locale: string) {
 	}
 	const timeZoneSelected = TIME_ZONES.filter((item) => item.locale == locale)[0];
 	return timeZoneSelected.locale.split('/')[1] + ' - ' + timeZoneSelected.gmt;
+}
+
+export const formatDate = (date) => {
+	const dateData = new Date(date);
+	const month = dateData.toLocaleString('en', { month: 'long'});
+	return `${month} ${dateData.getDate()}, ${dateData.getFullYear()}`;
+}
+
+export const dateDiffInDays = (d1, d2) => {
+	const t2 = new Date(d2).getTime();
+	const t1 = new Date(d1).getTime();
+
+	return Math.floor((t2 - t1)/ (24 * 3600 * 1000));
 }

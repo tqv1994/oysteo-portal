@@ -112,3 +112,47 @@ export function checkPasswordRule(password: string) {
 export function capitalizeFirstLetter(str: string): string {
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export const queryURLParamToJSON = (query: string) => {
+    var re = /([^&=]+)=?([^&]*)/g;
+    var decodeRE = /\+/g;
+
+    var decode = function (str: string) {
+        return decodeURIComponent(str.replace(decodeRE, " "));
+    };
+
+    var params: any = {}, e;
+    while (e = re.exec(query)) {
+        var k = decode(e[1]), v = decode(e[2]);
+        if (k.substring(k.length - 2) === '[]') {
+            k = k.substring(0, k.length - 2);
+            (params[k] || (params[k] = [])).push(v);
+        }
+        else params[k] = v;
+    }
+
+    var assign = function (obj: any, keyPath: string, value: any) {
+        var lastKeyIndex = keyPath.length - 1;
+        for (var i = 0; i < lastKeyIndex; ++i) {
+            var key = keyPath[i];
+            if (!(key in obj))
+                obj[key] = {}
+            obj = obj[key];
+        }
+        obj[keyPath[lastKeyIndex]] = value;
+    }
+
+    for (var prop in params) {
+        var structure = prop.split('[');
+        if (structure.length > 1) {
+            var levels: any = [];
+            structure.forEach(function (item, i) {
+                var key = item.replace(/[?[\]\\ ]/g, '');
+                levels.push(key);
+            });
+            assign(params, levels, params[prop]);
+            delete(params[prop]);
+        }
+    }
+    return params;
+};

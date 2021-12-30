@@ -47,14 +47,14 @@ export type Categorizable = {
 };
 
 export type Recordable = {
-	created_at: string;
+	created_at?: string;
 	updated_at?: string;
 };
 
 export type Base = Identifiable & Recordable;
 
 export type Publishable = Base & {
-	published_at: string;
+	published_at?: string;
 };
 
 export type Likeable = {

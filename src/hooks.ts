@@ -17,6 +17,9 @@ import { salutationFieldsFragment } from '$lib/store/salutationType';
 import { uploadFileFieldsFragment } from '$lib/store/upload-file';
 import type { User } from '$lib/store/auth';
 import { paymentMethodFieldsFragment } from '$lib/store/payment';
+import { destinationFieldsFragment } from '$lib/store/destination';
+import { interestFieldsFragment, interestTypeFieldsFragment } from '$lib/store/interest';
+import { personalPreferenceFieldsFragment, personalPreferenceTypeFieldsFragment, travelPreferenceFieldsFragment, travelPreferenceTypeFieldsFragment } from '$lib/store/preference';
 
 type QueryData = {
 	me?: User;
@@ -35,6 +38,9 @@ const meQuery = `query {
     }
     advisorMe {
       id
+	  destinations{
+		  ...destinationFields
+	  }
     }
     myAdvisors {
       id
@@ -45,6 +51,8 @@ const meQuery = `query {
   }
 }
 ${uploadFileFieldsFragment}
+${destinationFieldsFragment}
+${countryFieldsFragment}
 `;
 
 const metadataQuery = `query {
@@ -72,6 +80,15 @@ const metadataQuery = `query {
     affiliateBenefitPrograms (sort:"name"){
         ...affiliateBenefitProgramFields
     }
+	interestTypes{
+		...interestTypeFields
+	}
+	travelPreferenceTypes{
+		...travelPreferenceTypeFields
+	}
+	personalPreferenceTypes{
+		...personalPreferenceTypeFields
+	}
 }
 ${salutationFieldsFragment}
 ${languageFieldsFragment}
@@ -81,6 +98,12 @@ ${affiliatteAgencyFieldsFragment}
 ${affiliatteBenefitProgramFieldsFragment}
 ${affiliatteNetworkFieldsFragment}
 ${paymentMethodFieldsFragment}
+${interestTypeFieldsFragment}
+${interestFieldsFragment}
+${travelPreferenceTypeFieldsFragment}
+${travelPreferenceFieldsFragment}
+${personalPreferenceTypeFieldsFragment}
+${personalPreferenceFieldsFragment}
 `;
 
 let counter = 0;

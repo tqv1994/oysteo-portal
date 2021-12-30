@@ -3,6 +3,7 @@ import type { UploadFile } from './upload-file';
 import type { AsyncStore, Publishable } from './types';
 import type { Advisor, AdvisorUser } from './advisor';
 import type { Agency } from './agency';
+import type { Traveller } from './traveller';
 
 export const authStore = writable<
 	AsyncStore & {
@@ -31,6 +32,7 @@ export type User = Publishable & {
 	myAdvisors: Advisor[];
 	advisorMe?: Advisor;
 	agencyMe?: Agency;
+  travellerMe?: Traveller;
 };
 
 export const userFieldsFragment = `

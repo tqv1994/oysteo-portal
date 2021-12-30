@@ -2,7 +2,7 @@
 	import '../../../theme/oysteo.scss';
 	export let items = [];
 	export let className = '';
-	let itemActiveID = items[0].id;
+	let itemActiveID = items.reduce((acc , item)=>{ if(item.link || acc != ''){ return acc; } acc = item.id; return acc  },'');
 
 	const handleClick = (itemId) => {
 		itemActiveID = itemId;
@@ -13,9 +13,11 @@
 	{#each items as item (item.id)}
 		<li class={itemActiveID == item.id ? 'active' : ''}>
 			<a
-				href="#{item.id}"
+				href={item.link || `#${item.id}`}
 				on:click={() => {
-					handleClick(item.id);
+					if(!item.link){
+						handleClick(item.id);
+					}
 				}}>{item.text}</a
 			>
 		</li>

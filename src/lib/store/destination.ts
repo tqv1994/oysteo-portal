@@ -1,5 +1,6 @@
 import type { Base, Nameable } from './types';
 import type { Media } from './media';
+import type { Country } from './country';
 
 export type Destination = Base &
 	Nameable & {
@@ -8,6 +9,7 @@ export type Destination = Base &
 		date_visited?: string;
 		gallery: Media[];
 		intro: string;
+    country: Country;
 		// videos: Media[];
 	};
 
@@ -20,6 +22,9 @@ fragment destinationFields on Destination {
     date_visited
     gallery{
       ...uploadFileFields
+    }
+    country{
+      ...countryFields
     }
 }
 `;

@@ -12,6 +12,7 @@ import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 	export let isPhotoGroup = false;
 	export let hideEditButton = false;
 	export let disabledRemoveButton = true;
+	export let hideEditIcon = false;
 
 	const dispatch = createEventDispatcher();
 
@@ -66,7 +67,7 @@ import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 
 		{#if groupName === '' && !hideEditButton}
 			<div class="actions">
-				<Link on:click={onEdit} class="btn-edit">{editLabel}&nbsp;<RequestQuote16 /></Link>
+				<Link on:click={onEdit} class="btn-edit">{editLabel}&nbsp;{#if !hideEditIcon}<RequestQuote16 />{/if}</Link>
 			</div>
 		{:else}
 			<div class="group-name">

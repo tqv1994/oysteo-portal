@@ -1,7 +1,16 @@
 <script lang="ts">
 	import { Loading } from 'carbon-components-svelte';
+	import { onMount } from 'svelte';
 	export let activeLoading: boolean = false;
-	export let label: string;
+	export let label: string = "";
+
+	const openLoading = (open: boolean, labelLoad: string) => {
+		activeLoading = open;
+		label = labelLoad;
+	}
+	onMount(()=>{
+		window.openLoading = openLoading
+	});
 </script>
 
 {#if activeLoading}

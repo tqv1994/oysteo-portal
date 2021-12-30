@@ -28,6 +28,7 @@ export const post: RequestHandler = async (request: Request<Rec<any>, AuthForm>)
 			.mutation<createAdvisorData>(query, { advisor: request.body })
 			.toPromise();
 		if (res.data) {
+			console.log(res.data);
 			return {
 				body: JSON.stringify(res.data.createAdvisor.advisor)
 			};

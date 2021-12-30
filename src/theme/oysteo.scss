@@ -10,6 +10,7 @@ $blue-secondary: #f0f7f8;
 $white-color: #fff;
 
 $break_point: 1056px;
+@use  'spacing-helpers';
 
 @import './account.scss';
 @import './header.scss';
@@ -31,6 +32,7 @@ html {
 body,
 html {
 	overflow-x: hidden;
+	background-color: $gray-color;
 }
 // @media (max-width: 671.99px) {
 h1 {
@@ -38,6 +40,20 @@ h1 {
 	font-weight: 400;
 	padding-top: 2.75rem;
 	padding-bottom: 1.5rem;
+}
+
+// grid
+@media (min-width: 99rem){
+	.bx--grid {
+		padding-right: 1rem;
+		padding-left: 1rem;
+	}
+}
+@media (min-width: 42rem){
+	.bx--grid {
+		padding-right: 1rem;
+		padding-left: 1rem;
+	}
 }
 
 #main-content {
@@ -190,11 +206,13 @@ label.bx--btn--primary {
 }
 
 .aff-item,
+.travellers-container,
 .experiences-container {
 	position: relative;
 	margin-bottom: 1rem;
 	.remove-aff-item,
-	.remove-experiences {
+	.remove-experiences,
+	.remove-traveller {
 		position: absolute;
 		top: 0.5rem;
 		right: -1.5rem;
@@ -203,9 +221,13 @@ label.bx--btn--primary {
 }
 
 //Button
+form {
+	.bx--btn{
+		padding: 0;
+	}
+}
 .bx--btn {
 	justify-content: center;
-	padding: 0;
 	&.bx--btn--primary {
 		--cds-interactive-01: #0f61fd;
 		&:hover {
@@ -306,4 +328,18 @@ video {
 	input {
 		width: 100% !important;
 	}
+}
+
+
+// text-align
+.text-left{
+	text-align: left;
+}
+
+.text-right{
+	text-align: right;
+}
+
+.text-center{
+	text-align: center;
 }

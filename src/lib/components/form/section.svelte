@@ -7,7 +7,7 @@ import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 	const dispatch = createEventDispatcher();
 
 	export let title: string;
-	export let icon: any;
+	export let icon: any | undefined;
 	export let rightIcon = false;
 	export let id = '';
 	export let titleRightIcon = '';
