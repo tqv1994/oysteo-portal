@@ -156,3 +156,28 @@ export const queryURLParamToJSON = (query: string) => {
     }
     return params;
 };
+
+export const objectToQueryString = (obj: any, prefix?: string): string => {
+    const query = Object.keys(obj).map((key) => {
+      const value  = obj[key];
+  
+      if (obj.constructor === Array)
+        key = `${prefix}[]`;
+      else if (obj.constructor === Object)
+        key = (prefix ? `${prefix}[${key}]` : key);
+  
+      if (typeof value === 'object')
+        return objectToQueryString(value, key);
+      else
+        return `${key}=${encodeURIComponent(value)}`;
+    });
+  
+    return [].concat.apply([], query).join('&');
+  };
+
+ export const formatNumber = (num) => {
+    var p = num.toFixed(0);
+    return p.split("").reverse().reduce(function(acc, num, i, orig) {
+        return num + (num != "-" && i && !(i % 3) ? "," : "") + acc;
+    }, "");
+}

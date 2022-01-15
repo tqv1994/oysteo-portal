@@ -33,3 +33,20 @@ export const updateTravellerService = async (id: string|number,input: TravellerI
         }
     });
 };
+
+export const getTravellersService = async (fetchInput): Promise<Traveller> =>{
+    return new Promise(async(resolve, reject)=>{
+        if(fetchInput){
+            const res = await fetchInput(`/traveller.json`);
+        }else{
+            const res = await fetch(`/traveller.json`);
+        }
+        if(res.ok){
+            const data: Traveller = await res.json();
+            resolve(data);
+        }else{
+            const error = await res.json();
+            reject(error);
+        }
+    });
+};

@@ -19,12 +19,12 @@
 	import { afterUpdate, beforeUpdate, onDestroy, onMount } from 'svelte';
 	import type { Load } from '@sveltejs/kit';
 	import type { Locals } from '$lib/store/local';
-	export const load: Load<{ session: Locals }> = async ({ session, page }) => {
+	export const load: Load<{ session: Locals }> = async ({ url }) => {
 		return {
 			props: {
-				navSelected: page.path.startsWith('/account/agency')
+				navSelected: url.pathname.startsWith('/account/agency')
 					? 'agency'
-					: page.path.startsWith('/account/advisor')
+					: url.pathname.startsWith('/account/advisor')
 					? 'advisor'
 					: ''
 			}
@@ -37,7 +37,7 @@
 	import 'carbon-components-svelte/css/all.css';
 	import '../../theme/oysteo.scss';
 	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
-import { goto } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	let isSideNavOpen = false;
 	let isOpen = false;
 	let selected = '0';
@@ -66,7 +66,7 @@ import { goto } from '$app/navigation';
 			desktopNavSectionEl.querySelectorAll('a').forEach((element) => {
 				element.addEventListener('click', (e) => {
 					const target = element.getAttribute('href');
-					if(target.indexOf('#') >0){
+					if (target.indexOf('#') > 0) {
 						e.preventDefault();
 						// Handling when the height of the screen is not enough, can't scroll to the position of the last sections
 						let heightOfSections = 0;
@@ -144,41 +144,40 @@ import { goto } from '$app/navigation';
 	afterUpdate(onLoad);
 
 	const gotoAgency = () => {
-		if(!$formChangeStatusStore.changing){
+		if (!$formChangeStatusStore.changing) {
 			goto('/account/agency');
 			isSideNavOpen = false;
-		}else{
-			window.openWarningSaveForm({handleConfirm: gotoAgency});
+		} else {
+			window.openWarningSaveForm({ handleConfirm: gotoAgency });
 		}
-		
-	}
+	};
 
 	const gotoAdvisor = () => {
-		if(!$formChangeStatusStore.changing){
+		if (!$formChangeStatusStore.changing) {
 			goto('/account/advisor');
 			isSideNavOpen = false;
-		}else{
-			window.openWarningSaveForm({handleConfirm: gotoAdvisor});
+		} else {
+			window.openWarningSaveForm({ handleConfirm: gotoAdvisor });
 		}
-	}
+	};
 
 	const gotoAccount = () => {
-		if(!$formChangeStatusStore.changing){
+		if (!$formChangeStatusStore.changing) {
 			goto('/account');
 			isSideNavOpen = false;
-		}else{
-			window.openWarningSaveForm({handleConfirm: gotoAccount});
+		} else {
+			window.openWarningSaveForm({ handleConfirm: gotoAccount });
 		}
-	}
+	};
 
 	const gotoLogout = () => {
-		if(!$formChangeStatusStore.changing){
+		if (!$formChangeStatusStore.changing) {
 			goto('/account/logout');
 			isSideNavOpen = false;
-		}else{
-			window.openWarningSaveForm({handleConfirm: gotoLogout});
+		} else {
+			window.openWarningSaveForm({ handleConfirm: gotoLogout });
 		}
-	}
+	};
 </script>
 
 <svelte:window on:scroll={onScroll} />
@@ -203,9 +202,23 @@ import { goto } from '$app/navigation';
 	</div>
 
 	<HeaderNav>
-		<HeaderNavItem href="#" text="My Oysteo" on:click={gotoAccount}/>
-		<HeaderNavItem isSelected={navSelected == 'advisor'} href="#" text="Advisor" on:click={() => {gotoAdvisor()}}/>
-		<HeaderNavItem isSelected={navSelected == 'agency'} href="#" text="Agency" on:click={() => {gotoAgency()}}/>
+		<HeaderNavItem href="#" text="My Oysteo" on:click={gotoAccount} />
+		<HeaderNavItem
+			isSelected={navSelected == 'advisor'}
+			href="#"
+			text="Advisor"
+			on:click={() => {
+				gotoAdvisor();
+			}}
+		/>
+		<HeaderNavItem
+			isSelected={navSelected == 'agency'}
+			href="#"
+			text="Agency"
+			on:click={() => {
+				gotoAgency();
+			}}
+		/>
 	</HeaderNav>
 	<HeaderUtilities>
 		<HeaderAction
@@ -229,13 +242,17 @@ import { goto } from '$app/navigation';
 			text="Advisors"
 			href="#"
 			isSelected={navSelected == 'advisor'}
-			on:click={() => {gotoAdvisor()}}
+			on:click={() => {
+				gotoAdvisor();
+			}}
 		/>
 		<SideNavLink
 			text="Agency"
 			href="#"
 			isSelected={navSelected == 'agency'}
-			on:click={() => {gotoAgency()}}
+			on:click={() => {
+				gotoAgency();
+			}}
 		/>
 	</SideNavItems>
 </SideNav>

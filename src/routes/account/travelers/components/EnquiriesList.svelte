@@ -8,18 +8,16 @@
 	import { Forum32, Phone32 } from 'carbon-icons-svelte';
 	let headers: DataTableHeader[] = [
 		{
-			key: 'lead_traveller.forename',
+			key: 'lead_traveller',
 			value: 'Client name'
 		},
 		{
-			key: 'depart_at',
-			value: 'Departure',
-			display: (date) => formatDate(date),
-			sort: (a, b) => new Date(a) - new Date(b)
+			key: 'type',
+			value: 'Type',
 		},
 		{
-			key: 'description',
-			value: 'Description'
+			key: 'budget',
+			value: 'Budget'
 		},
 		{
 			key: 'state',
@@ -36,8 +34,7 @@
 			value: ''
 		}
 	];
-	export let trips: Trip[];
-	export let detailLinkPrefix: string = '/account/trips/trip-detail?id=';
+	export let trips: Trip[] = [];
 </script>
 
 <DataTable sortable bind:headers rows={trips} class="table-custom">
@@ -46,28 +43,24 @@
 		{#if cell.key === 'action'}
 			<Button kind="ghost" icon={Phone32} iconDescription="Call" />
 			<Button kind="ghost" icon={Forum32} iconDescription="Chat" />
-        {:else if cell.key === 'lead_traveller.forename'}
+        {:else if cell.key === 'lead_traveller'}
 			{#if row.lead_traveller}
-			<Link href={`${detailLinkPrefix}${row.id}`}>
-            	{`${row.lead_traveller.forename || ''} ${row.lead_traveller.surname || ''}`}
-			</Link>
+                <Link href={`/account/travelers/traveler-detail?id=${row.lead_traveller.id}`}>
+                    {`${row.lead_traveller.forename || ''} ${row.lead_traveller.surname || ''}`}
+                </Link>
+            {:else}
+                <Link href={`/account/trips/trip-detail?id=${row.id}`}>
+                    {'Add Traveler'}
+                </Link>
 			{/if}
+        {:else if cell.key === 'type'}
+			Member
         {:else if cell.key === 'state'}
-			<Link href={`${detailLinkPrefix}${row.id}`}>
-				{cell.value ? ENUM_TRIP_STATE_LABEL[cell.value] : ''}
-			</Link>
-        {:else if cell.key === 'depart_at'}
-			<Link href={`${detailLinkPrefix}${row.id}`}>
-				{cell.value ? formatDate(cell.value) : ''}
-			</Link>
+			{cell.value ? ENUM_TRIP_STATE_LABEL[cell.value] : ''}
         {:else if cell.key === 'updated_at'}
-			<Link href={`${detailLinkPrefix}${row.id}`}>
-            	{cell.value ? formatDate(cell.value) : ''}
-			</Link>
-        {:else if cell.key === 'description'}
-			<Link href={`${detailLinkPrefix}${row.id}`}>
-            	<p style="width: 150px">{cell.value || ''}</p>
-			</Link>
+            {cell.value ? formatDate(cell.value) : ''}
+        {:else if cell.key === 'budget'}
+            {row.currency?.code || ''} {cell.value || ''}
 		{:else}{cell.value}{/if}
 	</div>
 </DataTable>

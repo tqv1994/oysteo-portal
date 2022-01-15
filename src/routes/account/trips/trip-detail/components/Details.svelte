@@ -10,15 +10,16 @@
 	let activeSection = '';
 	let tripInput: TRipInput;
 	let activeLoading: boolean;
-	if (trip) {
-		tripInput = convertTripToInput(trip);
-	} else {
-		tripInput = new TRipInput();
-	}
 	const onEdit = (section: string) => {
+		if (trip) {
+			tripInput = convertTripToInput(trip);
+		} else {
+			tripInput = new TRipInput();
+		}
 		activeSection = section;
 	};
 	const onCancel = () => {
+		tripInput = new TRipInput();
 		activeSection = '';
 	};
 
@@ -41,27 +42,7 @@
 					window.openNotification({ kind: 'error', title: 'Error', subtitle: error.message });
 				});
 		}
-		// let apiUrl: string = 'create.json';
-		// let method: string = 'POST';
-		// if (trip) {
-		//     apiUrl = `update-${trip.id}.json`;
-		//     method = 'PUT';
-		// }
-		// const res = await fetch(`/trip/${apiUrl}`, {
-		//     method: method,
-		//     headers: {
-		//     'Content-Type': 'application/json',
-		//     },
-		//     body: JSON.stringify({
-		//     ...tripInput
-		//     }),
-		// });
-		// if (res.ok) {
-		//     trip = await res.json();
-		// } else {
-		//     const error = await res.json();
-		//     window.openNotification({kind:'error',title: 'Error',subtitle: error.message});
-		// }
+		tripInput = new TRipInput();
 		window.openLoading(false);
 		activeSection = '';
 	};

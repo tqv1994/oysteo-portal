@@ -1,21 +1,14 @@
 <script lang="ts" context="module">
 	import '$lib/utils/firebase';
-	import {
-		Form,
-		FormGroup,
-		Button,
-		Link,
-		TextInput,
-		PasswordInput
-	} from 'carbon-components-svelte';
-	import { getAuth, inMemoryPersistence, confirmPasswordReset, browserSessionPersistence } from 'firebase/auth';
-	import { checkPasswordRule, validateEmail } from '$lib/helpers/utils';
-	import { INVALID_DELAY_TIME, TIME_RESEND_EMAIL_FORGOT_PW } from '$lib/utils/constants';
+	import { Form, FormGroup, Button, Link, PasswordInput } from 'carbon-components-svelte';
+	import { getAuth, confirmPasswordReset, browserSessionPersistence } from 'firebase/auth';
+	import { checkPasswordRule } from '$lib/helpers/utils';
+	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import type { Locals } from '$lib/store/local';
 	import type { Load } from '@sveltejs/kit';
-	export const load: Load<{ session: Locals }> = async ({ session, page }) => {
-		const resetPasswordToken = page.query.get('oobCode');
-		const mode = page.query.get('mode');
+	export const load: Load<{ session: Locals }> = async ({ url, params }) => {
+		const resetPasswordToken = url.searchParams.get('oobCode');
+		const mode = url.searchParams.get('mode');
 		if (!resetPasswordToken || mode !== 'resetPassword') {
 			return {
 				status: 302,
@@ -71,15 +64,17 @@
 		}
 		const auth = getAuth();
 		await auth.setPersistence(browserSessionPersistence); // To save user after logging into the browser session
-		await confirmPasswordReset(auth ,resetPasswordToken, resetPasswordData.newPassword).then((res)=>{
-			goto('/login');
-		}).catch(error=>{
-			window.openNotification({
-				kind: 'error',
-				title: 'Error',
-				subtitle: error.message
+		await confirmPasswordReset(auth, resetPasswordToken, resetPasswordData.newPassword)
+			.then((res) => {
+				goto('/login');
+			})
+			.catch((error) => {
+				window.openNotification({
+					kind: 'error',
+					title: 'Error',
+					subtitle: error.message
+				});
 			});
-		});
 	}
 </script>
 

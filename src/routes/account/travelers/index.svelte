@@ -8,70 +8,112 @@
 	import OverlayLoading from '$lib/components/form/loading.svelte';
 	import type { Metadata } from '$lib/store/metadata';
 	import Accordion from '$lib/components/Accordion.svelte';
-	import type { Trip } from '$lib/store/trip';
+	import { ENUM_TRIP_STATE, Trip } from '$lib/store/trip';
 	import type { User } from '$lib/store/auth';
 
-	export const load: Load = async ({ fetch, session, page }) => {
+	export const load: Load = async ({ fetch, session }) => {
 		try {
 			let user: User | undefined = session.user;
 			let metadata: Metadata = session.metadata;
-			const res = await fetch(`/trip.json`, {
+			let trips: Trip[] = [];
+			const queryString = objectToQueryString({ state: ENUM_TRIP_STATE.new_enquiry });
+			const res = await fetch(`/trip.json?${queryString}`, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json'
 				}
 			});
-
 			if (res.ok) {
 				const data = await res.json();
-				let trips: Trip[] = data;
-				return {
-					props: {
-						user: user,
-						trips
-					}
-				};
+				trips = data || [];
 			} else {
 				const error = await res.json();
 				console.error(error);
 			}
+			const queryStringAdvisor = objectToQueryString({
+				advisor: user.advisorMe.id,
+				state: [
+					ENUM_TRIP_STATE.completed,
+					ENUM_TRIP_STATE.enquired,
+					ENUM_TRIP_STATE.planning,
+					ENUM_TRIP_STATE.progressing
+				]
+			});
+			const resAdvisor = await fetch(`/trip.json?${queryStringAdvisor}`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+			if (resAdvisor.ok) {
+				const data = await resAdvisor.json();
+				trips = trips.concat(data || []);
+			} else {
+				const error = await resAdvisor.json();
+				console.error(error);
+			}
+			return {
+				props: {
+					user,
+					trips: trips.reduce((acc: Trip[], item) => {
+						if (acc.length > 0) {
+							const index = acc.findIndex((accItem) => item.id === accItem.id);
+							if (index < 0) {
+								acc.push(item);
+							}
+						} else {
+							acc.push(item);
+						}
+						return acc;
+					}, [])
+				}
+			};
 		} catch (error) {
 			console.log('Fetch advisor data:' + error);
 		}
-        return { props:{}}
+		return { props: {} };
 	};
 </script>
 
 <script lang="ts">
-import TravelersList from "./components/TravelersList.svelte";
-
+	import EnquiriesList from './components/EnquiriesList.svelte';
+	import TravelersList from './components/TravelersList.svelte';
+	import type { Traveller } from '$lib/store/traveller';
+	import { objectToQueryString } from '$lib/helpers/utils';
 
 	export let user: User;
 	export let trips: Trip[] = [];
-    let tripsPlanning: Trip[] = trips.reduce((acc: Trip[], item: Trip)=>{
-        if(item.state === 'planning'){
-            acc.push(item);
-        }
-        return acc;
-    },[]);
-    let tripsActive: Trip[] = trips.reduce((acc: Trip[], item: Trip)=>{
-        if(item.state === 'progressing'){
-            acc.push(item);
-        }
-        return acc;
-    },[]);
-	let tripsRegistered: Trip[] = trips.reduce((acc: Trip[], item: Trip)=>{
-        if(item.state === 'enquired'){
-            acc.push(item);
-        }
-        return acc;
-    },[]);
-    let tripsPast: Trip[] = trips.reduce((acc: Trip[], item: Trip)=>{
-        if(item.state === 'completed'){
-            acc.push(item);
-        }
-        return acc;
-    },[]);
+	console.log(trips);
+	let tripsPlanning: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'planning') {
+			acc.push(item);
+		}
+		return acc;
+	}, []);
+	let tripsActive: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'progressing') {
+			acc.push(item);
+		}
+		return acc;
+	}, []);
+	let tripsRegistered: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'enquired') {
+			acc.push(item);
+		}
+		return acc;
+	}, []);
+	let tripsPast: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'completed') {
+			acc.push(item);
+		}
+		return acc;
+	}, []);
+	let tripsNew: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'new_enquiry') {
+			acc.push(item);
+		}
+		return acc;
+	}, []);
 
 	let activeSection = '';
 	let loadingLabel = 'Saving ...';
@@ -89,8 +131,8 @@ import TravelersList from "./components/TravelersList.svelte";
 		{ id: 'new-enquiry', text: 'New Enquiry' },
 		{ id: 'planning', text: 'Planning' },
 		{ id: 'active', text: 'Active' },
-        { id: 'registered', text: 'Registered' },
-        { id: 'past', text: 'Past' }
+		{ id: 'registered', text: 'Registered' },
+		{ id: 'past', text: 'Past' }
 	];
 
 	let invalidDateVisited = {
@@ -115,7 +157,9 @@ import TravelersList from "./components/TravelersList.svelte";
 	</div>
 	<div class="section" id="new-enquiry">
 		<Accordion title="New Enquiry" open={true} id="">
-			
+			{#if tripsNew}
+				<EnquiriesList trips={tripsNew} />
+			{/if}
 		</Accordion>
 	</div>
 	<div class="section" id="planning">
@@ -138,6 +182,6 @@ import TravelersList from "./components/TravelersList.svelte";
 			<TravelersList bind:trips={tripsPast} />
 		</Accordion>
 	</div>
-    
+
 	<div id="fake-height" />
 </div>

@@ -57,7 +57,7 @@
 	import ExperienceSection from '$lib/components/section/Experience.svelte';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 
-	export const load: Load = async ({ fetch, session, page }) => {
+	export const load: Load = async ({ fetch, session }) => {
 		try {
 			let user: User | undefined = session.user;
 			let metadata: Metadata = session.metadata;
@@ -319,5 +319,5 @@
 			list={affiliateBenefitProgramList}
 		/>
 	</FormSection>
-	<div id="fake-height"></div>
+	<div id="fake-height" />
 </div>

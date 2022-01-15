@@ -10,11 +10,31 @@ import { identificationFieldsFragment } from '$lib/store/identification';
 import { addressFieldsFragment } from '$lib/store/address';
 import { interestFieldsFragment } from '$lib/store/interest';
 import { personalPreferenceFieldsFragment, travelPreferenceFieldsFragment } from '$lib/store/preference';
+import type { User } from '$lib/store/auth';
 
 const query = `
     query($id: ID!) {
-        traveller(id: $id) {
+        users(limit: 1, where: {travellerMe: $id}){
+          id
+          myAdvisors{
+            id,
+            name
+          }
+          travellerMe{
             ...travellerFields
+          }
+          productLikes{
+            id
+            name
+          }
+          experienceLikes{
+            id
+            name
+          }
+          destinationLikes{
+            id
+            name
+          }
         }
     }
     ${uploadFileFieldsFragment}
@@ -35,10 +55,10 @@ const query = `
 export const get: RequestHandler = async (request: Request) => {
   try {
     const client = createGraphClientFromRequest(request);
-    const res = await client.query<{traveller: Traveller}>(query, request.params).toPromise();
-    if (res.data?.traveller) {
+    const res = await client.query<{users: User[]}>(query, request.params).toPromise();
+    if (res.data?.users && res.data?.users.length > 0) {
       return {
-        body: JSON.stringify(res.data.traveller),
+        body: JSON.stringify(res.data.users[0]),
       };
     }
     if (res.error) {

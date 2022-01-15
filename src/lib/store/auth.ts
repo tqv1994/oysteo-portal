@@ -4,6 +4,9 @@ import type { AsyncStore, Publishable } from './types';
 import type { Advisor, AdvisorUser } from './advisor';
 import type { Agency } from './agency';
 import type { Traveller } from './traveller';
+import type { Product } from './product';
+import type { Experience } from './experience';
+import type { Destination } from './destination';
 
 export const authStore = writable<
 	AsyncStore & {
@@ -33,7 +36,23 @@ export type User = Publishable & {
 	advisorMe?: Advisor;
 	agencyMe?: Agency;
   travellerMe?: Traveller;
+  productLikes?: Product[];
+  experienceLikes?: Experience[];
+  destinationLikes?: Destination[];
 };
+
+export class UserInput {
+  myAdvisors: string[]; // ID[]
+  constructor(values: Object = {}){
+    Object.assign(this, values);
+  }
+}
+
+export const convertUserToInput = (user: User) =>{
+  let data: UserInput = new UserInput();
+  data.myAdvisors = (user.myAdvisors || []).map(item=>item.id+"");
+  return data;
+}
 
 export const userFieldsFragment = `
 fragment userFields on UsersPermissionsUser  {

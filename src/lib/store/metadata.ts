@@ -1,4 +1,5 @@
 import type { AffiliateAgencies, AffiliateBenefitPrograms, AffiliateNetwork } from './affiliate';
+import type { City } from './city';
 import type { Country } from './country';
 import type { Experience } from './experience';
 import type { InterestType } from './interest';

@@ -6,19 +6,16 @@
 	import type { Load } from '@sveltejs/kit';
 	import { afterUpdate } from 'svelte';
 	import OverlayLoading from '$lib/components/form/loading.svelte';
-	import type { Metadata } from '$lib/store/metadata';
 	import Accordion from '$lib/components/Accordion.svelte';
 	import type { User } from '$lib/store/auth';
 
-	export const load: Load = async ({ fetch, session, page }) => {
-		
-        return { props:{}}
+	export const load: Load = async () => {
+		return { props: {} };
 	};
 </script>
 
 <script lang="ts">
-import { Button } from "carbon-components-svelte";
-import MessagesList from "./components/MessagesList.svelte";
+	import MessagesList from './components/MessagesList.svelte';
 
 	export let user: User;
 	let loadingLabel = 'Saving ...';
@@ -48,10 +45,9 @@ import MessagesList from "./components/MessagesList.svelte";
 		<DesktopNavigationSection items={messagesSections} className={'messages-screen'} />
 	</div>
 	<Accordion title="Current Messages" open={true} id="current-messages">
-        <MessagesList />
+		<MessagesList />
 	</Accordion>
 
-    <Accordion title="Archived" id="archived">
-	</Accordion>
+	<Accordion title="Archived" id="archived" />
 	<div id="fake-height" />
 </div>

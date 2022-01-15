@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
 	import type { Load } from '@sveltejs/kit';
 
-	export const load: Load = async ({ fetch, session, page }) => {
+	export const load: Load = async ({ session }) => {
 		console.log(session);
 		if (session.user) {
 			window.location.href = '/account';
@@ -23,7 +23,7 @@
 		Link,
 		TextInput,
 		PasswordInput,
-	Loading
+		Loading
 	} from 'carbon-components-svelte';
 
 	import {
@@ -97,6 +97,7 @@
 		activeLoading = false;
 	}
 </script>
+
 <Loading active={activeLoading} />
 <div class="login-container">
 	<div class="login-wrapper">

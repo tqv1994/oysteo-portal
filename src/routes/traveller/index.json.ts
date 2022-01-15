@@ -3,7 +3,7 @@ import { createGraphClientFromRequest } from '$lib/utils/graph';
 import { makeErrorResponse } from '$lib/utils/fetch';
 import { uploadFileFieldsFragment } from '$lib/store/upload-file';
 import { countryFieldsFragment } from '$lib/store/country';
-import { subTravellerFieldsFragment, Traveller, travellerFieldsFragment } from '$lib/store/traveller';
+import type {Traveller } from '$lib/store/traveller';
 import { visaFieldsFragment } from '$lib/store/visa';
 import { salutationFieldsFragment } from '$lib/store/salutationType';
 import { identificationFieldsFragment } from '$lib/store/identification';
@@ -17,21 +17,12 @@ const query = `
         users(where:{myAdvisors: [$id]}) {
             id
             travellerMe{
-                ...travellerFields
+                id
+                forename
+                surname
             }
         }
     }
-    ${uploadFileFieldsFragment}
-    ${travellerFieldsFragment}
-    ${visaFieldsFragment}
-    ${salutationFieldsFragment}
-    ${identificationFieldsFragment}
-    ${countryFieldsFragment}
-    ${subTravellerFieldsFragment}
-    ${addressFieldsFragment}
-    ${interestFieldsFragment}
-    ${travelPreferenceFieldsFragment}
-    ${personalPreferenceFieldsFragment}
 `;
 /**
  * @type {import('@sveltejs/kit').Get}

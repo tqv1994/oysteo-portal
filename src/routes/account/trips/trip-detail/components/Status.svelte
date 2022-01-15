@@ -90,7 +90,9 @@ import { ENUM_DOCUMENT_TYPE_LABEL } from '$lib/store/document';
 <DataTable sortable bind:headers bind:rows={status} class="table-custom">
 	<div slot="cell" let:cell>
 		{#if cell.key === 'action'}
-			<Edit on:click={() => {onEdit('status')}} />
+			<div class="text-right">
+				<Edit on:click={() => {onEdit('status')}} />
+			</div>
 		{:else if cell.key === 'lastChange'}
 			{cell.value ? formatDate(cell.value) : ''}
 		{:else if cell.key === 'status'}
@@ -109,6 +111,7 @@ import { ENUM_DOCUMENT_TYPE_LABEL } from '$lib/store/document';
 	<FormRow label="Status" {isEditing}>
 		<div slot="fields">
 			<Select bind:selected={tripInput.state}>
+				<SelectItem value={ENUM_TRIP_STATE.new_enquiry} text={ENUM_TRIP_STATE_LABEL.new_enquiry} />
 				<SelectItem value={ENUM_TRIP_STATE.enquired} text={ENUM_TRIP_STATE_LABEL.enquired} />
 				<SelectItem value={ENUM_TRIP_STATE.planning} text={ENUM_TRIP_STATE_LABEL.planning} />
 				<SelectItem value={ENUM_TRIP_STATE.progressing} text={ENUM_TRIP_STATE_LABEL.progressing} />

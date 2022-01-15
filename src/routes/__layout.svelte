@@ -7,7 +7,7 @@
 	import type { Locals } from '$lib/store/local';
 	import { salutationTypeStore } from '$lib/store/salutationType';
 
-	export const load: Load<{ session: Locals }> = async ({ session, page }) => {
+	export const load: Load<{ session: Locals }> = async ({ session, url }) => {
 		insertToStore(countryStore, session.metadata?.countries, false);
 		insertToStore(languageStore, session.metadata?.languages, false);
 		insertToStore(salutationTypeStore, session.metadata?.salutationTypes, false);
@@ -17,17 +17,17 @@
 		let redirect = null;
 		if (session.user) {
 			authStore.set({ user: session.user });
-			if (!page.path.startsWith('/account')) {
+			if (!url.pathname.startsWith('/account')) {
 				redirect = '/account';
 			} else {
-				if (!session.user.advisorMe && page.path.startsWith('/account/advisor')) {
+				if (!session.user.advisorMe && url.pathname.startsWith('/account/advisor')) {
 					window.openNotification({
 						kind: 'warning',
 						title: 'Warning',
 						subtitle: 'You are not an advisor, so you do not have access to this function.'
 					});
 					redirect = '/account';
-				} else if (!session.user.agencyMe && page.path.startsWith('/account/agency')) {
+				} else if (!session.user.agencyMe && url.pathname.startsWith('/account/agency')) {
 					window.openNotification({
 						kind: 'warning',
 						title: 'Warning',
@@ -37,7 +37,7 @@
 				}
 			}
 		} else {
-			if (page.path.startsWith('/account')) {
+			if (url.pathname.startsWith('/account')) {
 				redirect = '/';
 			}
 		}
@@ -56,12 +56,11 @@
 
 <script lang="ts">
 	import Loading from '$lib/components/form/loading.svelte';
-import Notification from '$lib/components/Notification.svelte';
-import { interestTypeStore } from '$lib/store/interest';
-import { travellerFieldsFragment } from '$lib/store/traveller';
-import { personalPreferenceTypeStore, travelPreferenceTypeStore } from '$lib/store/preference';
+	import Notification from '$lib/components/Notification.svelte';
+	import { interestTypeStore } from '$lib/store/interest';
+	import { personalPreferenceTypeStore, travelPreferenceTypeStore } from '$lib/store/preference';
 </script>
 
 <slot />
 <svelte:component this={Notification} />
-<svelte:component this={Loading}/>
+<svelte:component this={Loading} />
