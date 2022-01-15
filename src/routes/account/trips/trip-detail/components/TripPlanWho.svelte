@@ -190,7 +190,7 @@
 			{#if relatives}
 				<Link
 					on:click={onAddTraveller}
-					id="bx--link-add">Add Experience</Link
+					id="bx--link-add">Add Member</Link
 				>
 			{/if}
 		</div>

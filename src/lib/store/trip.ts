@@ -112,7 +112,7 @@ export const convertTripToInput = (trip: Trip): TRipInput => {
     data.travelingWithYous = (trip.travelingWithYous || []).map((item)=>item.id+"");
     data.lodgingTypes = (trip.lodgingTypes || []).map((item)=>item.id + "");
     data.roomStyles = (trip.roomStyles || []).map((item) => item.id + "");
-    data.currency = trip.currency?.id || '';
+    data.currency = trip.currency?.id;
     data.destinationTypes = (trip.destinationTypes || []).map((item)=> item.id + "");
     data.roomPreferences = (trip.roomPreferences || []).map((item)=> item.id+"");
 	delete data.id;

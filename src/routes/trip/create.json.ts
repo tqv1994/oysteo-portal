@@ -61,7 +61,6 @@ export const post: RequestHandler = async (
         ${addressFieldsFragment}
         ${tripWhereFieldsFragment}
         ${experienceFieldsFragment}
-        ${experienceTypeFieldsFragment}
         ${lodgingTypeFieldsFragment}
         ${roomStyleFieldsFragment}
         ${roomStyleTypeFieldsFragment}
