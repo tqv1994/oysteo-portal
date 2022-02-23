@@ -155,6 +155,7 @@
 		<h1>Travelers</h1>
 		<DesktopNavigationSection items={travelersSections} className={'travelers-screen'} />
 	</div>
+	<div class="section" id="home"></div>
 	<div class="section" id="new-enquiry">
 		<Accordion title="New Enquiry" open={true} id="">
 			{#if tripsNew}

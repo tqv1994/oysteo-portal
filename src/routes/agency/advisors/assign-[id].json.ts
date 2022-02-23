@@ -1,6 +1,5 @@
-import type { RequestHandler, Request } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import { makeErrorResponse } from '$lib/utils/fetch';
-import type { Rec } from '@sveltejs/kit/types/helper';
 import type { AdvisorAgency } from '$lib/store/advisor';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 
@@ -15,9 +14,9 @@ export type assignAdvisorAgencyData = {
 		};
 	};
 };
-export const put: RequestHandler = async (request: Request<Rec<any>, AuthForm>) => {
+export const put: RequestHandler = async (event) => {
 	try {
-		const client = createGraphClientFromRequest(request);
+		const client = createGraphClientFromRequest(event.request);
 
 		const query = `
         mutation updateAgency($id: ID!, $advisors: [ID]){
@@ -35,16 +34,16 @@ export const put: RequestHandler = async (request: Request<Rec<any>, AuthForm>) 
           }	  
          `;
 
+		const reqBody = await event.request.json();
+
 		const res = await client
 			.mutation<assignAdvisorAgencyData>(query, {
-				id: request.params.id,
-				advisors: request.body.advisorIds
+				id: event.params.id,
+				advisors: reqBody.advisorIds
 			})
 			.toPromise();
 		if (res.data) {
-			return {
-				body: JSON.stringify(res.data)
-			};
+			return new Response(JSON.stringify(res.data));
 		}
 		if (res.error) {
 			console.log(JSON.stringify(res.error, null, 2));

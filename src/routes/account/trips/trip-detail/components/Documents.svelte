@@ -66,7 +66,9 @@ import { getItems } from '$lib/store/types';
 				trip.documents = trip.documents.filter((item, index)=>item.id !== deleteId);
 			});
 		}
+		
 		if (documentInputs && documentInputs.length > 0) {
+			
 			for (const [index, documentInput] of documentInputs.entries()) {
 				await createDocumentService({ ...documentInput, type, trip: trip.id }).then(
 					async (document) => {
@@ -81,11 +83,11 @@ import { getItems } from '$lib/store/types';
 							});
 						}
 						trip.documents.push(document);
-						activeSection = '';
 					}
-				);
+					);
+				}
 			}
-		}
+		activeSection = '';
 		handleResetForm();
 		window.openLoading(false);
 	};
@@ -187,7 +189,7 @@ import { getItems } from '$lib/store/types';
 				{#each documentInputs as input, index}
 					<Row>
 						<Column lg={5}>
-							<FileUploader buttonLabel="Add files" bind:files={fileDocuments[index].files} />
+							<FileUploader buttonLabel="Add files" bind:files={fileDocuments[index].files} status="complete"/>
 						</Column>
 						<Column lg={5}>
 							<TextArea bind:value={input.description} rows={2} />
@@ -215,4 +217,15 @@ import { getItems } from '$lib/store/types';
 			display: block;
 		}
 	}
+
+	:global(.bx--loading){
+		// display: none;
+	}
+
+	@media screen and (max-width: 768px) {
+		:global(.bx--file__selected-file){
+			width: 302px;
+		}
+	}
+	
 </style>

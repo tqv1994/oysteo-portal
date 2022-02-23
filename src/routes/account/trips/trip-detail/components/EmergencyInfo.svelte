@@ -40,6 +40,13 @@
 		window.openLoading(false);
 		onCancel();
 	}
+
+	if(!trip){
+		activeSection = 'emergency-info';
+		tripInput = new TRipInput();
+	}else{
+		tripInput = convertTripToInput(trip);
+	}
 </script>
 
 <FormGroup
@@ -61,7 +68,7 @@
 			<TextInput bind:value={tripInput.emergencyRole} />
         </div>
 	</FormRow>
-    <FormRow label="Number" {isEditing}>
+    <FormRow label="Phone number" {isEditing}>
         <div slot="value">{trip?.emergencyPhone || ''}</div>
 		<div slot="fields">
 			<TextInput bind:value={tripInput.emergencyPhone} />

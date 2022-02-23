@@ -3,13 +3,7 @@
 	import type { Traveller } from '$lib/store/traveller';
 
 	import { ENUM_TRIP_STATE_LABEL, Trip } from '$lib/store/trip';
-	import {
-		Button,
-		DataTable,
-		Link,
-		OverflowMenu,
-		OverflowMenuItem
-	} from 'carbon-components-svelte';
+	import { Button, DataTable, Link } from 'carbon-components-svelte';
 	import type { DataTableHeader } from 'carbon-components-svelte/types/DataTable/DataTable';
 	import { FolderOpen32, Forum32, Phone32 } from 'carbon-icons-svelte';
 	type TravellerTrips = {
@@ -49,12 +43,12 @@
 		{
 			key: 'description',
 			value: 'Description',
-			display: (value) => value || '',
+			display: (value) => value || ''
 		},
 		{
 			key: 'state',
 			value: 'Status',
-			display: (value) => value ? ENUM_TRIP_STATE_LABEL[value] : '',
+			display: (value) => (value ? ENUM_TRIP_STATE_LABEL[value] : '')
 		},
 		{
 			key: 'updated_at',
@@ -74,9 +68,9 @@
 			} else {
 				acc.push({ id: item.lead_traveller.id, traveller: item.lead_traveller, trips: [item] });
 			}
-		}else{
+		} else {
 			const indexExist = acc.findIndex(
-				(itemTravellerTrip) => !itemTravellerTrip.traveller  &&  !item.lead_traveller
+				(itemTravellerTrip) => !itemTravellerTrip.traveller && !item.lead_traveller
 			);
 			if (indexExist >= 0) {
 				acc[indexExist].trips.push(item);
@@ -107,7 +101,7 @@
 		{:else if cell.key === 'total_trips'}
 			{row.trips?.length || 0}
 		{:else if cell.key === 'active_trips'}
-			{ row.trips[0].state !== 'completed' ? 0 : '-'}
+			{row.trips[0].state !== 'completed' ? 0 : '-'}
 		{:else if cell.key === 'last_trip'}
 			{formatDate(
 				row.trips.reduce((acc, item) => {
@@ -130,20 +124,20 @@
 			rows={row.trips}
 			class="table-custom sub-table"
 		>
-		<div slot="cell" let:cell let:row>
-			<Link href={`/account/trips/trip-detail?id=${row.id}`}>
-			{#if cell.key === 'depart_at'}
-				{ (cell.value ? formatDate(cell.value) : '-')}
-			{:else if cell.key === 'state'}
-				{cell.value ? ENUM_TRIP_STATE_LABEL[cell.value] : ''}
-			{:else if cell.key === 'updated_at'}
-				{ (cell.value ? formatDate(cell.value) : '-')}
-			{:else}
-				{cell.value || ''}
-			{/if}
-			</Link>
-		</div>
-	</DataTable>
+			<div slot="cell" let:cell let:row>
+				<Link href={`/account/trips/trip-detail?id=${row.id}`}>
+					{#if cell.key === 'depart_at'}
+						{cell.value ? formatDate(cell.value) : '-'}
+					{:else if cell.key === 'state'}
+						{cell.value ? ENUM_TRIP_STATE_LABEL[cell.value] : ''}
+					{:else if cell.key === 'updated_at'}
+						{cell.value ? formatDate(cell.value) : '-'}
+					{:else}
+						{cell.value || ''}
+					{/if}
+				</Link>
+			</div>
+		</DataTable>
 	</div>
 </DataTable>
 

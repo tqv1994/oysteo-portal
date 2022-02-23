@@ -1,6 +1,5 @@
-import type { RequestHandler, Request } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import { makeErrorResponse } from '$lib/utils/fetch';
-import type { Rec } from '@sveltejs/kit/types/helper';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import { paymentFieldsFragment, paymentMethodFieldsFragment } from '$lib/store/payment';
 import { salutationFieldsFragment } from '$lib/store/salutationType';
@@ -16,10 +15,11 @@ export type assignPaymentData = {
 		};
 	};
 };
-export const put: RequestHandler = async (request: Request<Rec<any>, AuthForm>) => {
+export const put: RequestHandler = async (event) => {
 	try {
-		const client = createGraphClientFromRequest(request);
-		const payments = [request.body.data];
+		const client = createGraphClientFromRequest(event.request);
+    const reqBody = await event.request.json();
+		const payments = [reqBody.data];
 		const query = `
         mutation updateAgency($id: ID!, $payments: [ID]){
             updateAgency(input: { 
@@ -41,14 +41,12 @@ export const put: RequestHandler = async (request: Request<Rec<any>, AuthForm>) 
 
 		const res = await client
 			.mutation<assignPaymentData>(query, {
-				id: request.params.id,
+				id: event.params.id,
 				payments: payments
 			})
 			.toPromise();
 		if (res.data) {
-			return {
-				body: JSON.stringify(res.data)
-			};
+			return new Response(JSON.stringify(res.data));
 		}
 		if (res.error) {
 			console.log(JSON.stringify(res.error, null, 2));

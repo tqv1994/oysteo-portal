@@ -1,4 +1,4 @@
-import type { RequestHandler, Request } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import { makeErrorResponse } from '$lib/utils/fetch';
 import { uploadFileFieldsFragment } from '$lib/store/upload-file';
@@ -14,7 +14,6 @@ import { insuranceFieldsFragment } from '$lib/store/insurance';
 import { interestFieldsFragment } from '$lib/store/interest';
 import { addressFieldsFragment } from '$lib/store/address';
 import { personalPreferenceFieldsFragment, travelPreferenceFieldsFragment } from '$lib/store/preference';
-import type { Rec } from '@sveltejs/kit/types/helper';
 import { tripWhereFieldsFragment } from '$lib/store/tripWhere';
 import { experienceFieldsFragment } from '$lib/store/experience';
 import { experienceTypeFieldsFragment } from '$lib/store/experienceType';
@@ -32,9 +31,9 @@ export type updateTripData = {
 };
 
 export const put: RequestHandler = async (
-    request: Request<Rec<any>, AuthForm>) => {
+    event) => {
     try {
-        const client = createGraphClientFromRequest(request);
+        const client = createGraphClientFromRequest(event.request);
         const query = `mutation ($id: ID!,$trip: editTripInput){
         updateTrip(input:{
             where: {id: $id},
@@ -70,11 +69,10 @@ export const put: RequestHandler = async (
         ${travelingWithYouFieldsFragment}
         ${destinationTypeFieldsFragment}
     `;
-        const res = await client.mutation<updateTripData>(query, { id: request.params.id || '', trip: request.body }).toPromise();
+        const reqBody = await event.request.json();
+        const res = await client.mutation<updateTripData>(query, { id: event.params.id || '', trip: reqBody }).toPromise();
         if (res.data) {
-            return {
-                body: JSON.stringify(res.data.updateTrip?.trip),
-            };
+            return new Response(JSON.stringify(res.data.updateTrip?.trip));
         }
         if (res.error) {
             console.log(JSON.stringify(res.error, null, 2));

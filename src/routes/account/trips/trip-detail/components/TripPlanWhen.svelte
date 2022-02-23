@@ -53,6 +53,12 @@
 		window.openLoading(false);
 		activeSection = '';
 	};
+	if(!trip){
+		activeSection = 'trip-plan-when';
+		tripInput = new TRipInput();
+	}else{
+		tripInput = convertTripToInput(trip);
+	}
 </script>
 
 <FormGroup

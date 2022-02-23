@@ -111,12 +111,14 @@
 					/>
 				</div>
 			{/each}
-			<Link
-				on:click={() => {
-					experienceInput = [...experienceInput, { id: '0', name: '' }];
-				}}
-				id="bx--link-add">Add Experience</Link
-			>
+			{#if experienceInput.length < 5}
+				<Link
+					on:click={() => {
+						experienceInput = [...experienceInput, { id: '0', name: '' }];
+					}}
+					id="bx--link-add">Add Specialities</Link
+				>
+			{/if}
 		</div>
 	</FormRow>
 </FormGroup>

@@ -1,4 +1,6 @@
 :global(.table-custom){
+    overflow-x: auto;
+    overflow-y: hidden;
     --cds-border-subtle: #8D8D8D;
     --cds-layer: #F3F3F3;
     :global(.bx--data-table){
@@ -24,5 +26,8 @@
             }
         }
     }   
+    :global(.bx--table-header-label){
+        min-width: 78px;
+    }
     
 }

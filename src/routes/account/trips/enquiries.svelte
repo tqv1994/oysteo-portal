@@ -115,15 +115,20 @@
 		<h1>Trips</h1>
 		<DesktopNavigationSection items={tripsSections} className={'trips-screen'} />
 	</div>
-	<Accordion title="New Enquiry" open={true} id="new_enquiry">
-        {#if tripsNewRequiry.length > 0}
-		    <TripsList detailLinkPrefix="/account/trips/enquiry-" trips={tripsNewRequiry} />
-        {/if}
-	</Accordion>
-    <Accordion title="Registered" open={true} id="enquiried">
-        {#if tripsRequired.length > 0}
-		    <TripsList detailLinkPrefix="/account/trips/enquiry-" trips={tripsRequired} />
-        {/if}
-	</Accordion>
+	<div class="section" id="home"></div>
+	<div class="section" id="new_enquiry">
+		<Accordion title="New Enquiry" open={true} id="">
+			{#if tripsNewRequiry.length > 0}
+				<TripsList detailLinkPrefix="/account/trips/enquiry-" trips={tripsNewRequiry} />
+			{/if}
+		</Accordion>
+	</div>
+	<div class="section" id="enquiried">
+		<Accordion title="Registered" open={true} id="">
+			{#if tripsRequired.length > 0}
+				<TripsList detailLinkPrefix="/account/trips/enquiry-" trips={tripsRequired} />
+			{/if}
+		</Accordion>
+	</div>
 	<div id="fake-height" />
 </div>

@@ -18,7 +18,7 @@
 	type AddressInput = {
 		line1: string;
 		line2: string;
-		locality: string;
+		city: string;
 		zipcode: string;
 		country: string | null;
 		province: string;
@@ -30,7 +30,7 @@
 		addressInput = {
 			line1: '',
 			line2: '',
-			locality: '',
+			city: '',
 			zipcode: '',
 			country: null,
 			province: ''
@@ -52,7 +52,7 @@
 			addressInput = {
 				line1: address[0].line1 || '',
 				line2: address[0].line2 || '',
-				locality: address[0].locality || '',
+				city: address[0].city || '',
 				zipcode: address[0].zipcode || '',
 				country: address[0].country?.id || null,
 				province: address[0].province || ''
@@ -149,7 +149,7 @@
 				{handleDisplay('line2')}
 			</p>
 			<p class="advisor-address">
-				{handleDisplay('locality')}
+				{handleDisplay('city')}
 			</p>
 			<p class="advisor-address">
 				{handleDisplay('province')}
@@ -185,7 +185,7 @@
 
 				<TextInput
 					labelText="Province / State"
-					placeholder="Your province or state ..."
+					placeholder="Your province or state..."
 					bind:value={addressInput.province}
 				/>
 			</div>
@@ -202,9 +202,9 @@
 			/>
 			<div class="select-container">
 				<TextInput
-					labelText="Locality"
-					placeholder="Your locality..."
-					bind:value={addressInput.locality}
+					labelText="City"
+					placeholder="Your city..."
+					bind:value={addressInput.city}
 				/>
 				<TextInput
 					labelText="Zip code / Postal code"

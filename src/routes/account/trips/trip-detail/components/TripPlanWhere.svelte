@@ -92,10 +92,10 @@
 						<p><label>Country</label></p>
 					</Column>
 					<Column>
-						<p><label>Description</label></p>
+						<p><label>No. Nights</label></p>
 					</Column>
 					<Column>
-						<p><label>No. Nights</label></p>
+						<p><label>Description</label></p>
 					</Column>
 				</Row>
 				{#each trip?.tripWheres || [] as where}
@@ -104,10 +104,10 @@
 							{where.country?.name || ''}
 						</Column>
 						<Column>
-							{where.description || ''}
+							{where.noNights || ''}
 						</Column>
 						<Column>
-							{where.noNights || ''}
+							{where.description || ''}
 						</Column>
 					</Row>
 				{/each}
@@ -157,33 +157,47 @@
 					</Row>
 				{/each}
 				{#each tripWhereInputs || [] as whereInput, index}
-					<Row class="travellers-container">
-						<Column>
+					<Column class="travellers-container">
+						<Row>
+							<p><label>Country</label></p>
+						</Row>
+						<Row>
 							<Select labelText="" hideLabel bind:selected={whereInput.country}>
 								<SelectItem text="Choose..." value="" />
 								{#each countries as country}
 									<SelectItem value={country.id.toString()} text={`${country.name}`} />
 								{/each}
 							</Select>
-						</Column>
-						<Column>
+						</Row>
+						<Row>
+							<p><label>No. Nights</label></p>
+						</Row>
+						<Row>
 							<TextInput bind:value={whereInput.noNights} type="number" />
-						</Column>
-						<Column>
+						</Row>
+						<Row>
+							<p><label>Description</label></p>
+						</Row>
+						<Row>
 							<TextArea bind:value={whereInput.description} />
-						</Column>
-						<Column lg={1}>
+						</Row>
+						<Row>
 							<CloseOutline20
 								class="remove-where"
 								on:click={() => {
 									handleRemoveInput(index);
 								}}
 							/>
-						</Column>
-					</Row>
+						</Row>
+					</Column>
 				{/each}
 			</Grid>
 			<Link on:click={onAddWhere} id="bx--link-add">Add Where</Link>
 		</div>
 	</FormRow>
 </FormGroup>
+<style lang="scss">
+	.item-where{
+		padding-top: 16px;
+	}
+</style>

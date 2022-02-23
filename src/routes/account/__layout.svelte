@@ -19,7 +19,11 @@
 	import { afterUpdate, beforeUpdate, onDestroy, onMount } from 'svelte';
 	import type { Load } from '@sveltejs/kit';
 	import type { Locals } from '$lib/store/local';
-	export const load: Load<{ session: Locals }> = async ({ url }) => {
+	let typeUser = 'agency';
+	export const load: Load<{ session: Locals }> = async ({ session,url }) => {
+		if(!session.user.agencyMe){
+			typeUser = 'advisor';
+		}
 		return {
 			props: {
 				navSelected: url.pathname.startsWith('/account/agency')
@@ -64,10 +68,10 @@
 		const divFakeHeight = document.getElementById('fake-height');
 		if (desktopNavSectionEl && contentEl && divFakeHeight) {
 			desktopNavSectionEl.querySelectorAll('a').forEach((element) => {
-				element.addEventListener('click', (e) => {
+				element.addEventListener('click', () => {
 					const target = element.getAttribute('href');
-					if (target.indexOf('#') > 0) {
-						e.preventDefault();
+					
+					if (target.indexOf('#') > -1) {
 						// Handling when the height of the screen is not enough, can't scroll to the position of the last sections
 						let heightOfSections = 0;
 						let keyActive = null;
@@ -85,7 +89,6 @@
 						} else {
 							divFakeHeight.style.height = '0';
 						}
-						window.scrollTo(0, getOffset(sectionActive).top - marginTop);
 					}
 				});
 				return false;
@@ -93,6 +96,7 @@
 			// The event handler after clicking the edit button will be on top to the section
 			contentEl.querySelectorAll('.section .btn-edit').forEach((btnEl, key) => {
 				btnEl.addEventListener('click', (e: PointerEvent) => {
+					
 					if ($formChangeStatusStore.changing === false) {
 						if (e.path && Array.isArray(e.path)) {
 							const sectionCurrent = e.path.reduce((acc: Element, item: Element) => {
@@ -102,9 +106,10 @@
 								return acc;
 							}, null);
 							desktopNavSectionEl.querySelectorAll('a').forEach((element) => {
-								if (element.getAttribute('href') == `#${sectionCurrent.id}`) {
+								if (element.getAttribute('href') == `#${sectionCurrent.id}` && `#${sectionCurrent.id}` != '#documents') {
 									element.click();
 								}
+								
 							});
 						}
 					}
@@ -114,12 +119,13 @@
 	};
 
 	const onScroll = () => {
-		const marginTop = 60;
+		const marginTop = 50;
 		const doc = document.documentElement;
 		const desktopNavSectionEl = document.getElementById('desktop-nav-section');
 		const contentEl = document.querySelector('.content');
 		if (desktopNavSectionEl) {
 			let scrollDistance: number = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+			
 			contentEl.querySelectorAll('.section').forEach((sectionEl, key) => {
 				if (getOffset(sectionEl).top - marginTop <= scrollDistance) {
 					desktopNavSectionEl.querySelectorAll('li.active').forEach((activeEl) => {
@@ -129,6 +135,7 @@
 						desktopNavSectionEl.querySelectorAll('li')[key].classList.add('active');
 					}
 				}
+				
 			});
 		}
 	};
@@ -188,13 +195,14 @@
 >
 	<div id="logo">
 		<svg xmlns="http://www.w3.org/2000/svg" width="92" height="21" viewBox="0 0 92 21">
-			<text
-				id="OYSTEO"
-				transform="translate(0 17)"
-				font-size="18"
-				font-family="GurmukhiMN, Gurmukhi MN"
-				letter-spacing="0.2em"><tspan x="0" y="0">OYSTEO</tspan></text
-			>
+			<a href="/">
+				<text
+					id="OYSTEO"
+					transform="translate(0 17)"
+					font-size="18"
+					letter-spacing="0.2em"><tspan x="0" y="0">OYSTEO</tspan></text
+				>
+			</a>
 		</svg>
 	</div>
 	<div slot="skip-to-content">
@@ -202,7 +210,7 @@
 	</div>
 
 	<HeaderNav>
-		<HeaderNavItem href="#" text="My Oysteo" on:click={gotoAccount} />
+		<HeaderNavItem href="#" text="My OYSTEO" on:click={gotoAccount} />
 		<HeaderNavItem
 			isSelected={navSelected == 'advisor'}
 			href="#"
@@ -211,6 +219,7 @@
 				gotoAdvisor();
 			}}
 		/>
+		{#if typeUser == 'agency'}
 		<HeaderNavItem
 			isSelected={navSelected == 'agency'}
 			href="#"
@@ -219,6 +228,13 @@
 				gotoAgency();
 			}}
 		/>
+		{:else}
+		<HeaderNavItem
+			class="disable-agency"
+			href="#"
+			text="Agency"
+		/>
+		{/if}
 	</HeaderNav>
 	<HeaderUtilities>
 		<HeaderAction
@@ -237,7 +253,7 @@
 
 <SideNav isOpen={isSideNavOpen} id="main-sidebar">
 	<SideNavItems>
-		<SideNavLink text="My Oysteo" href="#" on:click={gotoAccount} />
+		<SideNavLink text="My OYSTEO" href="#" on:click={gotoAccount} />
 		<SideNavLink
 			text="Advisors"
 			href="#"
@@ -246,6 +262,7 @@
 				gotoAdvisor();
 			}}
 		/>
+		{#if typeUser == 'agency'}
 		<SideNavLink
 			text="Agency"
 			href="#"
@@ -254,6 +271,7 @@
 				gotoAgency();
 			}}
 		/>
+		{/if}
 	</SideNavItems>
 </SideNav>
 

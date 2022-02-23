@@ -1,6 +1,5 @@
-import type { RequestHandler, Request } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import { makeErrorResponse } from '$lib/utils/fetch';
-import type { Rec } from '@sveltejs/kit/types/helper';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import { AdvisorAgency, advisorAgencyFieldsFragment } from '$lib/store/advisor';
 import { salutationFieldsFragment } from '$lib/store/salutationType';
@@ -13,9 +12,9 @@ export type updateAdvisorAgencyData = {
 		advisor: AdvisorAgency;
 	};
 };
-export const put: RequestHandler = async (request: Request<Rec<any>, AuthForm>) => {
+export const put: RequestHandler = async (event) => {
 	try {
-		const client = createGraphClientFromRequest(request);
+		const client = createGraphClientFromRequest(event.request);
 		const query = `
 			mutation updateAdvisor($id: ID!, $updateData: editAdvisorInput ){
 				updateAdvisor(input:{
@@ -31,13 +30,12 @@ export const put: RequestHandler = async (request: Request<Rec<any>, AuthForm>) 
 			${advisorAgencyFieldsFragment}
             ${salutationFieldsFragment}
 		`;
+		const reqBody = await event.request.json();
 		const res = await client
-			.mutation<updateAdvisorAgencyData>(query, { id: request.params.id, updateData: request.body })
+			.mutation<updateAdvisorAgencyData>(query, { id: event.params.id, updateData: reqBody })
 			.toPromise();
 		if (res.data) {
-			return {
-				body: JSON.stringify(res.data)
-			};
+			return new Response(JSON.stringify(res.data));
 		}
 		if (res.error) {
 			console.log(JSON.stringify(res.error, null, 2));

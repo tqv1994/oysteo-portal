@@ -136,7 +136,7 @@
 		<div slot="value">{agency.website == null ? '' : agency.website}</div>
 		<div slot="fields">
 			<TextInput
-				placeholder="Enter your website"
+				placeholder="Enter your website..."
 				bind:value={marketingInfoInput.website}
 				invalid={invalidMarketingWebsite.status}
 				invalidText={invalidMarketingWebsite.message}

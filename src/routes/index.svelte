@@ -194,7 +194,6 @@
 						id="OYSTEO"
 						transform="translate(0 17)"
 						font-size="18"
-						font-family="GurmukhiMN, Gurmukhi MN"
 						letter-spacing="0.2em"><tspan x="0" y="0">OYSTEO</tspan></text
 					>
 				</svg>

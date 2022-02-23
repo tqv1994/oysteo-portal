@@ -70,7 +70,7 @@ import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 				<Link on:click={onEdit} class="btn-edit">{editLabel}&nbsp;{#if !hideEditIcon}<RequestQuote16 />{/if}</Link>
 			</div>
 		{:else}
-			<div class="group-name">
+			<div class="">
 				<p>{groupName}</p>
 			</div>
 		{/if}

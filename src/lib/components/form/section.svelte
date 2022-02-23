@@ -55,7 +55,7 @@ import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 
 	.right-icon {
 		position: absolute;
-		top: 1rem;
+		top: 4rem;
 		right: 1rem;
 		background-color: #707070;
 		cursor: pointer;
@@ -63,7 +63,7 @@ import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 		&:focus,
 		&:hover {
 			border: 1px solid blue;
-			top: 0.9375rem;
+			top: 4rem;
 			right: 0.9375rem;
 		}
 	}

@@ -82,7 +82,7 @@
 			</div>
 		{:else if cell.key === 'created_at'}
 			<Link href={`#`}>
-				<span class={`${!row.isRead ? 'active' : ''}`}>
+				<span class={`${!row.isRead ? 'active fix-width-date' : ''}`}>
 					{formatDate(cell.value)}
 				</span>
 			</Link>
@@ -115,5 +115,9 @@
                 }
             }
         }
+
+		.fix-width-date{
+			width: 140px;
+		}
 	}
 </style>

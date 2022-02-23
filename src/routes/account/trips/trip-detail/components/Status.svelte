@@ -85,6 +85,12 @@ import { ENUM_DOCUMENT_TYPE_LABEL } from '$lib/store/document';
 		];
 		activeSection = '';
 	};
+	if(!trip){
+		activeSection = 'status';
+		tripInput = new TRipInput();
+	}else{
+		tripInput = convertTripToInput(trip);
+	}
 </script>
 {#if activeSection === ""}
 <DataTable sortable bind:headers bind:rows={status} class="table-custom">
@@ -102,6 +108,7 @@ import { ENUM_DOCUMENT_TYPE_LABEL } from '$lib/store/document';
 </DataTable>
 {:else}
 <FormGroup
+	groupClass = "group hide-border"
 	let:isEditing
 	isEditing={activeSection === 'status'}
 	on:edit={() => onEdit('status')}

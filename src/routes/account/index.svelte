@@ -12,7 +12,7 @@
 		Button,
 		Link
 	} from 'carbon-components-svelte';
-	import { authStore } from '$lib/store/auth';
+	import { authStore, User } from '$lib/store/auth';
 	import IconHome1 from '$lib/components/icons/IconHome1.svelte';
 	import IconHome2 from '$lib/components/icons/IconHome2.svelte';
 	import IconHome3 from '$lib/components/icons/IconHome3.svelte';
@@ -22,6 +22,34 @@
 	import { getTripsService } from '$lib/services/trip.services';
 	import { Trip, TRipInput } from '$lib/store/trip';
 	import { goto } from '$app/navigation';
+	import type Advisor from './advisor.svelte';
+	import type Agency from './agency.svelte';
+	import type { Load } from '@sveltejs/kit';
+	import type { Metadata } from '$lib/store/metadata';
+	import type { Locals } from '$lib/store/local';
+	let advisorName ='';
+	
+	const getAdvisorName = async () => {
+		try {
+			const res = await fetch(`/advisor.json`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+			
+			if (res.ok) {
+				const data = await res.json();
+				advisorName = data.me.advisorMe.name;
+			} else {
+				const error = await res.json();
+				console.error(error);
+			}
+		} catch (error) {
+			console.log('Fetch advisor data:' + error);
+		}
+	};
+	getAdvisorName();
 </script>
 
 <SideNav isOpen={false}>
@@ -38,7 +66,7 @@
 			<Grid>
 				<Row>
 					<Column>
-						<h1 class="pt-0">Hello {$authStore.user?.email || ''}</h1>
+						<h1 class="pt-0">Hello {advisorName}</h1>
 					</Column>
 					<Column class="text-right">
 						<Button kind="secondary" class="pl-30 pr-30" href="/account/trips/trip-detail"
@@ -55,6 +83,14 @@
 		<section class="boxes">
 			<div class="row">
 				<div class="d-col-4 m-col-6">
+					<Link href="/account/trips/enquiries" >
+						<div class="boxes--item-content">
+							<h3 class="boxes--item-title">Enquiries</h3>
+							<IconHome3 class="boxes--item-icon" width="91" height="91" />
+						</div>
+					</Link>
+				</div>
+				<div class="d-col-4 m-col-6">
 					<Link href="/account/trips">
 						<div class="boxes--item-content">
 							<h3 class="boxes--item-title">Trips</h3>
@@ -70,14 +106,7 @@
 						</div>
 					</Link>
 				</div>
-				<div class="d-col-4 m-col-6">
-					<Link href="/account/trips/enquiries" >
-						<div class="boxes--item-content">
-							<h3 class="boxes--item-title">Enquiries</h3>
-							<IconHome3 class="boxes--item-icon" width="91" height="91" />
-						</div>
-					</Link>
-				</div>
+				
 				<div class="d-col-4 m-col-6">
 					<Link href="#">
 						<div class="boxes--item-content">
@@ -113,7 +142,7 @@
 		background: rgb(231, 239, 255);
 		background: linear-gradient(90deg, rgba(231, 239, 255, 1) 0%, rgba(15, 97, 253, 1) 100%);
 		padding-top: 80px;
-		padding-bottom: 150px;
+		padding-bottom: 56px;
 		margin-left: calc(-100vw / 2 + (100vw - 8rem) / 2);
 		margin-right: calc(-100vw / 2 + (100vw - 8rem) / 2);
 		margin-top: -4rem;
@@ -149,6 +178,11 @@
 		}
 		.boxes {
 			padding: 0 8rem;
+		}
+	}
+	@media screen and (max-width: 767px){
+		.content-header{
+			margin-top: -80px;
 		}
 	}
 	.boxes {

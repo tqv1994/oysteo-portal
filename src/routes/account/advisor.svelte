@@ -28,6 +28,7 @@
 	//types
 	import type { User } from '$lib/store/user';
 	import type { Advisor } from '$lib/store/advisor';
+	import type { Agency } from '$lib/store/agency';
 	import type { Experience } from '$lib/store/experience';
 	import type { Country } from '$lib/store/country';
 	import type { Destination } from '$lib/store/destination';
@@ -56,6 +57,8 @@
 	import DestinationImage from '$lib/components/section/destination/Image.svelte';
 	import ExperienceSection from '$lib/components/section/Experience.svelte';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
+	import AgencyLogo from '$lib/components/section/AgencyLogo.svelte';
+	import AdvisorAvatar from '$lib/components/section/AdvisorAvatar.svelte';
 
 	export const load: Load = async ({ fetch, session }) => {
 		try {
@@ -67,21 +70,34 @@
 					'Content-Type': 'application/json'
 				}
 			});
+			const resAgency = await fetch(`/agency.json`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
 
-			if (res.ok) {
+			if (res.ok && resAgency.ok) {
 				const data = await res.json();
+				const dataAgency = await resAgency.json();
 				let advisor = data.me.advisorMe;
+				let agency = dataAgency.me.agencyMe;
+				console.log(data);
+				
 				return {
 					props: {
 						user: user,
 						advisor: advisor,
+						agency: agency,
 						countries: metadata.countries,
 						languages: metadata.languages,
 						address: advisor !== null ? advisor.address : [],
 						experiences: advisor !== null ? advisor.experiences : [],
 						destinations: advisor !== null ? advisor.destinations : [],
 						affiliateAgencies: advisor !== null ? advisor.affiliate_agencies : [],
+						affiliateAgenciesAgency: agency !== null ? agency.affiliate_agencies : [],
 						affiliateNetworks: advisor !== null ? advisor.affiliate_networks : [],
+						affiliateNetworksAgency: agency !== null ? agency.affiliate_networks : [],
 						affiliateBenefitPrograms: advisor !== null ? advisor.affiliate_benefit_programs : [],
 						experienceList: metadata.experiences,
 						affiliateAgencyList: metadata.affiliateAgencies,
@@ -96,19 +112,23 @@
 		} catch (error) {
 			console.log('Fetch advisor data:' + error);
 		}
+		return { props: {} };
 	};
 </script>
 
 <script lang="ts">
 	export let user: User;
 	export let advisor: Advisor;
+	export let agency: Agency;
 	export let experiences: Experience[];
 	export let countries: Country[];
 	export let languages: Language[];
 	export let destinations: Destination[];
 	export let address: Address[];
 	export let affiliateAgencies: AffiliateAgencies[];
+	export let affiliateAgenciesAgency: AffiliateAgencies[];
 	export let affiliateNetworks: AffiliateNetwork[];
+	export let affiliateNetworksAgency: AffiliateNetwork[];
 	export let affiliateBenefitPrograms: AffiliateBenefitPrograms[];
 
 	export let affiliateAgencyList: AffiliateAgencies[];
@@ -122,6 +142,7 @@
 	let navFixed = '';
 	let activeLoading = false;
 	const type = 'advisor';
+	const type2 = 'agency';
 
 	const setEditing = (sectionName: string) => () => {
 		activeSection = sectionName;
@@ -173,6 +194,7 @@
 				},
 				body: JSON.stringify({ ...data })
 			});
+			
 			if (res.ok) {
 				setEditing('');
 			}
@@ -226,6 +248,7 @@
 	</FormSection>
 
 	<FormSection title="Profile" icon={UserAvatar20} id="profile">
+		<AdvisorAvatar bind:activeSection bind:loadingLabel bind:activeLoading {advisor} />
 		<Profile bind:activeSection bind:activeLoading {advisor} {type} />
 	</FormSection>
 
@@ -233,7 +256,7 @@
 		title="Destinations"
 		icon={Location20}
 		rightIcon
-		titleRightIcon={'Add Another Destination'}
+		titleRightIcon={'Add Destination'}
 		id="destinations"
 		on:add={setEditing('destination-add')}
 	>
@@ -279,7 +302,7 @@
 		{/each}
 	</FormSection>
 
-	<FormSection title="Experiences" icon={UserCertification20} id="experiences">
+	<FormSection title="Specialities" icon={UserCertification20} id="experiences">
 		<ExperienceSection
 			bind:activeSection
 			bind:activeLoading
@@ -291,33 +314,69 @@
 	</FormSection>
 
 	<FormSection title="Affiliations" icon={Star20} id="affiliations">
-		<Affiliation
+		{#if agency}
+			<Affiliation
+				bind:activeSection
+				bind:activeLoading
+				objectId={agency.id}
+				type = {type2}
+				label="Agency"
+				name="Agencies"
+				affiliate={affiliateAgenciesAgency}
+				list={affiliateAgencyList}
+			/>
+			<Affiliation
+				bind:activeSection
+				bind:activeLoading
+				objectId={agency.id}
+				type = {type2}
+				label="Networks"
+				name="Networks"
+				affiliate={affiliateNetworksAgency}
+				list={affiliateNetworkList}
+			/>
+			<!-- <Affiliation
+				bind:activeSection
+				bind:activeLoading
+				objectId={advisor.id}
+				{type}
+				label="Benefit Programs"
+				name="Benefit Programs"
+				affiliate={affiliateBenefitPrograms}
+				list={affiliateBenefitProgramList}
+			/> -->
+		{:else}
+			<Affiliation
 			bind:activeSection
 			bind:activeLoading
-			objectId={advisor.id}
-			{type}
+			objectId={advisor.agency.id}
+			type = {type2}
+			label="Agency"
 			name="Agencies"
-			affiliate={affiliateAgencies}
+			affiliate={affiliateAgenciesAgency}
 			list={affiliateAgencyList}
-		/>
-		<Affiliation
-			bind:activeSection
-			bind:activeLoading
-			objectId={advisor.id}
-			{type}
-			name="Networks"
-			affiliate={affiliateNetworks}
-			list={affiliateNetworkList}
-		/>
-		<Affiliation
-			bind:activeSection
-			bind:activeLoading
-			objectId={advisor.id}
-			{type}
-			name="Benefit Programs"
-			affiliate={affiliateBenefitPrograms}
-			list={affiliateBenefitProgramList}
-		/>
+			/>
+			<Affiliation
+				bind:activeSection
+				bind:activeLoading
+				objectId={advisor.agency.id}
+				type = {type2}
+				label="Networks"
+				name="Networks"
+				affiliate={affiliateNetworksAgency}
+				list={affiliateNetworkList}
+			/>
+			<!-- <Affiliation
+				bind:activeSection
+				bind:activeLoading
+				objectId={advisor.id}
+				{type}
+				label="Benefit Programs"
+				name="Benefit Programs"
+				affiliate={affiliateBenefitPrograms}
+				list={affiliateBenefitProgramList}
+			/> -->
+		{/if}
 	</FormSection>
 	<div id="fake-height" />
 </div>

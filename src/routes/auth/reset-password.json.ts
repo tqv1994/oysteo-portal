@@ -1,6 +1,5 @@
-import type { RequestHandler, Request } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import { makeErrorResponse } from '$lib/utils/fetch';
-import type { Rec } from '@sveltejs/kit/types/helper';
 import type { Advisor } from '$lib/store/advisor';
 import { cmsUrlPrefix } from '$lib/utils/_env';
 import { getSessionCookie } from '$lib/utils/session';
@@ -8,20 +7,19 @@ import { getSessionCookie } from '$lib/utils/session';
  * @type {import('@sveltejs/kit').Post}
  */
 
-export const post: RequestHandler = async (request: Request<Rec<any>, AuthForm>) => {
+export const post: RequestHandler = async (event) => {
     try {
+        const reqBody = await event.request.json();
         const res = await fetch(`${cmsUrlPrefix}/auth/reset-password`, {
             method: 'POST',
-            body: JSON.stringify(request.body),
+            body: JSON.stringify(reqBody),
             headers: {
                 'Content-Type': 'application/json'
             },
         });
         if (res.ok) {
-            const body = await res.json();
-            return {
-                body
-            };
+            const body = await res.text();
+            return new Response(body);
         } else {
             let error = await res.json();
             console.log(error);

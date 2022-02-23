@@ -46,6 +46,12 @@
 		window.openLoading(false);
 		activeSection = '';
 	};
+	if(!trip){
+		activeSection = 'details';
+		tripInput = new TRipInput();
+	}else{
+		tripInput = convertTripToInput(trip);
+	}
 </script>
 
 <FormGroup

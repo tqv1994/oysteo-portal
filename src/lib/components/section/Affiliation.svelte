@@ -15,11 +15,13 @@
 
 	export let type: string;
 	export let name: string;
+	export let label: string;
 	export let affiliate: AffiliateAgencies[] | AffiliateBenefitPrograms[] | AffiliateNetwork[];
 	export let list: AffiliateAgencies[] | AffiliateBenefitPrograms[] | AffiliateNetwork[];
 	export let objectId: string;
 	export let activeSection: string = '';
 	export let activeLoading: boolean = false;
+	export let allowEdit: boolean = false;
 
 	let affiliateInput: AffiliateAgencies[] | AffiliateBenefitPrograms[] | AffiliateNetwork[];
 
@@ -79,16 +81,16 @@
 		activeLoading = false;
 	};
 </script>
-
-<FormGroup
+{#if allowEdit == true}
+	<FormGroup
 	let:isEditing
-	isEditing={activeSection === `affiliate-${name}`}
-	on:edit={() => onEdit(`affiliate-${name}`)}
-	on:cancel={onCancel}
-	on:submit={updateAffiliate}
-	groupClass={'group group-affiliations'}
->
-	<FormRow label={`Affiliate ${name}`} {isEditing} contentClass={'mtop-7'}>
+		isEditing={activeSection === `affiliate-${name}`}
+		on:edit={() => onEdit(`affiliate-${name}`)}
+		on:cancel={onCancel}
+		on:submit={updateAffiliate}
+		groupClass={'group group-affiliations'}
+	>
+	<FormRow label={`Affiliate ${label}`} {isEditing} contentClass={'mtop-7'}>
 		<div slot="value">
 			{#each affiliate as aff}
 				<p class="affiliation-advisor">{aff.name}</p>
@@ -98,7 +100,7 @@
 			{#each affiliateInput as aff, index}
 				<div class="aff-item">
 					<Select
-						labelText={`Affiliation ${name}`}
+						labelText={`Affiliation ${label}`}
 						hideLabel
 						name="InaffiliateInput-{index}"
 						selected={aff.id.toString()}
@@ -128,8 +130,23 @@
 				on:click={() => {
 					affiliateInput = [...affiliateInput, { id: '0', name: '' }];
 				}}
-				id="bx--link-add">Add Affiliate {name}</Link
+				id="bx--link-add">Add Affiliate {label}</Link
 			>
 		</div>
 	</FormRow>
-</FormGroup>
+	</FormGroup>
+{:else}	
+	<FormGroup
+		hideEditButton
+		groupClass={'group group-affiliations'}
+	>
+	<FormRow label={`Affiliate ${label}`} contentClass={'mtop-7'}>
+		<div slot="value">
+			{#each affiliate as aff}
+				<p class="affiliation-advisor">{aff.name}</p>
+			{/each}
+		</div>
+	</FormRow>
+	</FormGroup>
+{/if}
+	

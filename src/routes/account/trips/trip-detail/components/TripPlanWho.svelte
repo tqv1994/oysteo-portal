@@ -82,10 +82,8 @@
 			return acc;
 		},undefined);
 		if(selected){
-			console.log(selected);
 			relatives = getRelativesByLeader(selected);
 		}
-		console.log(relatives);
 	}
 
 	const getFullName = (traveller?: Traveller) => {
@@ -101,6 +99,13 @@
 		const data: string[] = tripInput.travellers ? [...tripInput.travellers] : [];
 		data.push("0");
 		tripInput.travellers = data;
+	}
+
+	if(!trip){
+		activeSection = 'trip-plan';
+		tripInput = new TRipInput();
+	}else{
+		tripInput = convertTripToInput(trip);
 	}
 </script>
 
@@ -119,11 +124,11 @@
 			<Grid>
 				<Row>
 					<Column lg={6} md={6}>
-						<p><label>Name</label></p>
+						<label>Name</label>
 						<p>{getFullName()}</p>
 					</Column>
 					<Column lg={6} md={6}>
-						<p><label>DOB</label></p>
+						<label>DOB</label>
 						<p>{trip?.lead_traveller?.birthday ? formatDate(trip?.lead_traveller?.birthday) : ''}</p>
 					</Column>
 				</Row>

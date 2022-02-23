@@ -5,6 +5,7 @@ import type { Destination } from './destination';
 import type { Experience } from './experience';
 import type { Base, Identifiable, Nameable } from './types';
 import type { SalutationType } from './salutationType';
+import type { Media } from './media';
 
 export type AdvisorUser = {
 	advisorMe: Advisor;
@@ -41,6 +42,7 @@ export type Advisor = Base &
 		language1?: Language;
 		experiences?: Experience[];
 		destinations?: Destination[];
+        avatar?: Media;
 	};
 
 export const advisorFieldsFragment = `
@@ -74,6 +76,15 @@ fragment advisorFields on Advisor {
     website
     timezone
     joined_at
+    agency{
+        id
+        affiliate_agencies{
+            ...affiliateAgencyFields
+        }
+        affiliate_networks{
+            ...affiliateNetworkFields
+        }
+    }
     country{
         ...countryFields
     }
@@ -97,6 +108,15 @@ fragment advisorFields on Advisor {
     }
     affiliate_benefit_programs{
         ...affiliateBenefitProgramFields
+    }
+    experienceTypes1{
+        name
+    }
+    experienceTypes2{
+        name
+    }
+    experienceTypes3{
+        name
     }
 }
 `;

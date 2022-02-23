@@ -117,16 +117,21 @@
 			}}>Create New Trip</Button
 		>
 	</div>
-	<Accordion title="Planning" open={true} id="planning">
-		<TripsList trips={tripsPlanning} />
-	</Accordion>
-
-	<Accordion title="Active" id="active">
-		<TripsList trips={tripsActive} />
-	</Accordion>
-
-	<Accordion title="Past" id="past">
-		<TripsList trips={tripsPast} />
-	</Accordion>
+	<div class="section" id="home"></div>
+	<div class="section" id="planning">
+		<Accordion title="Planning" open={true} id="">
+			<TripsList trips={tripsPlanning} />
+		</Accordion>
+	</div>
+	<div class="section" id="active">
+		<Accordion title="Active" id="">
+			<TripsList trips={tripsActive} />
+		</Accordion>
+	</div>
+	<div class="section" id="past">
+		<Accordion title="Past" id="">
+			<TripsList trips={tripsPast} />
+		</Accordion>
+	</div>
 	<div id="fake-height" />
 </div>

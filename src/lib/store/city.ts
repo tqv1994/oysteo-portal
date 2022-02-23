@@ -13,7 +13,7 @@ export const cityStore = writable<CollectionStore<City>>({
 });
 
 export const cityFieldsFragment = `
-fragment countryFields on Country {
+fragment cityFields on Country {
   id
   name
   lat

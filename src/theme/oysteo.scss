@@ -66,6 +66,12 @@ h1 {
 		line-height: 2.5rem;
 	}
 }
+
+.section{
+	margin-top: -50px;
+	padding-top: 50px;
+}
+
 .section {
 	.bx--tile {
 		background: #fff;
@@ -278,14 +284,12 @@ form {
 	font-size: 0.875rem;
 }
 
-.bx--fieldset {
-	margin-bottom: 0.625rem;
+.advisor-profile{
+	margin-top: -6px;
 }
 
-.group-affiliations {
-	.label {
-		font-weight: 600;
-	}
+.bx--fieldset {
+	margin-bottom: 0.625rem;
 }
 
 .bx--date-picker {
@@ -342,4 +346,52 @@ video {
 
 .text-center{
 	text-align: center;
+}
+
+.bx--file__selected-file{
+	width: 100%;
+}
+
+.bx--file-filename{
+	display:-webkit-box;
+	-webkit-line-clamp:1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	word-break: break-word;
+}
+
+.list-advisors{
+	padding-bottom: 20px;
+}
+
+.bx--link{
+	cursor: pointer;
+}
+
+.hide-border{
+	border: none !important;
+}
+
+.fix-height{
+	margin-bottom: -20px !important;
+}
+
+.bx--password-input-wrapper .bx--text-input__invalid-icon{
+	right: 1rem;
+}
+
+.disable-agency{
+	pointer-events: none !important;
+	transition: none !important;
+	cursor: context-menu;
+	span{
+		color: $gray-color;
+	}
+}
+
+.disable-agency:focus,
+.disable-agency:active,
+.disable-agency:hover{
+	border-bottom: none !important;
 }

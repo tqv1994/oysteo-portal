@@ -1,12 +1,11 @@
 <script lang="ts" context="module">
 	import type { Load } from '@sveltejs/kit';
-	import { authStore } from '$lib/store/auth';
+	import { authStore, User } from '$lib/store/auth';
 	import { insertToStore } from '$lib/store/types';
 	import { countryStore } from '$lib/store/country';
 	import { languageStore } from '$lib/store/language';
 	import type { Locals } from '$lib/store/local';
 	import { salutationTypeStore } from '$lib/store/salutationType';
-
 	export const load: Load<{ session: Locals }> = async ({ session, url }) => {
 		insertToStore(countryStore, session.metadata?.countries, false);
 		insertToStore(languageStore, session.metadata?.languages, false);
@@ -59,6 +58,7 @@
 	import Notification from '$lib/components/Notification.svelte';
 	import { interestTypeStore } from '$lib/store/interest';
 	import { personalPreferenceTypeStore, travelPreferenceTypeStore } from '$lib/store/preference';
+import type { Metadata } from '$lib/store/metadata';
 </script>
 
 <slot />

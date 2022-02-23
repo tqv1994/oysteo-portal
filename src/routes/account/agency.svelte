@@ -22,7 +22,11 @@
 
 	import type { User } from '$lib/store/user';
 	import type { Country } from '$lib/store/country';
-	import type { AffiliateAgencies, AffiliateNetwork } from '$lib/store/affiliate';
+	import type {
+		AffiliateAgencies,
+		AffiliateBenefitPrograms,
+		AffiliateNetwork
+	} from '$lib/store/affiliate';
 	import type { Agency } from '$lib/store/agency';
 	import type { AdvisorAgency } from '$lib/store/advisor';
 	import type { Address } from '$lib/store/address';
@@ -68,9 +72,11 @@
 						advisors: agency !== null ? agency.advisors : [],
 						affiliateAgencies: agency !== null ? agency.affiliate_agencies : [],
 						affiliateNetworks: agency !== null ? agency.affiliate_networks : [],
+						affiliateBenefitPrograms: agency !== null ? agency.affiliate_benefit_programs : [],
 						payments: agency !== null ? agency.payments : [],
 						affiliateAgencyList: metadata.affiliateAgencies,
 						affiliateNetworkList: metadata.affiliateNetworks,
+						affiliateBenefitProgramList: metadata.affiliateBenefitPrograms,
 						salutationTypes: metadata.salutationTypes,
 						paymentMethods: metadata.paymentMethods
 					}
@@ -79,6 +85,7 @@
 		} catch (error) {
 			console.log('Error agency: ' + error);
 		}
+		return { props: {} };
 	};
 </script>
 
@@ -90,10 +97,12 @@
 	export let advisors: AdvisorAgency[] = [];
 	export let affiliateAgencies: AffiliateAgencies[] = [];
 	export let affiliateNetworks: AffiliateNetwork[] = [];
+	// export let affiliateBenefitPrograms: AffiliateBenefitPrograms[];
 	export let payments: Payment[] = [];
 
 	export let affiliateAgencyList: AffiliateAgencies[] = [];
 	export let affiliateNetworkList: AffiliateNetwork[] = [];
+	// export let affiliateBenefitProgramList: AffiliateBenefitPrograms[];
 	export let salutationTypes: SalutationType[] = [];
 	export let paymentMethods: PaymentMethod[] = [];
 
@@ -123,6 +132,8 @@
 		navFixed = prevY > y ? 'nav-fixed' : '';
 		prevY = y;
 	});
+	console.log('agency',agency);
+	
 </script>
 
 <svelte:window bind:scrollY={y} />
@@ -207,19 +218,33 @@
 			bind:activeLoading
 			objectId={agency.id}
 			{type}
+			label="Agency"
 			name="Agencies"
 			affiliate={affiliateAgencies}
 			list={affiliateAgencyList}
+			allowEdit
 		/>
 		<Affiliation
 			bind:activeSection
 			bind:activeLoading
 			objectId={agency.id}
 			{type}
+			label="Networks"
 			name="Networks"
 			affiliate={affiliateNetworks}
 			list={affiliateNetworkList}
+			allowEdit
 		/>
+		<!-- <Affiliation
+			bind:activeSection
+			bind:activeLoading
+			objectId={agency.id}
+			{type}
+			label="Benefit Programs"
+			name="Benefit Programs"
+			affiliate={affiliateBenefitPrograms}
+			list={affiliateBenefitProgramList}
+		/> -->
 	</FormSection>
-	<div id="fake-height"></div>
+	<div id="fake-height" />
 </div>

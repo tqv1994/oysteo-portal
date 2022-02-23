@@ -1,4 +1,4 @@
-import type { RequestHandler, Request } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import { Agency, agencyFieldsFragment } from '$lib/store/agency';
 import { makeErrorResponse } from '$lib/utils/fetch';
 import { countryFieldsFragment } from '$lib/store/country';
@@ -20,9 +20,9 @@ export type AgencyGetData = {
 		agencyMe: Agency;
 	};
 };
-export const get: RequestHandler = async (request: Request) => {
+export const get: RequestHandler = async (event) => {
 	try {
-		const client = createGraphClientFromRequest(request);
+		const client = createGraphClientFromRequest(event.request);
 		const query = `query {
 			me {
 			  agencyMe {
@@ -43,9 +43,7 @@ export const get: RequestHandler = async (request: Request) => {
 		  `;
 		const res = await client.query<AgencyGetData>(query).toPromise();
 		if (res.data) {
-			return {
-				body: JSON.stringify(res.data)
-			};
+			return new Response(JSON.stringify(res.data));
 		}
 		if (res.error) {
 			console.log(JSON.stringify(res.error, null, 2));

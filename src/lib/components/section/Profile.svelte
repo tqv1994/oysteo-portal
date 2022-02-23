@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Advisor } from '$lib/store/advisor';
+	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 
 	import { Checkbox, TextArea, TextInput } from 'carbon-components-svelte';
 	import { onDestroy } from 'svelte';
@@ -11,6 +12,10 @@
 	export let advisor: Advisor;
 	export let activeSection: string = '';
 	export let activeLoading: boolean = false;
+	let invalidInstagram = {
+		status: false,
+		message: 'Invalid instagram id'
+	};
 
 	type ProfileInput = {
 		facebook: string;
@@ -56,6 +61,13 @@
 	};
 
 	const updateProfile = async (isPlanningFee = false) => {
+		if (profileInput.instagram.indexOf('@') != 0){
+			invalidInstagram.status = true
+			setTimeout(() => {
+				invalidInstagram.status = false;
+			}, INVALID_DELAY_TIME);
+			return;
+		}
 		const planningFee =
 			advisor.planningFee === null
 				? true
@@ -105,7 +117,7 @@
 	on:cancel={onCancel}
 	on:submit={() => updateProfile()}
 >
-	<FormRow label="Biography" {isEditing}>
+	<FormRow label="Description" {isEditing}>
 		<div slot="value">
 			<p class="advisor-profile">
 				{advisor?.description === null ? '' : advisor?.description}
@@ -113,9 +125,10 @@
 		</div>
 		<div slot="fields">
 			<TextArea
-				labelText="Add biography"
-				placeholder="Enter your biography ..."
+				labelText="Max: 120 character"
+				placeholder="Enter your description..."
 				bind:value={profileInput.description}
+				maxlength={120}
 			/>
 		</div>
 	</FormRow>
@@ -142,24 +155,28 @@
 		<div slot="value">{advisor?.instagram === null ? '' : advisor?.instagram}</div>
 		<div slot="fields">
 			<TextInput
-				labelText={advisor?.instagram === null ? '' : advisor?.instagram}
-				placeholder="Enter ..."
+				labelText="{advisor?.instagram === null ? 'Add instagram' : 'Edit instagram'}"
+				placeholder="Enter..."
 				bind:value={profileInput.instagram}
+				invalid={invalidInstagram.status}
+				invalidText={invalidInstagram.message}
 			/>
 		</div>
 	</FormRow>
 	<FormRow label="Twitter" {isEditing}>
 		<div slot="value">{advisor?.twitter === null ? '' : advisor?.twitter}</div>
 		<div slot="fields">
-			<TextInput labelText="" placeholder="Enter ..." bind:value={profileInput.twitter} />
+			<TextInput labelText="{advisor?.twitter === null ? 'Add twitter' : 'Edit twitter'}" 
+			placeholder="Enter..." 
+			bind:value={profileInput.twitter} />
 		</div>
 	</FormRow>
 	<FormRow label="Facebook" {isEditing}>
 		<div slot="value">{advisor?.facebook === null ? '' : advisor?.facebook}</div>
 		<div slot="fields">
 			<TextInput
-				labelText={advisor?.facebook === null ? '' : advisor?.facebook}
-				placeholder="Enter ..."
+				labelText={advisor?.facebook === null ? 'Add facebook' : 'Edit facebook'}
+				placeholder="Enter..."
 				bind:value={profileInput.facebook}
 			/>
 		</div>
@@ -168,8 +185,8 @@
 		<div slot="value">{advisor?.linkedIn === null ? '' : advisor?.linkedIn}</div>
 		<div slot="fields">
 			<TextInput
-				labelText={advisor?.linkedIn === null ? '' : advisor?.linkedIn}
-				placeholder="Enter ..."
+				labelText={advisor?.linkedIn === null ? 'Add linkedIn' : 'Edit linkedIn'}
+				placeholder="Enter..."
 				bind:value={profileInput.linkedIn}
 			/>
 		</div>
@@ -178,8 +195,8 @@
 		<div slot="value">{advisor?.pinterest === null ? '' : advisor?.pinterest}</div>
 		<div slot="fields">
 			<TextInput
-				labelText={advisor?.pinterest === null ? '' : advisor?.pinterest}
-				placeholder="Enter ..."
+				labelText={advisor?.pinterest === null ? 'Add pinterest' : 'Edit pinterest'}
+				placeholder="Enter..."
 				bind:value={profileInput.pinterest}
 			/>
 		</div>

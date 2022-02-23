@@ -84,7 +84,7 @@ import { updateTripService } from '$lib/services/trip.services';
 		on:cancel={onCancel}
 		on:submit={()=>onSubmit()}
 	>
-		<FormRow label="Insurance Police" {isEditing}>
+		<FormRow label="Insurance Policy" {isEditing}>
 			<div slot="fields">
 				<TextInput bind:value={insuranceInput.policyId} />
 			</div>
@@ -102,7 +102,7 @@ import { updateTripService } from '$lib/services/trip.services';
 	</FormGroup>
 {/if}
 
-<FormGroup hideEditButton={true}>
+<FormGroup hideEditButton={true} groupClass="group fix-height">
 	{#each trip?.insurances || [] as insurance, index}
 		<ListItemContainer
 			let:isEditing
@@ -111,7 +111,7 @@ import { updateTripService } from '$lib/services/trip.services';
 			on:cancel={onCancel}
 			on:submit={() => onSubmit(insurance.id)}
 		>
-			<FormRow label="Insurance Police" {isEditing}>
+			<FormRow label="Insurance Policy" {isEditing}>
 				<div slot="value">{insurance?.policyId || ''}</div>
 				<div slot="fields">
 					<TextInput bind:value={insuranceInput.policyId} />

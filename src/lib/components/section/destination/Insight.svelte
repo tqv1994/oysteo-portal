@@ -19,6 +19,7 @@
 	const dispatcher = createEventDispatcher();
 	const onUpdate = (field: string) => {
 		dispatcher('submit', { index, field });
+		activeSection = '';
 	};
 </script>
 
@@ -37,10 +38,11 @@
 			</p>
 		</div>
 		<div slot="fields">
-			<TextArea
+			<TextInput
 				labelText="Edit Insight"
 				placeholder="Enter insight..."
 				bind:value={destinations[index].description}
+				maxlength={20}
 			/>
 		</div>
 	</FormRow>

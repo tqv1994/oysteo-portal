@@ -111,11 +111,11 @@ let counter = 0;
 let metadata: Metadata;
 
 /** @type {import('@sveltejs/kit').Handle} */
-export const handle: Handle<Locals> = async ({ request, resolve }) => {
-	console.log('Handling', request.url.pathname, request.url.searchParams.toString(), ++counter);
+export const handle: Handle = async ({ event, resolve }) => {
+	console.log('Handling', event.url.pathname, event.url.searchParams.toString(), ++counter);
 
 	if (metadata) {
-		request.locals.metadata = metadata;
+		event.locals.metadata = metadata;
 	} else {
 		console.log('Loading metadata...');
 		const client = createGraphClient();
@@ -123,7 +123,7 @@ export const handle: Handle<Locals> = async ({ request, resolve }) => {
 			const res = await client.query<Metadata>(metadataQuery).toPromise();
 			if (res.data) {
 				metadata = res.data;
-				request.locals.metadata = res.data;
+				event.locals.metadata = res.data;
 			} else if (res.error) {
 				console.error(res.error.message);
 			}
@@ -132,10 +132,10 @@ export const handle: Handle<Locals> = async ({ request, resolve }) => {
 		}
 	}
 
-	const headers: ResponseHeaders = {};
-	if (!request.locals.user) {
-		if (request.headers.cookie) {
-			const cookie = getSessionCookie(request.headers.cookie);
+  const headers: Record<string, string> = {};
+	if (!event.locals.user) {
+		if (event.request.headers.get('cookie')) {
+			const cookie = getSessionCookie(event.request.headers.get('cookie'));
 			if (cookie) {
 				console.log('Authenticating user from cookie...');
 				try {
@@ -148,7 +148,7 @@ export const handle: Handle<Locals> = async ({ request, resolve }) => {
 							headers['set-cookie'] = setCookie;
 						}
 					}
-					request.locals.user = res.data?.me;
+					event.locals.user = res.data?.me;
 				} catch (err) {
 					console.error('Error fetching profile', err);
 				}
@@ -157,26 +157,25 @@ export const handle: Handle<Locals> = async ({ request, resolve }) => {
 	}
 
 	try {
-		console.log('Resuming request...', request.url.pathname, counter);
-		const response = await resolve(request);
+		console.log('Resuming request...', event.url.pathname, counter);
+		const response = await resolve(event);
+    const body = await response.text();
 
-		return {
-			...response,
-			headers: {
-				...response.headers,
-				...headers
-			}
-		};
+    for (const key in headers) {
+      response.headers.set(key, headers[key]);
+    }
+
+    return new Response(body, response);
 	} catch (err) {
 		return makeErrorResponse(
 			500,
 			'INTERNAL_SERVER_ERROR',
-			`There was an error loading ${request.url.pathname}: ${err.message}`
+			`There was an error loading ${event.url.pathname}: ${err.message}`
 		);
 	}
 };
 
 /** @type {import('@sveltejs/kit').GetSession} */
-export const getSession: GetSession<Locals, unknown, Locals> = async (request) => {
-	return request.locals;
+export const getSession: GetSession = async (event) => {
+	return event.locals;
 };

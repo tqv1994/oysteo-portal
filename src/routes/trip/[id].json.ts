@@ -1,4 +1,4 @@
-import type { RequestHandler, Request } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import { makeErrorResponse } from '$lib/utils/fetch';
 import { uploadFileFieldsFragment } from '$lib/store/upload-file';
@@ -32,9 +32,9 @@ type TripQueryResult = {
 /**
  * @type {import('@sveltejs/kit').Get}
  */
-export const get: RequestHandler = async (request: Request) => {
+export const get: RequestHandler = async (event) => {
   try {
-    const client = createGraphClientFromRequest(request);
+    const client = createGraphClientFromRequest(event.request);
     const query = `query ($id: ID!) {
       trip(id: $id){
         ...tripFields
@@ -65,11 +65,9 @@ export const get: RequestHandler = async (request: Request) => {
     ${travelingWithYouFieldsFragment}
     ${destinationTypeFieldsFragment}
     `;
-    const res = await client.query<TripQueryResult>(query, {id: request.params['id']}).toPromise();
+    const res = await client.query<TripQueryResult>(query, {id: event.params['id']}).toPromise();
     if (res.data) {
-      return {
-        body: res.data.trip,
-      };
+      return new Response(JSON.stringify(res.data.trip));
     }
     if (res.error) {
       console.log(JSON.stringify(res.error, null, 2));

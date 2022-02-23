@@ -1,7 +1,6 @@
-import type { RequestHandler, Request } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import { makeErrorResponse } from '$lib/utils/fetch';
-import type { Rec } from '@sveltejs/kit/types/helper';
 import { countryFieldsFragment } from '$lib/store/country';
 import { Address, addressFieldsFragment } from '$lib/store/address';
 /**
@@ -18,10 +17,10 @@ export type updateAgencyAddressData = {
 		addresses: Address[];
 	};
 };
-export const put: RequestHandler = async (request: Request<Rec<any>, AuthForm>) => {
+export const put: RequestHandler = async (event) => {
 	try {
-		const client = createGraphClientFromRequest(request);
-		const type = request.params.type;
+		const client = createGraphClientFromRequest(event.request);
+		const type = event.params.type;
 		if (!type) {
 			return makeErrorResponse(404, 'NOT_FOUND', 'Error not found address');
 		}
@@ -65,20 +64,20 @@ export const put: RequestHandler = async (request: Request<Rec<any>, AuthForm>) 
 			`;
 		}
 
-		if (!request.params.id) {
+		if (!event.params.id) {
 			return makeErrorResponse(404, 'NOT_FOUND', 'Error not found address');
 		}
 
+		const reqBody = await event.request.json();
+
 		const res = await client
 			.mutation<updateAdvisorAddressData | updateAgencyAddressData>(query, {
-				id: request.params.id,
-				updateData: [request.body.data]
+				id: event.params.id,
+				updateData: [reqBody.data]
 			})
 			.toPromise();
 		if (res.data) {
-			return {
-				body: JSON.stringify(res.data)
-			};
+			return new Response(JSON.stringify(res.data));
 		}
 		if (res.error) {
 			console.log(JSON.stringify(res.error, null, 2));

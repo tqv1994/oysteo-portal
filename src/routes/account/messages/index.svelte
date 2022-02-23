@@ -44,10 +44,14 @@
 		<h1>Messages</h1>
 		<DesktopNavigationSection items={messagesSections} className={'messages-screen'} />
 	</div>
-	<Accordion title="Current Messages" open={true} id="current-messages">
-		<MessagesList />
-	</Accordion>
-
-	<Accordion title="Archived" id="archived" />
+	<div class="section" id="home"></div>
+	<div class="section" id="current-messages">
+		<Accordion title="Current Messages" open={true} id="">
+			<MessagesList />
+		</Accordion>
+	</div>
+	<div class="section" id="archived">
+		<Accordion title="Archived" id="" />
+	</div>
 	<div id="fake-height" />
 </div>

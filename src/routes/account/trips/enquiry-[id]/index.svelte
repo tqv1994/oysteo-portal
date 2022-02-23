@@ -15,12 +15,16 @@
 	import FormSection from '$lib/components/form/section.svelte';
 
 	export const load: Load = async ({ fetch, session, params }) => {
+		
 		try {
 			let user: User | undefined = session.user;
 			let metadata: Metadata = session.metadata;
+			
 			let trip: Trip;
 			let userTraveller: User;
+			// const res = await fetch(`/trip/${params.id}.json`);
 			const res = await fetch(`/trip/${params.id}.json`);
+			
 			if (res.ok) {
 				const data: Trip = await res.json();
 				trip = data;
@@ -28,6 +32,7 @@
 				const error = await res.json();
 				console.error(error);
 			}
+			
 			if(trip.lead_traveller){
 				const resUser = await fetch(`/traveller/${trip.lead_traveller.id}.json`);
 				if (resUser.ok) {
@@ -46,7 +51,7 @@
 				}
 			};
 		} catch (error) {
-			console.log('Fetch advisor data:' + error);
+			console.log('Fetch advisor data: ' + error);
 		}
 		return { props: {} };
 	};
@@ -64,7 +69,7 @@
 	export let trip: Trip;
 	export let user: User;
 	export let userTraveller: User;
-	let traveller: Traveller | undefined = trip.lead_traveller;
+	let traveller: Traveller | undefined = trip?.lead_traveller;
 
 	let activeSection = '';
 	let loadingLabel = 'Saving ...';
@@ -78,9 +83,10 @@
 
 	const enquiriesSections = [
 		{ id: '', text: 'Home', link: '/account' },
+		{ id: 'status', text: 'Status' },
 		{ id: 'traveler', text: 'Traveler' },
 		{ id: 'request', text: 'Request' },
-		{ id: 'preferences', text: 'Preferences' },
+		// { id: 'preferences', text: 'Preferences' },
 		{ id: 'insights', text: 'Insights' }
 	];
 
@@ -104,6 +110,7 @@
 		});
 		window.openLoading(false);
 	}
+	
 </script>
 
 <svelte:window bind:scrollY={y} />
@@ -121,13 +128,16 @@
 	</div>
 	{/if}
 	<div class="title-content">
-		<h1>Traveler Detail</h1>
+		<h1>Enquiries</h1>
 		<DesktopNavigationSection items={enquiriesSections} className={'enquiries-screen'} />
 	</div>
 	{#if trip}
-		<Accordion title="Status" open={true} id="">
-			<Status bind:trip />
-		</Accordion>
+		<div class="section" id="home"></div>
+		<div class="section" id="status">
+			<Accordion title="Status" open={true} id="">
+				<Status bind:trip />
+			</Accordion>
+		</div>
 		<FormSection title="Traveler" id="traveler" icon="">
 			{#if traveller}
 				<TravellerSection bind:traveller />
@@ -135,11 +145,6 @@
 		</FormSection>
 		<FormSection title="Request" id="request" icon="">
 			<Request bind:trip />
-		</FormSection>
-		<FormSection title="Preferences" id="traveler" icon="">
-			{#if traveller}
-				<Preferences bind:traveller />
-			{/if}
 		</FormSection>
 		<FormSection title="Insights" id="insights" icon="">
 			<Insights bind:user={userTraveller} />

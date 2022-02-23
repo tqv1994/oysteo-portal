@@ -10,20 +10,24 @@
 <div class="mt-15">
 	<Grid narrow padding>
 		<Row>
-			<Column><label>Name</label></Column>
-			<Column><label>Language</label></Column>
-			<Column><label>Phone</label></Column>
-			<Column><label>Pref. Contact</label></Column>
-			<Column><label>Email</label></Column>
-			<Column lg={1} />
+			<Column class="custom-col"><label>Name</label></Column>
+			<Column>{`${traveller.forename || ''} ${traveller.surname || ''}`}</Column>
 		</Row>
 		<Row>
-			<Column>{`${traveller.forename || ''} ${traveller.surname || ''}`}</Column>
+			<Column  class="custom-col"><label>Language</label></Column>
 			<Column>{traveller.language || ''}</Column>
+		</Row>
+		<Row>
+			<Column  class="custom-col"><label>Phone</label></Column>
 			<Column>{traveller.mobilePhone || ''}</Column>
+		</Row>
+		<Row>
+			<Column  class="custom-col"><label>Pref. Contact</label></Column>
 			<Column>{traveller.whatsapp || ''}</Column>
+		</Row>
+		<Row>
+			<Column  class="custom-col"><label>Email</label></Column>
 			<Column>{traveller.email || ''}</Column>
-			<Column lg={1}><Link href="#"><Forum16 /></Link></Column>
 		</Row>
 	</Grid>
 </div>
@@ -32,6 +36,9 @@
 	div {
 		:global(.bx--row) {
 			margin-bottom: 0;
+		}
+		:global(.custom-col){
+			margin-right: -225px;
 		}
 	}
 </style>

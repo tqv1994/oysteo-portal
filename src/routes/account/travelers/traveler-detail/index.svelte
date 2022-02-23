@@ -148,6 +148,7 @@
 		<DesktopNavigationSection items={travelersSections} className={'travelers-screen'} />
 	</div>
 	{#if traveller}
+	<div class="section" id="home"></div>
 		<FormSection
 			title="Profile"
 			id="profile"
@@ -159,6 +160,7 @@
 		>
 			<Profile bind:traveller />
 		</FormSection>
+		
 		<FormSection title="Preferences" id="preferences">
 			<Preferences bind:traveller />
 		</FormSection>

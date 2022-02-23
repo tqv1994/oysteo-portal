@@ -58,7 +58,7 @@
 		phonesInput.emergency = convert2NationalPhone(object.emergency, object.emergency_code);
 		phonesInput.phone_number_code = object.phone_number_code || '';
 		phonesInput.cell_mobile_code = object.cell_mobile_code || '';
-		phonesInput.whatsapp_code = object.cell_mobile_code || '';
+		phonesInput.whatsapp_code = object.whatsapp_code || '';
 		phonesInput.emergency_code = object.emergency_code || '';
 		activeSection = groupName;
 	};
@@ -129,7 +129,7 @@
 	on:cancel={onCancel}
 	on:submit={updatePhoneNumber}
 >
-	<FormRow label="Phone Number" {isEditing}>
+	<FormRow label="Phone number" {isEditing}>
 		<div slot="value">
 			{object.phone_number == null || object.phone_number == ''
 				? ''
@@ -144,7 +144,7 @@
 					phonesInput.phone_number_code = e.detail;
 				}}
 			>
-				<SelectItem value="" text="Choose ..." />
+				<SelectItem value="" text="Choose..." />
 				{#each countries as country}
 					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}
@@ -173,7 +173,7 @@
 					phonesInput.cell_mobile_code = e.detail;
 				}}
 			>
-				<SelectItem value="" text="Choose ..." />
+				<SelectItem value="" text="Choose..." />
 				{#each countries as country}
 					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}
@@ -202,7 +202,7 @@
 					phonesInput.whatsapp_code = e.detail;
 				}}
 			>
-				<SelectItem value="" text="Choose ..." />
+				<SelectItem value="" text="Choose..." />
 				{#each countries as country}
 					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}
@@ -231,7 +231,7 @@
 					phonesInput.emergency_code = e.detail;
 				}}
 			>
-				<SelectItem value="" text="Choose ..." />
+				<SelectItem value="" text="Choose..." />
 				{#each countries as country}
 					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}

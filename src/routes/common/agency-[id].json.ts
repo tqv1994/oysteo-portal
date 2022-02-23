@@ -1,6 +1,5 @@
-import type { RequestHandler, Request } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import { makeErrorResponse } from '$lib/utils/fetch';
-import type { Rec } from '@sveltejs/kit/types/helper';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import type { Agency } from '$lib/store/agency';
 import {
@@ -10,10 +9,9 @@ import {
 /**
  * @type {import('@sveltejs/kit').Put}
  */
-export const put: RequestHandler = async (request: Request<Rec<any>, AuthForm>) => {
+export const put: RequestHandler = async (event) => {
 	try {
-		const client = createGraphClientFromRequest(request);
-		const body = request.body;
+		const client = createGraphClientFromRequest(event.request);
 
 		const query = `
 		mutation updateAgency ($id: ID!,$updateData: editAgencyInput){
@@ -36,13 +34,12 @@ export const put: RequestHandler = async (request: Request<Rec<any>, AuthForm>) 
 		  ${affiliatteNetworkFieldsFragment}
 		  ${affiliatteAgencyFieldsFragment}
 		`;
+    const reqBody = await event.request.json();
 		const res = await client
-			.mutation<Agency>(query, { id: request.params.id, updateData: body })
+			.mutation<Agency>(query, { id: event.params.id, updateData: reqBody })
 			.toPromise();
 		if (res.data) {
-			return {
-				body: JSON.stringify(res.data)
-			};
+			return new Response(JSON.stringify(res.data));
 		}
 		if (res.error) {
 			console.log(JSON.stringify(res.error, null, 2));

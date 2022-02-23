@@ -90,7 +90,7 @@
 			<TextInput
 				labelText={agency.insurance_policy || ''}
 				hideLabel
-				placeholder="Enter your business insurance policy ..."
+				placeholder="Enter your business insurance policy..."
 				bind:value={businessInsuranceInput.insurance_policy}
 			/>
 		</div>

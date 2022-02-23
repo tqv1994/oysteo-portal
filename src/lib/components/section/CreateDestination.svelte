@@ -56,6 +56,8 @@
 				},
 				body: JSON.stringify({ ...createDestinationData })
 			});
+			console.log(res);
+			
 			if (res.ok) {
 				const data = await res.json();
 				const destinationInserted = data.createDestination.destination;
@@ -72,6 +74,7 @@
 					},
 					body: JSON.stringify({ destinationIds })
 				});
+				
 				if (res_assign.ok) {
 					destinations = [...destinations, destinationInserted];
 					activeSection = '';

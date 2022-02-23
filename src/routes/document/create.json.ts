@@ -1,9 +1,8 @@
-import type { RequestHandler, Request } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import { makeErrorResponse } from '$lib/utils/fetch';
 import { uploadFileFieldsFragment } from '$lib/store/upload-file';
 import { docmentFieldsFragment } from '$lib/store/document';
-import type { Rec } from '@sveltejs/kit/types/helper';
 
 export type createDocumentData = {
     createDocument: {
@@ -12,9 +11,9 @@ export type createDocumentData = {
 };
 
 export const post: RequestHandler = async (
-    request: Request<Rec<any>, AuthForm>) => {
+    event) => {
     try {
-        const client = createGraphClientFromRequest(request);
+        const client = createGraphClientFromRequest(event.request);
         const query = `mutation ($document: DocumentInput){
         createDocument(input:{
             data: $document
@@ -27,11 +26,10 @@ export const post: RequestHandler = async (
         ${docmentFieldsFragment}
         ${uploadFileFieldsFragment}
     `;
-        const res = await client.mutation<createDocumentData>(query, {document: request.body }).toPromise();
+        const reqBody = await event.request.json();
+        const res = await client.mutation<createDocumentData>(query, {document: reqBody }).toPromise();
         if (res.data) {
-            return {
-                body: JSON.stringify(res.data.createDocument?.document),
-            };
+            return new Response(JSON.stringify(res.data.createDocument?.document));
         }
         if (res.error) {
             console.log(JSON.stringify(res.error, null, 2));

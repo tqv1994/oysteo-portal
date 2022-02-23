@@ -45,8 +45,8 @@
 	preventCloseOnClickOutside
 	bind:open={warningSaveOpen}
 	modalHeading="Your changes have not been saved"
-	primaryButtonText="Confirm"
-	secondaryButtonText="Cancel"
+	primaryButtonText="Yes"
+	secondaryButtonText="No"
 	on:click:button--secondary={onSaveCancel}
 	on:submit={onSaveConfirm}
 >

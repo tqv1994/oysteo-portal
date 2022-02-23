@@ -247,7 +247,7 @@
 			</Select>
 			<TextInput
 				labelText="First name"
-				placeholder="Enter billing contact firstname"
+				placeholder="Enter billing contact firstname..."
 				bind:value={paymentInput.firstName}
 			/>
 			<TextInput
@@ -258,7 +258,7 @@
 			/>
 			<TextInput
 				labelText="Last name"
-				placeholder="Enter billing contact lastname"
+				placeholder="Enter billing contact lastname..."
 				bind:value={paymentInput.lastName}
 			/>
 		</div>
@@ -297,7 +297,7 @@
 		<div slot="value">{payments[0] ? payments[0].email : ''}</div>
 		<div slot="fields">
 			<TextInput
-				placeholder="Enter billing email"
+				placeholder="Enter billing email..."
 				bind:value={paymentInput.email}
 				invalid={invalidEmail.status}
 				invalidText={invalidEmail.message}

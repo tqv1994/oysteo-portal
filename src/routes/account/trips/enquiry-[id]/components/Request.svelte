@@ -85,7 +85,7 @@ import { formatNumber } from '$lib/helpers/utils';
 			<div class="row">
 				{#each trip.roomStyles as roomStyle}
 					<div class="d-col-4 m-col-6">
-						<img src={roomStyle.thumbnail.url}/>
+						<!-- <img src={roomStyle.thumbnail.url}/> -->
 					</div>
 				{/each}
 			</div>

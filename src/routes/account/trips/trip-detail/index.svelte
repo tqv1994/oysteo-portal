@@ -90,13 +90,14 @@
 
 	const tripSections = [
 		{ id: '', text: 'Home', link: '/account' },
+		{ id: 'status', text: 'Status' },
 		{ id: 'trip-plan', text: 'Trip Plan' },
 		{ id: 'details', text: 'Details' },
 		{ id: 'documents', text: 'Documents' },
 		{ id: 'emergency', text: 'Emergency' },
 		{ id: 'additional-info', text: 'Additional Info' }
 	];
-
+	
 	afterUpdate(() => {
 		navFixed = prevY > y ? 'nav-fixed' : '';
 		prevY = y;
@@ -116,9 +117,12 @@
 		<h1>{trip ? 'Trip Detail' : 'New Trip'}</h1>
 		<DesktopNavigationSection items={tripSections} className={'trip-screen'} />
 	</div>
-	<Accordion title="Status" open={true} id="">
-		<Status bind:trip />
-	</Accordion>
+	<div class="section" id="home"></div>
+	<div class="section" id="status">
+		<Accordion title="Status" open={true} id="">
+			<Status bind:trip />
+		</Accordion>
+	</div>
 	<FormSection title="Trip Plan" id="trip-plan">
 		<TripPlanWho bind:trip bind:travellers />
 		<TripPlanWhen bind:trip />
@@ -129,8 +133,8 @@
 	<FormSection title="Details" id="details">
 		<Details bind:trip />
 	</FormSection>
-	{#if trip}
-		<FormSection title="Documents" id="documents">
+	<FormSection title="Documents" id="documents">
+		{#if trip}
 			<Documents bind:trip type={ENUM_DOCUMENT_TYPE.excursion} />
 			<Documents bind:trip type={ENUM_DOCUMENT_TYPE.ground_partner} />
 			<Documents bind:trip type={ENUM_DOCUMENT_TYPE.invoice} />
@@ -141,8 +145,8 @@
 			<Documents bind:trip type={ENUM_DOCUMENT_TYPE.visa} />
 			<Documents bind:trip type={ENUM_DOCUMENT_TYPE.voucher} />
 			<Documents bind:trip type={ENUM_DOCUMENT_TYPE.other} />
-		</FormSection>
-	{/if}
+		{/if}
+	</FormSection>
 	<FormSection
 		title="Emergency"
 		id="emergency"

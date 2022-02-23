@@ -1,8 +1,7 @@
-import type { RequestHandler, Request } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import { makeErrorResponse } from '$lib/utils/fetch';
 import { uploadFileFieldsFragment } from '$lib/store/upload-file';
-import type { Rec } from '@sveltejs/kit/types/helper';
 import { TripWhere, tripWhereFieldsFragment } from '$lib/store/tripWhere';
 import { countryFieldsFragment } from '$lib/store/country';
 
@@ -13,9 +12,9 @@ export type createTripWhereData = {
 };
 
 export const post: RequestHandler = async (
-    request: Request<Rec<any>, AuthForm>) => {
+    event) => {
     try {
-        const client = createGraphClientFromRequest(request);
+        const client = createGraphClientFromRequest(event.request);
         const query = `mutation ($tripWhere: TripWhereInput){
         createTripWhere(input:{
             data: $tripWhere
@@ -28,11 +27,10 @@ export const post: RequestHandler = async (
         ${tripWhereFieldsFragment}
         ${countryFieldsFragment}
     `;
-        const res = await client.mutation<createTripWhereData>(query, {tripWhere: request.body }).toPromise();
+        const reqBody = await event.request.json();
+        const res = await client.mutation<createTripWhereData>(query, {tripWhere: reqBody }).toPromise();
         if (res.data) {
-            return {
-                body: JSON.stringify(res.data.createTripWhere?.tripWhere),
-            };
+            return new Response(JSON.stringify(res.data.createTripWhere?.tripWhere));
         }
         if (res.error) {
             console.log(JSON.stringify(res.error, null, 2));

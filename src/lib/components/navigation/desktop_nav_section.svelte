@@ -8,18 +8,10 @@
 		itemActiveID = itemId;
 	};
 </script>
-
 <ul id="desktop-nav-section" class={className}>
 	{#each items as item (item.id)}
-		<li class={itemActiveID == item.id ? 'active' : ''}>
-			<a
-				href={item.link || `#${item.id}`}
-				on:click={() => {
-					if(!item.link){
-						handleClick(item.id);
-					}
-				}}>{item.text}</a
-			>
+	<li class={itemActiveID == item.id ? 'active' : ''}>
+			<a href={item.link || `#${item.id}`}>{item.text}</a>
 		</li>
 	{/each}
 </ul>

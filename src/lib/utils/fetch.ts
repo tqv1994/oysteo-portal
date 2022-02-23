@@ -1,8 +1,16 @@
-export const makeErrorResponse = (status: number, code: string, message: string) => ({
-	status: status,
-	body: JSON.stringify({
-		code,
-		status,
-		message
-	})
-});
+export const makeErrorResponse = (
+  status: number,
+  code: string,
+  message: string,
+) =>
+  new Response(
+    JSON.stringify({
+      code,
+      status,
+      message,
+    }),
+    {
+      status,
+      headers: {},
+    },
+  );

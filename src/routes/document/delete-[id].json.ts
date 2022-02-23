@@ -1,4 +1,4 @@
-import type { RequestHandler, Request } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import { makeErrorResponse } from '$lib/utils/fetch';
 /**
@@ -10,9 +10,9 @@ export type deleteDocumentData = {
     };
 };
 
-export const del: RequestHandler = async (request: Request) => {
+export const del: RequestHandler = async (event) => {
     try {
-        const client = createGraphClientFromRequest(request);
+        const client = createGraphClientFromRequest(event.request);
         const query = `mutation deleteDocument ($id: ID!){
         deleteDocument(input:{
             where: {id: $id},
@@ -23,11 +23,9 @@ export const del: RequestHandler = async (request: Request) => {
             }
         }
     `;
-        const res = await client.mutation<deleteDocumentData>(query, {id:request.params.id || '' }).toPromise();
+        const res = await client.mutation<deleteDocumentData>(query, {id:event.params.id || '' }).toPromise();
         if (res.data) {
-            return {
-                body: JSON.stringify(res.data.deleteDocument?.document),
-            };
+            return new Response(JSON.stringify(res.data.deleteDocument?.document));
         }
         if (res.error) {
             console.log(JSON.stringify(res.error, null, 2));

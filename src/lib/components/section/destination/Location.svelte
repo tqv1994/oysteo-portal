@@ -18,6 +18,7 @@
 	const dispatcher = createEventDispatcher();
 	const onUpdate = (field: string) => {
 		dispatcher('submit', { index, field });
+		activeSection = '';
 	};
 </script>
 
