@@ -14,7 +14,7 @@
 	export let activeLoading: boolean = false;
 	let invalidInstagram = {
 		status: false,
-		message: 'Invalid instagram id'
+		message: 'Instagram must contain the "@" character.'
 	};
 
 	type ProfileInput = {

@@ -67,12 +67,15 @@ fragment userFields on UsersPermissionsUser  {
     }
     advisorMe {
       id
+      name
     }
     myAdvisors {
       id
+      name
     }
     agencyMe {
       id
+      name
     }
 }
 `;

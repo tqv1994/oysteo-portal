@@ -23,7 +23,8 @@
 		active: boolean;
 		salutationType: string | null;
 	};
-
+	console.log('abc',advisors);
+	
 	const advisorInputs: AdvisorInput[] = advisors.reduce((acc: AdvisorInput[], advisor) => {
 		acc.push({
 			name: advisor.name,
@@ -39,6 +40,7 @@
 	console.log(advisorInputs);
 
 	const onEdit = (groupName: string) => {
+		
 		activeSection = groupName;
 		if (groupName.includes('advisor--')) {
 			const advisorIndex = parseInt(groupName.split('--')[1]);
@@ -115,6 +117,7 @@
 		{#each advisors as advisor, index}
 			<ListItemContainer
 				let:isEditing
+				reSend={true}
 				isEditing={activeSection === 'advisor--' + index}
 				on:edit={() => onEdit('advisor--' + index)}
 				on:cancel={onCancel}

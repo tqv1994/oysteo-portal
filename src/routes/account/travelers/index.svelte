@@ -36,7 +36,8 @@
 					ENUM_TRIP_STATE.completed,
 					ENUM_TRIP_STATE.enquired,
 					ENUM_TRIP_STATE.planning,
-					ENUM_TRIP_STATE.progressing
+					ENUM_TRIP_STATE.progressing,
+					ENUM_TRIP_STATE.reject
 				]
 			});
 			const resAdvisor = await fetch(`/trip.json?${queryStringAdvisor}`, {
@@ -83,7 +84,6 @@
 
 	export let user: User;
 	export let trips: Trip[] = [];
-	console.log(trips);
 	let tripsPlanning: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
 		if (item.state === 'planning') {
 			acc.push(item);
@@ -114,6 +114,12 @@
 		}
 		return acc;
 	}, []);
+	let tripsReject: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'reject') {
+			acc.push(item);
+		}
+		return acc;
+	}, []);
 
 	let activeSection = '';
 	let loadingLabel = 'Saving ...';
@@ -132,7 +138,8 @@
 		{ id: 'planning', text: 'Planning' },
 		{ id: 'active', text: 'Active' },
 		{ id: 'registered', text: 'Registered' },
-		{ id: 'past', text: 'Past' }
+		{ id: 'past', text: 'Past' },
+		{ id: 'reject', text: 'Reject' }
 	];
 
 	let invalidDateVisited = {
@@ -181,6 +188,11 @@
 	<div class="section" id="past">
 		<Accordion title="Past" id="">
 			<TravelersList bind:trips={tripsPast} />
+		</Accordion>
+	</div>
+	<div class="section" id="reject">
+		<Accordion title="Reject" id="">
+			<TravelersList bind:trips={tripsReject} />
 		</Accordion>
 	</div>
 

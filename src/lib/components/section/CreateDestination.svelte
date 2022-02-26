@@ -2,6 +2,7 @@
 	import type { Destination } from '$lib/store/destination';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import { TextArea, TextInput } from 'carbon-components-svelte';
+	import DestinationImage from '$lib/components/section/destination/Image.svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
@@ -56,7 +57,6 @@
 				},
 				body: JSON.stringify({ ...createDestinationData })
 			});
-			console.log(res);
 			
 			if (res.ok) {
 				const data = await res.json();

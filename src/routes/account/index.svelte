@@ -27,29 +27,9 @@
 	import type { Load } from '@sveltejs/kit';
 	import type { Metadata } from '$lib/store/metadata';
 	import type { Locals } from '$lib/store/local';
-	let advisorName ='';
+	let advisorName = $authStore.user?.advisorMe?.name;
+	let email = $authStore.user?.email;
 	
-	const getAdvisorName = async () => {
-		try {
-			const res = await fetch(`/advisor.json`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			});
-			
-			if (res.ok) {
-				const data = await res.json();
-				advisorName = data.me.advisorMe.name;
-			} else {
-				const error = await res.json();
-				console.error(error);
-			}
-		} catch (error) {
-			console.log('Fetch advisor data:' + error);
-		}
-	};
-	getAdvisorName();
 </script>
 
 <SideNav isOpen={false}>
@@ -66,7 +46,7 @@
 			<Grid>
 				<Row>
 					<Column>
-						<h1 class="pt-0">Hello {advisorName}</h1>
+						<h1 class="pt-0">Hello {advisorName == undefined ? email : advisorName}</h1>
 					</Column>
 					<Column class="text-right">
 						<Button kind="secondary" class="pl-30 pr-30" href="/account/trips/trip-detail"

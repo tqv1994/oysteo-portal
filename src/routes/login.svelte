@@ -77,6 +77,7 @@
 						token
 					})
 				});
+				
 				if (res.ok) {
 					const user = await res.json();
 					authStore.set({ user });

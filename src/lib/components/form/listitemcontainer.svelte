@@ -6,6 +6,7 @@
 
 	export let isEditing = false;
 	export let customGroupStyle = '';
+	export let reSend = false;
 	const dispatch = createEventDispatcher();
 
 	function onEdit() {
@@ -31,6 +32,10 @@
 		dispatch('cancel');
 		formChangeStatusStore.set({ changing: false });
 	}
+
+	function onSend(){
+		
+	}
 </script>
 
 <div class="group" style={customGroupStyle}>
@@ -43,6 +48,9 @@
 				<div class="group-buttons">
 					<Button class="btn-cancel" on:click={onCancel}>Cancel</Button>
 					<Button type="submit">Update</Button>
+					{#if reSend}
+						<Button class="re-send" on:click={onSend}>Re-send invitation</Button>
+					{/if}
 				</div>
 			</Form>
 		</div>
@@ -74,7 +82,6 @@
 	.group-buttons {
 		margin-top: 1rem;
 	}
-
 	.actions {
 		flex: 0 0 4rem;
 		text-align: right;

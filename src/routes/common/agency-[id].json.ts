@@ -4,7 +4,8 @@ import { createGraphClientFromRequest } from '$lib/utils/graph';
 import type { Agency } from '$lib/store/agency';
 import {
 	affiliatteAgencyFieldsFragment,
-	affiliatteNetworkFieldsFragment
+	affiliatteNetworkFieldsFragment,
+	affiliatteBenefitProgramFieldsFragment
 } from '$lib/store/affiliate';
 /**
  * @type {import('@sveltejs/kit').Put}
@@ -28,11 +29,15 @@ export const put: RequestHandler = async (event) => {
 					affiliate_networks{
 						...affiliateNetworkFields
 					}
+					affiliate_benefit_programs{
+						...affiliateBenefitProgramFields
+					}
 				}
 			}
 		  }	  
 		  ${affiliatteNetworkFieldsFragment}
 		  ${affiliatteAgencyFieldsFragment}
+		  ${affiliatteBenefitProgramFieldsFragment}
 		`;
     const reqBody = await event.request.json();
 		const res = await client

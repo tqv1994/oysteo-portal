@@ -13,6 +13,7 @@ import {
 import { addressFieldsFragment } from '$lib/store/address';
 import { uploadFileFieldsFragment } from '$lib/store/media';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
+import { experienceTypeFieldsFragment } from '$lib/store/experienceType';
 /**
  * @type {import('@sveltejs/kit').Get}
  */
@@ -35,6 +36,7 @@ export const get: RequestHandler = async (event) => {
 		${advisorFieldsFragment}
 		${destinationFieldsFragment}
 		${experienceFieldsFragment}
+		${experienceTypeFieldsFragment}
 		${countryFieldsFragment}
 		${languageFieldsFragment}
 		${affiliatteAgencyFieldsFragment}

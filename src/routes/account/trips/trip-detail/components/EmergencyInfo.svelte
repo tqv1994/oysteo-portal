@@ -4,10 +4,11 @@
 	import FormGroup from '$lib/components/form/group.svelte';
 	import FormRow from '$lib/components/form/row.svelte';
 	import { TextInput } from 'carbon-components-svelte';
-	import type { Insurance } from '$lib/store/insurance';
+	import type { convertInsuranceToInput, Insurance, InsuranceInput } from '$lib/store/insurance';
 	import { createTripService, updateTripService } from '$lib/services/trip.services';
 	export let trip: Trip | undefined;
 	let tripInput: TRipInput;
+	let insuranceInput: InsuranceInput;
 	let activeSection = ''; 
 	const onEdit = (section: string) => {
 		if(trip){
@@ -41,6 +42,8 @@
 		onCancel();
 	}
 
+	
+
 	if(!trip){
 		activeSection = 'emergency-info';
 		tripInput = new TRipInput();
@@ -50,34 +53,29 @@
 </script>
 
 <FormGroup
+	groupClass = 'custom-group group'
 	let:isEditing
 	isEditing={activeSection === 'emergency-info'}
 	on:edit={() => onEdit('emergency-info')}
 	on:cancel={onCancel}
 	on:submit={onSubmit}
 >
-	<FormRow label="Name" {isEditing}>
-		<div slot="value">{trip?.emergencyName || '' }</div>
+	<FormRow label="Insurance Policy" {isEditing}>
+		<div slot="value">{trip?.policyId || '' }</div>
 		<div slot="fields">
-			<TextInput bind:value={tripInput.emergencyName} />
+			<TextInput bind:value={tripInput.policyId} />
 		</div>
 	</FormRow>
-	<FormRow label="Role / Purpose" {isEditing}>
-        <div slot="value">{trip?.emergencyRole || ''}</div>
+	<FormRow label="Contact" {isEditing}>
+		<div slot="value">{trip?.contact || '' }</div>
 		<div slot="fields">
-			<TextInput bind:value={tripInput.emergencyRole} />
-        </div>
+			<TextInput bind:value={tripInput.contact} />
+		</div>
 	</FormRow>
-    <FormRow label="Phone number" {isEditing}>
-        <div slot="value">{trip?.emergencyPhone || ''}</div>
+	<FormRow label="Website" {isEditing}>
+		<div slot="value">{trip?.website || '' }</div>
 		<div slot="fields">
-			<TextInput bind:value={tripInput.emergencyPhone} />
-        </div>
-	</FormRow>
-	<FormRow label="Reference #" {isEditing}>
-        <div slot="value">{trip?.emergencyReference || ''}</div>
-		<div slot="fields">
-			<TextInput bind:value={tripInput.emergencyReference} />
-        </div>
+			<TextInput bind:value={tripInput.website} />
+		</div>
 	</FormRow>
 </FormGroup>

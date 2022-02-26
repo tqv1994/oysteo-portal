@@ -1,6 +1,6 @@
 import type { Address } from './address';
 import type { Advisor } from './advisor';
-import type { AffiliateAgencies, AffiliateNetwork } from './affiliate';
+import type { AffiliateAgencies, AffiliateBenefitPrograms, AffiliateNetwork } from './affiliate';
 import type { Base, Nameable } from './types';
 import type { Media } from './media';
 
@@ -37,6 +37,7 @@ export type Agency = Base &
 		emergency_code?: string;
 		affiliate_networks?: AffiliateNetwork[];
 		affiliate_agencies?: AffiliateAgencies[];
+		affiliate_benefit_programs?: AffiliateBenefitPrograms[];
 		addresses?: Address[];
 		advisors?: Advisor[];
 	};
@@ -87,6 +88,9 @@ fragment agencyFields on Agency {
     }
     affiliate_agencies{
         ...affiliateAgencyFields
+    }
+    affiliate_benefit_programs{
+        ...affiliateBenefitProgramFields
     }
     addresses{
         ...addressFields

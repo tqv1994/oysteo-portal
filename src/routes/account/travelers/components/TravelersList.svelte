@@ -58,6 +58,8 @@
 		}
 	];
 	export let trips: Trip[];
+	console.log(trips);
+	
 	let data: TravellerTrips[] = trips.reduce((acc: TravellerTrips[], item: Trip) => {
 		if (item.lead_traveller) {
 			const indexExist = acc.findIndex(
@@ -80,6 +82,7 @@
 		}
 		return acc;
 	}, []);
+	
 </script>
 
 <DataTable expandable sortable bind:headers rows={data} class="table-custom">

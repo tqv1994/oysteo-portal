@@ -21,6 +21,7 @@ import { destinationFieldsFragment } from '$lib/store/destination';
 import { interestFieldsFragment, interestTypeFieldsFragment } from '$lib/store/interest';
 import { personalPreferenceFieldsFragment, personalPreferenceTypeFieldsFragment, travelPreferenceFieldsFragment, travelPreferenceTypeFieldsFragment } from '$lib/store/preference';
 import { cityFieldsFragment } from '$lib/store/city';
+import { experienceTypeFieldsFragment } from '$lib/store/experienceType';
 
 type QueryData = {
 	me?: User;
@@ -39,6 +40,7 @@ const meQuery = `query {
     }
     advisorMe {
       id
+	  name
 	  destinations{
 		  ...destinationFields
 	  }
@@ -90,7 +92,11 @@ const metadataQuery = `query {
 	personalPreferenceTypes{
 		...personalPreferenceTypeFields
 	}
+	experienceTypes (sort:"name") {
+        ...experienceTypeFields
+    }
 }
+${experienceTypeFieldsFragment}
 ${salutationFieldsFragment}
 ${languageFieldsFragment}
 ${countryFieldsFragment}

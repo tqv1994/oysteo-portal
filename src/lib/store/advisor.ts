@@ -6,6 +6,7 @@ import type { Experience } from './experience';
 import type { Base, Identifiable, Nameable } from './types';
 import type { SalutationType } from './salutationType';
 import type { Media } from './media';
+import type { ExperienceType } from './experienceType';
 
 export type AdvisorUser = {
 	advisorMe: Advisor;
@@ -43,6 +44,12 @@ export type Advisor = Base &
 		experiences?: Experience[];
 		destinations?: Destination[];
         avatar?: Media;
+        name?: string;
+        experienceTypes1?: ExperienceType;
+        experienceTypes2?: ExperienceType;
+        experienceTypes3?: ExperienceType;
+        experienceTypes4?: ExperienceType;
+        experienceTypes5?: ExperienceType;
 	};
 
 export const advisorFieldsFragment = `
@@ -84,6 +91,9 @@ fragment advisorFields on Advisor {
         affiliate_networks{
             ...affiliateNetworkFields
         }
+        affiliate_benefit_programs{
+            ...affiliateBenefitProgramFields
+        }
     }
     country{
         ...countryFields
@@ -110,13 +120,19 @@ fragment advisorFields on Advisor {
         ...affiliateBenefitProgramFields
     }
     experienceTypes1{
-        name
+        ...experienceTypeFields
     }
     experienceTypes2{
-        name
+        ...experienceTypeFields
     }
     experienceTypes3{
-        name
+        ...experienceTypeFields
+    }
+    experienceTypes4{
+        ...experienceTypeFields
+    }
+    experienceTypes5{
+        ...experienceTypeFields
     }
 }
 `;

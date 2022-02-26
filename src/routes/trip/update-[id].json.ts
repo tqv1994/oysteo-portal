@@ -23,6 +23,7 @@ import { roomPreferenceFieldsFragment } from '$lib/store/roomPreference';
 import { currencyFieldsFragment } from '$lib/store/currency';
 import { travelingWithYouFieldsFragment } from '$lib/store/travelingWithYou';
 import { destinationTypeFieldsFragment } from '$lib/store/destinationType';
+import { emergencyFieldsFragments } from '$lib/store/emergency';
 
 export type updateTripData = {
     updateTrip: {
@@ -44,6 +45,7 @@ export const put: RequestHandler = async (
                 }
             }
         }
+        ${emergencyFieldsFragments}
         ${tripFieldsFragment}
         ${destinationFieldsFragment}
         ${uploadFileFieldsFragment}

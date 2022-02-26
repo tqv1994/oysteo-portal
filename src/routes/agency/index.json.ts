@@ -4,7 +4,8 @@ import { makeErrorResponse } from '$lib/utils/fetch';
 import { countryFieldsFragment } from '$lib/store/country';
 import {
 	affiliatteAgencyFieldsFragment,
-	affiliatteNetworkFieldsFragment
+	affiliatteNetworkFieldsFragment,
+	affiliatteBenefitProgramFieldsFragment
 } from '$lib/store/affiliate';
 import { salutationFieldsFragment } from '$lib/store/salutationType';
 import { addressFieldsFragment } from '$lib/store/address';
@@ -34,6 +35,7 @@ export const get: RequestHandler = async (event) => {
 		  ${countryFieldsFragment}
 		  ${affiliatteNetworkFieldsFragment}
 		  ${affiliatteAgencyFieldsFragment}
+		  ${affiliatteBenefitProgramFieldsFragment}
 		  ${addressFieldsFragment}
 		  ${advisorAgencyFieldsFragment}
 		  ${uploadFileFieldsFragment}

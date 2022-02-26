@@ -8,6 +8,7 @@ import {
 	affiliatteNetworkFieldsFragment
 } from '$lib/store/affiliate';
 import { experienceFieldsFragment } from '$lib/store/experience';
+import { experienceTypeFieldsFragment } from '$lib/store/experienceType';
 /**
  * @type {import('@sveltejs/kit').Put}
  */
@@ -35,6 +36,21 @@ export const put: RequestHandler = async (event) => {
 					experiences{
 						...experienceFields
 					}
+					experienceTypes1{
+						...experienceTypeFields
+					}
+					experienceTypes2{
+						...experienceTypeFields
+					}
+					experienceTypes3{
+						...experienceTypeFields
+					}
+					experienceTypes4{
+						...experienceTypeFields
+					}
+					experienceTypes5{
+						...experienceTypeFields
+					}
 				}
 			}
 		  }	  
@@ -42,6 +58,7 @@ export const put: RequestHandler = async (event) => {
 		  ${affiliatteAgencyFieldsFragment}
 		  ${affiliatteBenefitProgramFieldsFragment}
 		  ${experienceFieldsFragment}
+		  ${experienceTypeFieldsFragment}
 		`;
 		const reqBody = await event.request.json();
 		const res = await client

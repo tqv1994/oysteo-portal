@@ -2,6 +2,7 @@ import type { AffiliateAgencies, AffiliateBenefitPrograms, AffiliateNetwork } fr
 import type { City } from './city';
 import type { Country } from './country';
 import type { Experience } from './experience';
+import type { ExperienceType } from './experienceType';
 import type { InterestType } from './interest';
 import type { Language } from './language';
 import type { PaymentMethod } from './payment';
@@ -20,4 +21,5 @@ export type Metadata = {
 	interestTypes: InterestType[];
 	travelPreferenceTypes:TravelPreferenceType[];
 	personalPreferenceTypes:PersonalPreferenceType[];
+	experienceTypes: ExperienceType[];
 };

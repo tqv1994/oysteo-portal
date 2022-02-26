@@ -34,15 +34,15 @@
 	let invalidPassword = {
 		currentPassword: {
 			status: false,
-			message: ''
+			message: 'please enter password'
 		},
 		newPassword: {
 			status: false,
-			message: ''
+			message: 'please enter password'
 		},
 		confirmPassword: {
 			status: false,
-			message: ''
+			message: 'please enter password'
 		}
 	};
 
@@ -59,8 +59,36 @@
 	});
 
 	const onUpdatePassword = async () => {
+		if(passwordData.currentPassword == ''){
+			invalidPassword.currentPassword.status = true;
+			setTimeout(() => {
+				invalidPassword.currentPassword.status = false;
+			}, INVALID_DELAY_TIME);
+			return;
+		}
+		if(passwordData.newPassword == ''){
+			invalidPassword.newPassword.status = true;
+			setTimeout(() => {
+				invalidPassword.newPassword.status = false;
+			}, INVALID_DELAY_TIME);
+			return;
+		}
+		if(passwordData.confirmPassword == ''){
+			invalidPassword.confirmPassword.status = true;
+			setTimeout(() => {
+				invalidPassword.confirmPassword.status = false;
+			}, INVALID_DELAY_TIME);
+			return;
+		}
 		invalidPassword.newPassword = checkPasswordRule(passwordData.newPassword);
 		if (invalidPassword.newPassword.status) {
+			setTimeout(() => {
+				invalidPassword.newPassword.status = false;
+			}, INVALID_DELAY_TIME);
+			return;
+		}
+
+		if (passwordData.newPassword == '' || passwordData.currentPassword == '') {
 			setTimeout(() => {
 				invalidPassword.newPassword.status = false;
 			}, INVALID_DELAY_TIME);
@@ -169,6 +197,7 @@
 </FormGroup>
 
 <FormGroup
+	groupClass='group custom-invalid'
 	let:isEditing
 	isEditing={activeSection === 'password'}
 	on:edit={() => onEdit('password')}
@@ -179,7 +208,6 @@
 		<div slot="value">********</div>
 		<div slot="fields">
 			<PasswordInput
-				required
 				type="password"
 				labelText="Current Password"
 				placeholder="Enter your current password..."
@@ -188,7 +216,6 @@
 				bind:value={passwordData.currentPassword}
 			/>
 			<PasswordInput
-				required
 				type="password"
 				labelText="New Password"
 				placeholder="Enter a new password..."
@@ -205,7 +232,6 @@
 			</UnorderedList>
 
 			<PasswordInput
-				required
 				type="password"
 				labelText="Confirm New Password"
 				bind:value={passwordData.confirmPassword}

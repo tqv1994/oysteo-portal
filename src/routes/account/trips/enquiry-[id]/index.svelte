@@ -102,7 +102,18 @@
 
 	const handleMakeTrip = async() => {
 		window.openLoading(true);
-		await updateTripService(trip.id,new TRipInput({advisor: user.advisorMe.id,state: ENUM_TRIP_STATE.enquired})).then((tripOutput)=>{
+		await updateTripService(trip.id,new TRipInput({advisor: user.advisorMe.id,state: ENUM_TRIP_STATE.planning})).then((tripOutput)=>{
+			trip.advisor = tripOutput.advisor;
+			trip.state = tripOutput.state;
+		}).catch((error)=>{
+			console.error(error);
+		});
+		window.openLoading(false);
+	}
+	
+	const handleReject = async() => {
+		window.openLoading(true);
+		await updateTripService(trip.id,new TRipInput({advisor: user.advisorMe.id,state: ENUM_TRIP_STATE.reject})).then((tripOutput)=>{
 			trip.advisor = tripOutput.advisor;
 			trip.state = tripOutput.state;
 		}).catch((error)=>{
@@ -123,7 +134,13 @@
 			kind="secondary"
 			size="field"
 			class="pr-30 pl-30"
-			on:click={() => {handleMakeTrip()}}>Make Trip</Button
+			on:click={() => {handleMakeTrip()}}>Accept</Button
+		>
+		<Button
+			kind="secondary"
+			size="field"
+			class="pr-30 pl-30"
+			on:click={() => {handleReject()}}>Reject</Button
 		>
 	</div>
 	{/if}

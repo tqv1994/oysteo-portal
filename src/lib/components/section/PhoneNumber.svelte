@@ -120,6 +120,8 @@
 		}
 		activeLoading = false;
 	};
+	console.log(phonesInput);
+	
 </script>
 
 <FormGroup

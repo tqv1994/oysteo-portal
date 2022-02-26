@@ -27,7 +27,7 @@ export type Trip = Base & {
 	budget: number;
 	vaccinated: boolean;
 	documents: Document[];
-	insurances: Insurance[];
+	insurance: Insurance;
 	emergencies: Emergency[];
 	emergencyName: string;
 	emergencyPhone: string;
@@ -52,6 +52,10 @@ export type Trip = Base & {
     currency?: Currency;
     destinationTypes?: Destination[];
     roomPreferences?: RoomPreference[];
+    additionalInfo?: string;
+    policyId: string;
+    contact: string;
+    website: string;
 };
 
 export class TRipInput {
@@ -68,7 +72,8 @@ export class TRipInput {
 	budget: number;
 	vaccinated: boolean;
 	documents: string[]; // ID[]
-	insurances: string[]; // ID[]
+	insurance: string; // ID[]
+    emergencies: Emergency[];
 	travellers: string[]; // ID[]
 	published_at: string | Date;
 	emergencyName: string;
@@ -92,6 +97,10 @@ export class TRipInput {
     roomStyles: string[]; // ID []
     destinationTypes: string[]; // ID[]
     roomPreferences: string[]; //ID[]
+    additionalInfo?: string;
+    policyId: string;
+    contact: string;
+    website: string;
 
 	constructor(values: Object = {}) {
 		Object.assign(this, values);
@@ -105,7 +114,8 @@ export const convertTripToInput = (trip: Trip): TRipInput => {
 	data.advisor = trip.advisor?.id;
 	data.destinations = (trip.destinations || []).map((destination) => destination.id);
 	data.documents = (trip.documents || []).map((item) => item.id);
-	data.insurances = (trip.insurances || []).map((item) => item.id);
+	// data.insurance = (trip.insurance || []).map((item) => item.id);
+	data.emergencies = (trip.emergencies || []).map((item) => item.id);
 	data.travellers = (trip.travellers || []).map((item) => item.id);
 	data.tripWheres = (trip.tripWheres || []).map((item) => item.id);
 	data.experiences = (trip.experiences || []).map((item)=>item.id+"");
@@ -127,7 +137,8 @@ export enum ENUM_TRIP_STATE {
 	enquired = 'enquired',
 	planning = 'planning',
 	progressing = 'progressing',
-	completed = 'completed'
+	completed = 'completed',
+    reject = 'reject'
 }
 
 export const ENUM_TRIP_STATE_LABEL = {
@@ -135,7 +146,8 @@ export const ENUM_TRIP_STATE_LABEL = {
 	enquired: 'Enquired',
 	planning: 'Planning',
 	progressing: 'Progressing',
-	completed: 'Completed'
+	completed: 'Completed',
+    reject: 'Reject'
 };
 
 export const getDatesTrip = (trip: Trip): string => {
@@ -196,7 +208,7 @@ export const getTravellersString = (trip: Trip): string => {
 //     documents{
 //         ...documentFields
 //     }
-//     insurances{
+//     insurance{
 //         ...insuranceFields
 //     }
 //     budget
@@ -231,7 +243,7 @@ fragment tripFields on Trip{
     documents{
         ...documentFields
     }
-    insurances{
+    insurance{
         ...insuranceFields
     }
     budget
@@ -275,6 +287,13 @@ fragment tripFields on Trip{
     destinationTypes{
         ...destinationTypeFields
     }
+    additionalInfo
+    policyId
+    contact
+    website
+    emergencies{
+        ...emergencyFields
+    }
 }
 `;
 
@@ -301,5 +320,9 @@ fragment tripFields on Trip{
     currency{
         ...currencyFields
     }
+    additionalInfo
+    policyId
+    contact
+    website
 }
 `;

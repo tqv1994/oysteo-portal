@@ -4,7 +4,7 @@
 	export let activeLoading: boolean = false;
 	export let label: string = "";
 
-	const openLoading = (open: boolean, labelLoad: string = "Saving...") => {
+	export const openLoading = (open: boolean, labelLoad: string = "Saving...") => {
 		activeLoading = open;
 		label = labelLoad;
 	}

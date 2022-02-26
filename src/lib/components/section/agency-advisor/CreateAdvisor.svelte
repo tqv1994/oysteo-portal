@@ -98,6 +98,7 @@
 					salutationType: createAdvisorData.salutationType || null
 				})
 			});
+			
 			if (res.ok) {
 				const data: AdvisorAgency = await res.json();
 				advisors.push(data);

@@ -15,6 +15,7 @@
 	export const load: Load = async ({ fetch, session, url }) => {
 		try {
 			let user: User | undefined = session.user;
+			let metadata: Metadata | undefined = session.metadata;
 			let trip: Trip | undefined;
 			let travellers: Traveller[] = [];
 			const id = url.searchParams.get('id');
@@ -24,6 +25,7 @@
 					'Content-Type': 'application/json'
 				}
 			});
+			
 			if (res.ok) {
 				travellers = await res.json();
 			}
@@ -41,6 +43,7 @@
 						props: {
 							user: user,
 							trip,
+							countries: metadata.countries,
 							travellers
 						}
 					};
@@ -53,6 +56,7 @@
 					props: {
 						user: user,
 						trip,
+						countries: metadata.countries,
 						travellers
 					}
 				};
@@ -74,9 +78,12 @@
 	import { ENUM_IDENTIFICATION_TYPE } from '$lib/store/identification';
 	import EmergencyList from './components/EmergencyList.svelte';
 	import EmergencyInfo from './components/EmergencyInfo.svelte';
-	import AddtionalInfo from './components/AddtionalInfo.svelte';
+	import AddtionalInfo from './components/AdditionalInfo.svelte';
 	import { ENUM_DOCUMENT_TYPE } from '$lib/store/document';
 	import type { Traveller } from '$lib/store/traveller';
+	import AdditionalInfo from './components/AdditionalInfo.svelte';
+	import type { Country } from '$lib/store/country';
+	export let countries: Country[] = [];
 
 	export let user: User;
 	export let trip: Trip | undefined;
@@ -156,11 +163,11 @@
 			addContactFormOpen = true;
 		}}
 	>
+		<EmergencyList {countries} bind:trip bind:addContactFormOpen />
 		<EmergencyInfo bind:trip />
-		<EmergencyList bind:trip bind:addContactFormOpen />
 	</FormSection>
-	<FormSection title="Addtional Info" id="additional-info">
-		<AddtionalInfo bind:trip />
+	<FormSection title="Additional Info" id="additional-info">
+		<AdditionalInfo bind:trip />
 	</FormSection>
 	<div id="fake-height" />
 </div>

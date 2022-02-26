@@ -8,6 +8,7 @@ $blue: #0f61fd;
 $blue-primary: #5078bc;
 $blue-secondary: #f0f7f8;
 $white-color: #fff;
+$red-color: rgb(252, 99, 99);
 
 $break_point: 1056px;
 @use  'spacing-helpers';
@@ -374,7 +375,14 @@ video {
 }
 
 .fix-height{
-	margin-bottom: -20px !important;
+	margin-bottom: -5px !important;
+	.group-buttons{
+		margin-left: 10rem;
+	}
+}
+
+.custom-phone-number{
+	margin-top: 4px;
 }
 
 .bx--password-input-wrapper .bx--text-input__invalid-icon{
@@ -394,4 +402,12 @@ video {
 .disable-agency:active,
 .disable-agency:hover{
 	border-bottom: none !important;
+}
+
+.re-send{
+	background: $red-color !important;
+}
+
+.custom-invalid svg{
+	right: 2rem !important;
 }

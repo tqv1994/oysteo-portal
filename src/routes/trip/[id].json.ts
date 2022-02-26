@@ -23,6 +23,7 @@ import { roomPreferenceFieldsFragment } from '$lib/store/roomPreference';
 import { currencyFieldsFragment } from '$lib/store/currency';
 import { travelingWithYouFieldsFragment } from '$lib/store/travelingWithYou';
 import { destinationTypeFieldsFragment } from '$lib/store/destinationType';
+import { emergencyFieldsFragments } from '$lib/store/emergency';
 
 type TripQueryResult = {
   trip: Trip;
@@ -40,6 +41,7 @@ export const get: RequestHandler = async (event) => {
         ...tripFields
       }
     }
+    ${emergencyFieldsFragments}
     ${tripFieldsFragment}
     ${destinationFieldsFragment}
     ${uploadFileFieldsFragment}

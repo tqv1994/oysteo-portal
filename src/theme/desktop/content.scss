@@ -27,6 +27,19 @@
 		}
 	}
 
+	.emergency-fields{
+		display: flex;
+		flex-direction: row;
+		gap: 1rem;
+		.bx--form-item {
+			margin-top: 0rem;
+			flex-basis: 50%;
+		}
+		.bx--text-input-wrapper{
+			margin-top: 4px;
+		}
+	}
+
 	.title-right-icon {
 		display: inline;
 		color: white;

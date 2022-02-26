@@ -59,6 +59,7 @@
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import AgencyLogo from '$lib/components/section/AgencyLogo.svelte';
 	import AdvisorAvatar from '$lib/components/section/AdvisorAvatar.svelte';
+	import type { ExperienceType } from '$lib/store/experienceType';
 
 	export const load: Load = async ({ fetch, session }) => {
 		try {
@@ -82,7 +83,7 @@
 				const dataAgency = await resAgency.json();
 				let advisor = data.me.advisorMe;
 				let agency = dataAgency.me.agencyMe;
-				console.log(data);
+				console.log(advisor);
 				
 				return {
 					props: {
@@ -93,13 +94,20 @@
 						languages: metadata.languages,
 						address: advisor !== null ? advisor.address : [],
 						experiences: advisor !== null ? advisor.experiences : [],
+						experienceTypes1: advisor.experienceTypes1,
+						experienceTypes2: advisor.experienceTypes2,
+						experienceTypes3: advisor.experienceTypes3,
+						experienceTypes4: advisor.experienceTypes4,
+						experienceTypes5: advisor.experienceTypes5,
 						destinations: advisor !== null ? advisor.destinations : [],
 						affiliateAgencies: advisor !== null ? advisor.affiliate_agencies : [],
 						affiliateAgenciesAgency: agency !== null ? agency.affiliate_agencies : [],
 						affiliateNetworks: advisor !== null ? advisor.affiliate_networks : [],
 						affiliateNetworksAgency: agency !== null ? agency.affiliate_networks : [],
 						affiliateBenefitPrograms: advisor !== null ? advisor.affiliate_benefit_programs : [],
+						affiliateBenefitProgramsAgency: agency !== null ? agency.affiliate_benefit_programs : [],
 						experienceList: metadata.experiences,
+						experienceTypeList: metadata.experienceTypes,
 						affiliateAgencyList: metadata.affiliateAgencies,
 						affiliateNetworkList: metadata.affiliateNetworks,
 						affiliateBenefitProgramList: metadata.affiliateBenefitPrograms
@@ -114,6 +122,7 @@
 		}
 		return { props: {} };
 	};
+	
 </script>
 
 <script lang="ts">
@@ -125,16 +134,19 @@
 	export let languages: Language[];
 	export let destinations: Destination[];
 	export let address: Address[];
-	export let affiliateAgencies: AffiliateAgencies[];
 	export let affiliateAgenciesAgency: AffiliateAgencies[];
-	export let affiliateNetworks: AffiliateNetwork[];
 	export let affiliateNetworksAgency: AffiliateNetwork[];
-	export let affiliateBenefitPrograms: AffiliateBenefitPrograms[];
+	export let affiliateBenefitProgramsAgency: AffiliateBenefitPrograms[];
+	export let experienceTypes1: ExperienceType;
+	export let experienceTypes2: ExperienceType;
+	export let experienceTypes3: ExperienceType;
+	export let experienceTypes4: ExperienceType;
+	export let experienceTypes5: ExperienceType;
 
 	export let affiliateAgencyList: AffiliateAgencies[];
 	export let affiliateNetworkList: AffiliateNetwork[];
 	export let affiliateBenefitProgramList: AffiliateBenefitPrograms[];
-	export let experienceList: Experience[];
+	export let experienceTypeList: ExperienceType[];
 
 	let activeSection = '';
 	let loadingLabel = 'Saving ...';
@@ -145,6 +157,8 @@
 	const type2 = 'agency';
 
 	const setEditing = (sectionName: string) => () => {
+		console.log(sectionName);
+		
 		activeSection = sectionName;
 	};
 
@@ -154,7 +168,7 @@
 		{ id: 'aboutme', text: 'About me' },
 		{ id: 'profile', text: 'Profile' },
 		{ id: 'destinations', text: 'Destinations' },
-		{ id: 'experiences', text: 'Experiences' },
+		{ id: 'specialities', text: 'Specialities' },
 		{ id: 'affiliations', text: 'Affiliations' }
 	];
 
@@ -205,6 +219,8 @@
 		navFixed = prevY > y ? 'nav-fixed' : '';
 		prevY = y;
 	});
+	
+	console.log('experienceTypes1',experienceTypes1);
 </script>
 
 <svelte:window bind:scrollY={y} />
@@ -302,14 +318,18 @@
 		{/each}
 	</FormSection>
 
-	<FormSection title="Specialities" icon={UserCertification20} id="experiences">
+	<FormSection title="Specialities" icon={UserCertification20} id="specialities">
 		<ExperienceSection
 			bind:activeSection
 			bind:activeLoading
 			advisorId={advisor.id}
 			{type}
-			bind:experiences
-			{experienceList}
+			{experienceTypes1}
+			{experienceTypes2}
+			{experienceTypes3}
+			{experienceTypes4}
+			{experienceTypes5}
+			{experienceTypeList}
 		/>
 	</FormSection>
 
@@ -335,16 +355,16 @@
 				affiliate={affiliateNetworksAgency}
 				list={affiliateNetworkList}
 			/>
-			<!-- <Affiliation
+			<Affiliation
 				bind:activeSection
 				bind:activeLoading
-				objectId={advisor.id}
-				{type}
+				objectId={agency.id}
+				type = {type2}
 				label="Benefit Programs"
 				name="Benefit Programs"
-				affiliate={affiliateBenefitPrograms}
+				affiliate={affiliateBenefitProgramsAgency}
 				list={affiliateBenefitProgramList}
-			/> -->
+			/>
 		{:else}
 			<Affiliation
 			bind:activeSection
@@ -366,16 +386,16 @@
 				affiliate={affiliateNetworksAgency}
 				list={affiliateNetworkList}
 			/>
-			<!-- <Affiliation
+			<Affiliation
 				bind:activeSection
 				bind:activeLoading
-				objectId={advisor.id}
-				{type}
+				objectId={advisor.agency.id}
+				type = {type2}
 				label="Benefit Programs"
 				name="Benefit Programs"
-				affiliate={affiliateBenefitPrograms}
+				affiliate={affiliateBenefitProgramsAgency}
 				list={affiliateBenefitProgramList}
-			/> -->
+			/>
 		{/if}
 	</FormSection>
 	<div id="fake-height" />

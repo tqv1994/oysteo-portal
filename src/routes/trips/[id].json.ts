@@ -32,6 +32,7 @@ export const get: RequestHandler = async (event) => {
         ...tripFields
       }
     }
+    ${emergencyFieldsFragments}
     ${tripFieldsFragment}
     ${destinationFieldsFragment}
     ${uploadFileFieldsFragment}

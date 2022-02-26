@@ -59,7 +59,8 @@
 					'Content-Type': 'application/json'
 				}
 			});
-
+			console.log(metadata);
+			
 			if (res.ok) {
 				const data = await res.json();
 				let agency = data.me.agencyMe;
@@ -97,12 +98,12 @@
 	export let advisors: AdvisorAgency[] = [];
 	export let affiliateAgencies: AffiliateAgencies[] = [];
 	export let affiliateNetworks: AffiliateNetwork[] = [];
-	// export let affiliateBenefitPrograms: AffiliateBenefitPrograms[];
+	export let affiliateBenefitPrograms: AffiliateBenefitPrograms[];
 	export let payments: Payment[] = [];
 
 	export let affiliateAgencyList: AffiliateAgencies[] = [];
 	export let affiliateNetworkList: AffiliateNetwork[] = [];
-	// export let affiliateBenefitProgramList: AffiliateBenefitPrograms[];
+	export let affiliateBenefitProgramList: AffiliateBenefitPrograms[];
 	export let salutationTypes: SalutationType[] = [];
 	export let paymentMethods: PaymentMethod[] = [];
 
@@ -132,7 +133,6 @@
 		navFixed = prevY > y ? 'nav-fixed' : '';
 		prevY = y;
 	});
-	console.log('agency',agency);
 	
 </script>
 
@@ -235,7 +235,7 @@
 			list={affiliateNetworkList}
 			allowEdit
 		/>
-		<!-- <Affiliation
+		<Affiliation
 			bind:activeSection
 			bind:activeLoading
 			objectId={agency.id}
@@ -244,7 +244,8 @@
 			name="Benefit Programs"
 			affiliate={affiliateBenefitPrograms}
 			list={affiliateBenefitProgramList}
-		/> -->
+			allowEdit
+		/>
 	</FormSection>
 	<div id="fake-height" />
 </div>
