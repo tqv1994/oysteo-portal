@@ -126,7 +126,7 @@
 		<div slot="fields">
 			<TextArea
 				labelText="Max: 120 character"
-				placeholder="Enter your description..."
+				placeholder="Enter your description"
 				bind:value={profileInput.description}
 				maxlength={120}
 			/>
@@ -156,7 +156,7 @@
 		<div slot="fields">
 			<TextInput
 				labelText="{advisor?.instagram === null ? 'Add instagram' : 'Edit instagram'}"
-				placeholder="Enter..."
+				placeholder="Enter"
 				bind:value={profileInput.instagram}
 				invalid={invalidInstagram.status}
 				invalidText={invalidInstagram.message}
@@ -167,7 +167,7 @@
 		<div slot="value">{advisor?.twitter === null ? '' : advisor?.twitter}</div>
 		<div slot="fields">
 			<TextInput labelText="{advisor?.twitter === null ? 'Add twitter' : 'Edit twitter'}" 
-			placeholder="Enter..." 
+			placeholder="Enter" 
 			bind:value={profileInput.twitter} />
 		</div>
 	</FormRow>
@@ -176,7 +176,7 @@
 		<div slot="fields">
 			<TextInput
 				labelText={advisor?.facebook === null ? 'Add facebook' : 'Edit facebook'}
-				placeholder="Enter..."
+				placeholder="Enter"
 				bind:value={profileInput.facebook}
 			/>
 		</div>
@@ -186,7 +186,7 @@
 		<div slot="fields">
 			<TextInput
 				labelText={advisor?.linkedIn === null ? 'Add linkedIn' : 'Edit linkedIn'}
-				placeholder="Enter..."
+				placeholder="Enter"
 				bind:value={profileInput.linkedIn}
 			/>
 		</div>
@@ -196,7 +196,7 @@
 		<div slot="fields">
 			<TextInput
 				labelText={advisor?.pinterest === null ? 'Add pinterest' : 'Edit pinterest'}
-				placeholder="Enter..."
+				placeholder="Enter"
 				bind:value={profileInput.pinterest}
 			/>
 		</div>

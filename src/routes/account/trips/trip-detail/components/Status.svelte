@@ -11,10 +11,15 @@
 	import FormGroup from '$lib/components/form/group.svelte';
 	import FormRow from '$lib/components/form/row.svelte';
 	import { createTripService, updateTripService } from '$lib/services/trip.services';
-import { ENUM_DOCUMENT_TYPE_LABEL } from '$lib/store/document';
+	import { ENUM_DOCUMENT_TYPE_LABEL } from '$lib/store/document';
+import { goto } from '$app/navigation';
 	export let trip: Trip | undefined;
 	let activeSection: string = "";
 	let tripInput: TRipInput;
+	let updated_at: string;
+	let state: string;
+	let reference: string;
+	
 	let headers: DataTableHeader[] = [
 		{
 			key: 'status',
@@ -66,6 +71,8 @@ import { ENUM_DOCUMENT_TYPE_LABEL } from '$lib/store/document';
 					window.openNotification({ kind: 'error', title: 'Error', subtitle: error.message });
 				});
 		} else {
+			!tripInput.state ? tripInput.state = 'new_enquiry' : tripInput.state;
+			
 			await createTripService(tripInput)
 				.then((output) => {
 					trip = output;
@@ -73,7 +80,11 @@ import { ENUM_DOCUMENT_TYPE_LABEL } from '$lib/store/document';
 				.catch((error) => {
 					window.openNotification({ kind: 'error', title: 'Error', subtitle: error.message });
 				});
+			!trip.updated_at ? updated_at = '' : updated_at = formatDate(trip.updated_at);
+			!trip.state ? state = '' : state = trip.state;
+			!trip.reference ? reference = '' : reference = trip.reference;
 		}
+		
 		window.openLoading(false);
 		status = [
 			{
@@ -85,12 +96,17 @@ import { ENUM_DOCUMENT_TYPE_LABEL } from '$lib/store/document';
 		];
 		activeSection = '';
 	};
+	
 	if(!trip){
 		activeSection = 'status';
 		tripInput = new TRipInput();
 	}else{
 		tripInput = convertTripToInput(trip);
+		!trip.updated_at ? updated_at = '' : updated_at = formatDate(trip.updated_at);
+		!trip.state ? state = '' : state = trip.state;
+		!trip.reference ? reference = '' : reference = trip.reference;
 	}
+	
 </script>
 {#if activeSection === ""}
 <DataTable sortable bind:headers bind:rows={status} class="table-custom">
@@ -106,6 +122,32 @@ import { ENUM_DOCUMENT_TYPE_LABEL } from '$lib/store/document';
 		{:else}{cell.value}{/if}
 	</div>
 </DataTable>
+<div class="mobile-table custom-status">
+	<div class="hide">
+		
+		
+	</div>
+	<div class="custom-button-edit">
+		<Edit on:click={() => {onEdit('status')}} />
+	</div>
+	<div class="half-width">
+		<TextInput
+			on:click={() => {onEdit('status')}}
+			labelText='Trip status'
+			bind:value={ENUM_TRIP_STATE_LABEL[state]}
+		/>
+		<TextInput
+			on:click={() => {onEdit('status')}}
+			labelText='Last change'
+			bind:value={updated_at}
+		/>
+	</div>
+	<TextInput
+		on:click={() => {onEdit('status')}}
+		labelText='Agency Reference'
+		bind:value={reference}
+	/>
+</div>
 {:else}
 <FormGroup
 	groupClass = "group hide-border"
@@ -123,7 +165,7 @@ import { ENUM_DOCUMENT_TYPE_LABEL } from '$lib/store/document';
 				<SelectItem value={ENUM_TRIP_STATE.planning} text={ENUM_TRIP_STATE_LABEL.planning} />
 				<SelectItem value={ENUM_TRIP_STATE.progressing} text={ENUM_TRIP_STATE_LABEL.progressing} />
 				<SelectItem value={ENUM_TRIP_STATE.completed} text={ENUM_TRIP_STATE_LABEL.completed} />
-			  </Select>
+			</Select>
 		</div>
 	</FormRow>
 	<FormRow label="Agency Reference" {isEditing}>

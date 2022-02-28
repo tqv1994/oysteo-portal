@@ -23,7 +23,6 @@
 		active: boolean;
 		salutationType: string | null;
 	};
-	console.log('abc',advisors);
 	
 	const advisorInputs: AdvisorInput[] = advisors.reduce((acc: AdvisorInput[], advisor) => {
 		acc.push({
@@ -37,7 +36,6 @@
 		return acc;
 	}, []);
 
-	console.log(advisorInputs);
 
 	const onEdit = (groupName: string) => {
 		
@@ -143,7 +141,7 @@
 							</Select>
 							<TextInput
 								labelText="First name"
-								placeholder="Enter advisor firstname..."
+								placeholder="Enter advisor firstname"
 								bind:value={advisorNameData.firstName}
 							/>
 							<TextInput
@@ -154,7 +152,7 @@
 							/>
 							<TextInput
 								labelText="Last name"
-								placeholder="Enter advisor lastname..."
+								placeholder="Enter advisor lastname"
 								bind:value={advisorNameData.lastName}
 							/>
 
@@ -167,7 +165,7 @@
 								<div slot="fields">
 									<TextInput
 										labelText="Email Address"
-										placeholder="Enter advisor email..."
+										placeholder="Enter advisor email"
 										hideLabel
 										bind:value={advisorInputs[index].email}
 										invalid={invalidAdvisorEmail.status}
@@ -185,7 +183,7 @@
 								<div slot="fields">
 									<TextInput
 										labelText="Agency Reference"
-										placeholder="Enter agency reference..."
+										placeholder="Enter agency reference"
 										hideLabel
 										bind:value={advisorInputs[index].reference}
 									/>

@@ -113,7 +113,7 @@
 							}
 						}}
 					>
-						<SelectItem text="Choose..." value="" />
+						<SelectItem text="Choose" value="" />
 						{#each list as item}
 							<SelectItem value={item.id.toString()} text={item.name} />
 						{/each}

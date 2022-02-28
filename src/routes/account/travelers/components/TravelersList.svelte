@@ -3,7 +3,7 @@
 	import type { Traveller } from '$lib/store/traveller';
 
 	import { ENUM_TRIP_STATE_LABEL, Trip } from '$lib/store/trip';
-	import { Button, DataTable, Link } from 'carbon-components-svelte';
+	import { Button, DataTable, Link, TextInput } from 'carbon-components-svelte';
 	import type { DataTableHeader } from 'carbon-components-svelte/types/DataTable/DataTable';
 	import { FolderOpen32, Forum32, Phone32 } from 'carbon-icons-svelte';
 	type TravellerTrips = {
@@ -58,7 +58,6 @@
 		}
 	];
 	export let trips: Trip[];
-	console.log(trips);
 	
 	let data: TravellerTrips[] = trips.reduce((acc: TravellerTrips[], item: Trip) => {
 		if (item.lead_traveller) {
@@ -82,6 +81,14 @@
 		}
 		return acc;
 	}, []);
+	let fullname: string;
+	let depart_at: string;
+	let updated_at: string;
+	let href: string;
+	export let typeTraveler: boolean = false;
+	let showTrip: string = 'Show Trip'
+	let activeTrip: string | number;
+	let lastTrip: string;
 	
 </script>
 
@@ -143,6 +150,54 @@
 		</DataTable>
 	</div>
 </DataTable>
+<div class="mobile-table">
+	{#each data as onedata}
+	<div class="data-trip">
+		<div class="custom-button-table">
+			<Button kind="secondary" icon={Phone32} iconDescription="Call" />
+			<Button kind="secondary" icon={Forum32} iconDescription="Chat" />
+		</div>
+		<div class="hide">
+			{#if onedata.traveller == null}
+				{fullname = ''}
+				{href = `/account/travelers/traveler-detail?id=${onedata.id}`}
+			{:else}
+				{fullname = `${onedata.traveller.forename} ${onedata.traveller.surname}`}
+				{href = `/account/travelers/traveler-detail?id=${onedata.traveller.id}`}
+			{/if}
+			{onedata.trips[0].state !== 'completed' ? activeTrip =  0 : activeTrip = '-'}
+		</div>
+		<Link href={href}>
+			<TextInput
+				labelText='Client name'
+				bind:value={fullname}
+			/>
+		</Link>
+		<Link >
+			<TextInput
+				bind:value={showTrip}
+			/>
+		</Link>
+		<Link class="half-width" href={href}>
+			<TextInput
+				labelText='Total Trip'
+				bind:value={onedata.trips.length}
+			/>
+			<TextInput
+				labelText='Active Trip'
+				bind:value={activeTrip}
+			/>
+		</Link>
+		<Link href={href}>
+			<TextInput
+				labelText='Last Trip'
+				bind:value={lastTrip}
+			/>
+		</Link>
+	</div>
+	{/each}
+	
+</div>
 
 <style lang="scss">
 	@use '../../../../styles/datatable';

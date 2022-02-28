@@ -3,7 +3,7 @@
 
 	import type { Trip } from '$lib/store/trip';
 	import {ENUM_TRIP_STATE_LABEL} from '$lib/store/trip';
-	import { Button, DataTable, Link, OverflowMenu, OverflowMenuItem } from 'carbon-components-svelte';
+	import { Button, DataTable, Link, OverflowMenu, OverflowMenuItem, TextInput } from 'carbon-components-svelte';
 	import type { DataTableHeader } from 'carbon-components-svelte/types/DataTable/DataTable';
 	import { Forum32, Phone32 } from 'carbon-icons-svelte';
 	let headers: DataTableHeader[] = [
@@ -38,6 +38,10 @@
 	];
 	export let trips: Trip[];
 	export let detailLinkPrefix: string = '/account/trips/trip-detail?id=';
+	let fullname: string;
+	let depart_at: string;
+	let updated_at: string;
+	
 </script>
 
 <DataTable sortable bind:headers rows={trips} class="table-custom">
@@ -71,6 +75,54 @@
 		{:else}{cell.value}{/if}
 	</div>
 </DataTable>
+<div class="mobile-table">
+	{#each trips as trip}
+	<div class="data-trip">
+		<div class="custom-button-table">
+			<Button kind="secondary" icon={Phone32} iconDescription="Call" />
+			<Button kind="secondary" icon={Forum32} iconDescription="Chat" />
+		</div>
+		<div class="hide">
+			{#if trip.lead_traveller == null}
+				{fullname = ''}
+			{:else}
+				{fullname = `${trip.lead_traveller.forename} ${trip.lead_traveller.surname}`}
+			{/if}
+			{depart_at = formatDate(trip.depart_at)}
+			{updated_at = formatDate(trip.updated_at)}
+		</div>
+		<Link href={`${detailLinkPrefix}${trip.id}`}>
+			<TextInput
+				labelText='Client name'
+				bind:value={fullname}
+			/>
+		</Link>
+		<Link href={`${detailLinkPrefix}${trip.id}`}>
+			<TextInput
+				labelText='Departure'
+				bind:value={depart_at}
+			/>
+		</Link>
+		<Link href={`${detailLinkPrefix}${trip.id}`}>
+			<TextInput
+				labelText='Description'
+				bind:value={trip.description}
+			/>
+		</Link>
+		<Link class="half-width" href={`${detailLinkPrefix}${trip.id}`}>
+			<TextInput
+				labelText='Status'
+				bind:value={ENUM_TRIP_STATE_LABEL[trip.state]}
+			/>
+			<TextInput
+				labelText='Update'
+				bind:value={updated_at}
+			/>
+		</Link>
+	</div>
+	{/each}
+	
+</div>
 
 <style lang="scss">
 	@use '../../../../styles/datatable';

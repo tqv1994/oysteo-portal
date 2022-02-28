@@ -48,9 +48,9 @@
 				<div class="group-buttons">
 					<Button class="btn-cancel" on:click={onCancel}>Cancel</Button>
 					<Button type="submit">Update</Button>
-					{#if reSend}
+					<!-- {#if reSend}
 						<Button class="re-send" on:click={onSend}>Re-send invitation</Button>
-					{/if}
+					{/if} -->
 				</div>
 			</Form>
 		</div>

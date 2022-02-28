@@ -210,7 +210,7 @@
 			<PasswordInput
 				type="password"
 				labelText="Current Password"
-				placeholder="Enter your current password..."
+				placeholder="Enter your current password"
 				invalid={invalidPassword.currentPassword.status}
 				invalidText={invalidPassword.currentPassword.message}
 				bind:value={passwordData.currentPassword}
@@ -218,7 +218,7 @@
 			<PasswordInput
 				type="password"
 				labelText="New Password"
-				placeholder="Enter a new password..."
+				placeholder="Enter a new password"
 				invalid={invalidPassword.newPassword.status}
 				invalidText={invalidPassword.newPassword.message}
 				bind:value={passwordData.newPassword}
@@ -235,7 +235,7 @@
 				type="password"
 				labelText="Confirm New Password"
 				bind:value={passwordData.confirmPassword}
-				placeholder="Confirm the new password again..."
+				placeholder="Confirm the new password again"
 				invalid={invalidPassword.confirmPassword.status}
 				invalidText={invalidPassword.confirmPassword.message}
 			/>

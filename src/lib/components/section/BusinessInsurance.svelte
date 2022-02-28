@@ -79,7 +79,7 @@
 			<TextInput
 				labelText={agency.insurance_company || ''}
 				hideLabel
-				placeholder="Enter your business insurance company..."
+				placeholder="Enter your business insurance company"
 				bind:value={businessInsuranceInput.insurance_company}
 			/>
 		</div>
@@ -90,7 +90,7 @@
 			<TextInput
 				labelText={agency.insurance_policy || ''}
 				hideLabel
-				placeholder="Enter your business insurance policy..."
+				placeholder="Enter your business insurance policy"
 				bind:value={businessInsuranceInput.insurance_policy}
 			/>
 		</div>

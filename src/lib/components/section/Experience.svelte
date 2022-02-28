@@ -35,7 +35,6 @@
 	onDestroy(() => {
 		resetExperienceInput();
 	});
-	console.log('experienceType',experienceTypes1);
 
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
@@ -137,7 +136,7 @@
 					}
 				}}
 			>
-				<SelectItem text="Choose..." value="" />
+				<SelectItem text="Choose" value="" />
 				{#each experienceTypeList as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
@@ -155,7 +154,7 @@
 					}
 				}}
 			>
-				<SelectItem text="Choose..." value="" />
+				<SelectItem text="Choose" value="" />
 				{#each experienceTypeList as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
@@ -172,7 +171,7 @@
 					}
 				}}
 			>
-				<SelectItem text="Choose..." value="" />
+				<SelectItem text="Choose" value="" />
 				{#each experienceTypeList as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
@@ -189,7 +188,7 @@
 					}
 				}}
 			>
-				<SelectItem text="Choose..." value="" />
+				<SelectItem text="Choose" value="" />
 				{#each experienceTypeList as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
@@ -206,7 +205,7 @@
 					}
 				}}
 			>
-				<SelectItem text="Choose..." value="" />
+				<SelectItem text="Choose" value="" />
 				{#each experienceTypeList as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}

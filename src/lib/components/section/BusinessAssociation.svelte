@@ -84,37 +84,37 @@
 	<FormRow label="IATA" {isEditing} contentClass={'mtop-4-5'}>
 		<div slot="value">{agency.iata === null ? '' : agency.iata}</div>
 		<div slot="fields">
-			<TextInput placeholder="Enter IATA..." bind:value={businessAssociationInput.iata} />
+			<TextInput placeholder="Enter IATA" bind:value={businessAssociationInput.iata} />
 		</div>
 	</FormRow>
 	<FormRow label="ABTA" {isEditing} contentClass={'mtop-4-5'} class={'mtop-17-5'}>
 		<div slot="value">{agency.abta === null ? '' : agency.abta}</div>
 		<div slot="fields">
-			<TextInput labelText="" placeholder="Enter ABTA..." bind:value={businessAssociationInput.abta} />
+			<TextInput labelText="" placeholder="Enter ABTA" bind:value={businessAssociationInput.abta} />
 		</div>
 	</FormRow>
 	<FormRow label="ATOL" {isEditing} contentClass={'mtop-4-5'} class={'mtop-17-5'}>
 		<div slot="value">{agency.atol === null ? '' : agency.atol}</div>
 		<div slot="fields">
-			<TextInput placeholder="Enter ATOL..." bind:value={businessAssociationInput.atol} />
+			<TextInput placeholder="Enter ATOL" bind:value={businessAssociationInput.atol} />
 		</div>
 	</FormRow>
 	<FormRow label="ARC" {isEditing} contentClass={'mtop-4-5'} class={'mtop-17-5'}>
 		<div slot="value">{agency.arc === null ? '' : agency.arc}</div>
 		<div slot="fields">
-			<TextInput labelText="" placeholder="Enter ARC..." bind:value={businessAssociationInput.arc} />
+			<TextInput labelText="" placeholder="Enter ARC" bind:value={businessAssociationInput.arc} />
 		</div>
 	</FormRow>
 	<FormRow label="TIDS" {isEditing} contentClass={'mtop-4-5'} class={'mtop-17-5'}>
 		<div slot="value">{agency.tids === null ? '' : agency.tids}</div>
 		<div slot="fields">
-			<TextInput labelText="" placeholder="Enter TIDS..." bind:value={businessAssociationInput.tids} />
+			<TextInput labelText="" placeholder="Enter TIDS" bind:value={businessAssociationInput.tids} />
 		</div>
 	</FormRow>
 	<FormRow label="CLIA" {isEditing} contentClass={'mtop-4-5'} class={'mtop-17-5'}>
 		<div slot="value">{agency.clia === null ? '' : agency.clia}</div>
 		<div slot="fields">
-			<TextInput labelText="" placeholder="Enter CLIA..." bind:value={businessAssociationInput.clia} />
+			<TextInput labelText="" placeholder="Enter CLIA" bind:value={businessAssociationInput.clia} />
 		</div>
 	</FormRow>
 </FormGroup>

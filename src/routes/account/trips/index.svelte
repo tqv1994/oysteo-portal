@@ -117,7 +117,7 @@
 			}}>Create New Trip</Button
 		>
 	</div>
-	<div class="section" id="home"></div>
+	<div class="section home" id="home"></div>
 	<div class="section" id="planning">
 		<Accordion title="Planning" open={true} id="">
 			<TripsList trips={tripsPlanning} />

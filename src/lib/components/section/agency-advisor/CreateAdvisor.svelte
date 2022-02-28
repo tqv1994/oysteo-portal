@@ -136,7 +136,7 @@
 			</Select>
 			<TextInput
 				labelText="First name"
-				placeholder="Enter advisor firstname..."
+				placeholder="Enter advisor firstname"
 				bind:value={firstName}
 				invalid={invalidAdvisorFirstName.status}
 				invalidText={invalidAdvisorFirstName.message}
@@ -149,7 +149,7 @@
 			/>
 			<TextInput
 				labelText="Last name"
-				placeholder="Enter advisor lastname..."
+				placeholder="Enter advisor lastname"
 				bind:value={lastName}
 				invalid={invalidAdvisorLastName.status}
 				invalidText={invalidAdvisorLastName.message}
@@ -157,14 +157,14 @@
 
 			<TextInput
 				labelText="Email Address"
-				placeholder="Enter advisor email..."
+				placeholder="Enter advisor email"
 				bind:value={createAdvisorData.email}
 				invalid={invalidAdvisorEmail.status}
 				invalidText={invalidAdvisorEmail.message}
 			/>
 			<TextInput
 				labelText="Agency Reference"
-				placeholder="Enter agency reference..."
+				placeholder="Enter agency reference"
 				bind:value={createAdvisorData.reference}
 			/>
 

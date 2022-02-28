@@ -113,7 +113,7 @@
 	
 	const handleReject = async() => {
 		window.openLoading(true);
-		await updateTripService(trip.id,new TRipInput({advisor: user.advisorMe.id,state: ENUM_TRIP_STATE.reject})).then((tripOutput)=>{
+		await updateTripService(trip.id,new TRipInput({advisor: user.advisorMe.id,state: ENUM_TRIP_STATE.rejected})).then((tripOutput)=>{
 			trip.advisor = tripOutput.advisor;
 			trip.state = tripOutput.state;
 		}).catch((error)=>{

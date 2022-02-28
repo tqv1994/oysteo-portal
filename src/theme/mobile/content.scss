@@ -1,7 +1,12 @@
 @media (max-width: $break_point - 0.01px) {
 	// Global half width (select)
 	.half-width {
+		gap: 20px;
 		.bx--select-input__wrapper {
+			width: 50%;
+		}
+
+		.bx--text-input-wrapper{
 			width: 50%;
 		}
 	}
@@ -13,5 +18,54 @@
 
 	.title-right-icon {
 		display: none;
+	}
+
+	.content-actions{
+		transform: translateY(-65px);
+	}
+
+	.home{
+		padding-top: 1px !important;
+	}
+	
+	.table-custom{
+		display: none;
+	}
+
+	.mobile-table{
+		.data-trip{
+			padding-bottom: 40px;
+		}
+		.bx--link{
+			width: 100%;
+		}
+		.custom-button-table{
+			float: right;
+		}
+	}
+
+	.custom-status{
+		.half-width{
+			width: 100%;
+			display: inline-flex;
+		}
+		.custom-button-edit{
+			span{
+				float: right;
+			}
+		}
+	}
+
+	.bx--form-item{
+		margin-top: 0rem !important;
+	}
+
+	.mess-mobile{
+		display: none;
+	}
+
+	.custom-mess{
+		background: none !important;
+		border: none;
 	}
 }

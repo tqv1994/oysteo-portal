@@ -163,7 +163,7 @@
 						</Row>
 						<Row>
 							<Select labelText="" hideLabel bind:selected={whereInput.country}>
-								<SelectItem text="Choose..." value="" />
+								<SelectItem text="Choose" value="" />
 								{#each countries as country}
 									<SelectItem value={country.id.toString()} text={`${country.name}`} />
 								{/each}

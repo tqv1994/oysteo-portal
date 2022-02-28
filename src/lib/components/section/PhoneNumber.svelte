@@ -120,7 +120,6 @@
 		}
 		activeLoading = false;
 	};
-	console.log(phonesInput);
 	
 </script>
 
@@ -146,14 +145,14 @@
 					phonesInput.phone_number_code = e.detail;
 				}}
 			>
-				<SelectItem value="" text="Choose..." />
+				<SelectItem value="" text="Choose" />
 				{#each countries as country}
 					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}
 			</Select>
 			<TextInput
 				labelText="Number"
-				placeholder="Enter your phone number..."
+				placeholder="Enter your phone number"
 				bind:value={phonesInput.phone_number}
 				invalid={invalidPhoneNumber.status.phone_number}
 				invalidText={invalidPhoneNumber.message}
@@ -175,14 +174,14 @@
 					phonesInput.cell_mobile_code = e.detail;
 				}}
 			>
-				<SelectItem value="" text="Choose..." />
+				<SelectItem value="" text="Choose" />
 				{#each countries as country}
 					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}
 			</Select>
 			<TextInput
 				labelText="Number"
-				placeholder="Enter cell/mobile number..."
+				placeholder="Enter cell/mobile number"
 				bind:value={phonesInput.cell_mobile}
 				invalid={invalidPhoneNumber.status.cell_mobile}
 				invalidText={invalidPhoneNumber.message}
@@ -204,14 +203,14 @@
 					phonesInput.whatsapp_code = e.detail;
 				}}
 			>
-				<SelectItem value="" text="Choose..." />
+				<SelectItem value="" text="Choose" />
 				{#each countries as country}
 					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}
 			</Select>
 			<TextInput
 				labelText="Number"
-				placeholder="Enter your WhatsApp number..."
+				placeholder="Enter your WhatsApp number"
 				bind:value={phonesInput.whatsapp}
 				invalid={invalidPhoneNumber.status.whatsapp}
 				invalidText={invalidPhoneNumber.message}
@@ -233,14 +232,14 @@
 					phonesInput.emergency_code = e.detail;
 				}}
 			>
-				<SelectItem value="" text="Choose..." />
+				<SelectItem value="" text="Choose" />
 				{#each countries as country}
 					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}
 			</Select>
 			<TextInput
 				labelText="Number"
-				placeholder="Enter your emergency contact number..."
+				placeholder="Enter your emergency contact number"
 				bind:value={phonesInput.emergency}
 				invalid={invalidPhoneNumber.status.emergency}
 				invalidText={invalidPhoneNumber.message}

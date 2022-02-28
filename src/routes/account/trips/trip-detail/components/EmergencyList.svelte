@@ -105,7 +105,6 @@
                 window.openNotification({kind:'error',title: 'Error',subtitle: error.message});
             });
         }
-	console.log(emergencyInput);
 
 		window.openLoading(false);
 		onCancel();
@@ -148,7 +147,7 @@
 					emergencyInput.phoneCode = e.detail;
 				}}
 			>
-				<SelectItem value="" text="Choose..." />
+				<SelectItem value="" text="Choose" />
 				{#each countries as country}
 					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 				{/each}
@@ -211,7 +210,7 @@
 							emergencyInput.phoneCode = e.detail;
 						}}
 					>
-						<SelectItem value="" text="Choose..." />
+						<SelectItem value="" text="Choose" />
 						{#each countries as country}
 							<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
 						{/each}

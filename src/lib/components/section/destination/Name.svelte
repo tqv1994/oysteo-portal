@@ -36,7 +36,7 @@
 		<div slot="fields">
 			<TextInput
 				labelText="Edit Name"
-				placeholder="Enter destination name..."
+				placeholder="Enter destination name"
 				bind:value={destinations[index].name}
 			/>
 		</div>

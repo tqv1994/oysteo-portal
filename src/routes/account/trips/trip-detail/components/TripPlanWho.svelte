@@ -144,7 +144,7 @@
 					bind:selected={tripInput.lead_traveller}
 					on:change={onChangeLeaderOption}
 				>
-					<SelectItem text="Choose..." value="" />
+					<SelectItem text="Choose" value="" />
 					{#each travellers || [] as item}
 						<SelectItem value={item.id.toString()} text={`${item.forename} ${item.surname}`} />
 					{/each}
@@ -177,7 +177,7 @@
 						bind:selected={id}
 						on:change()
 					>
-						<SelectItem text="Choose..." value="" />
+						<SelectItem text="Choose" value="" />
 						{#each relatives as item}
 							<SelectItem value={item.id.toString()} text={`${item.forename} ${item.surname}`} />
 						{/each}

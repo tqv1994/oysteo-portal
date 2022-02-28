@@ -83,7 +83,6 @@
 				const dataAgency = await resAgency.json();
 				let advisor = data.me.advisorMe;
 				let agency = dataAgency.me.agencyMe;
-				console.log(advisor);
 				
 				return {
 					props: {
@@ -157,8 +156,6 @@
 	const type2 = 'agency';
 
 	const setEditing = (sectionName: string) => () => {
-		console.log(sectionName);
-		
 		activeSection = sectionName;
 	};
 
@@ -220,7 +217,6 @@
 		prevY = y;
 	});
 	
-	console.log('experienceTypes1',experienceTypes1);
 </script>
 
 <svelte:window bind:scrollY={y} />

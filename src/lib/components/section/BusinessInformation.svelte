@@ -113,7 +113,7 @@
 		<div slot="fields" class="business-fields">
 			<TextInput
 				labelText="Legal Name"
-				placeholder="Enter your legal name..."
+				placeholder="Enter your legal name"
 				bind:value={businessInfo.legalName}
 			/>
 		</div>
@@ -123,7 +123,7 @@
 		<div slot="fields" class="business-fields">
 			<TextInput
 				labelText="Registration #"
-				placeholder="Enter registration ID..."
+				placeholder="Enter registration ID"
 				bind:value={businessInfo.registrationId}
 			/>
 		</div>
@@ -133,7 +133,7 @@
 		<div slot="fields" class="business-fields">
 			<TextInput
 				labelText="Tax ID/VAT#"
-				placeholder="Enter your tax ID..."
+				placeholder="Enter your tax ID"
 				bind:value={businessInfo.taxId}
 			/>
 		</div>
@@ -164,7 +164,7 @@
 		<div slot="value">{handleDisplayTimeZone(agency.timezone)}</div>
 		<div slot="fields" class="business-fields">
 			<Select labelText="Time Zone" bind:selected={businessInfo.timezone}>
-				<SelectItem value="" text="Choose..." />
+				<SelectItem value="" text="Choose" />
 				{#each TIME_ZONES as timeZone}
 					<SelectItem value={timeZone.locale} text={`(${timeZone.gmt}) ${timeZone.zone}`} />
 				{/each}

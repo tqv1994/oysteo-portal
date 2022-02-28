@@ -206,7 +206,7 @@
 				invalid={requirePaymentMethod.status}
 				invalidText={requirePaymentMethod.message}
 			>
-				<SelectItem value="" text="Choose..." />
+				<SelectItem value="" text="Choose" />
 				{#each paymentMethods as method}
 					<SelectItem text={method.name} value={method.id} />
 				{/each}
@@ -240,14 +240,14 @@
 					? ''
 					: payments[0].salutationType.id.toString()}
 			>
-				<SelectItem value="" text="Choose..." />
+				<SelectItem value="" text="Choose" />
 				{#each salutationTypes as salutation}
 					<SelectItem value={salutation?.id} text={salutation?.name} />
 				{/each}
 			</Select>
 			<TextInput
 				labelText="First name"
-				placeholder="Enter billing contact firstname..."
+				placeholder="Enter billing contact firstname"
 				bind:value={paymentInput.firstName}
 			/>
 			<TextInput
@@ -258,7 +258,7 @@
 			/>
 			<TextInput
 				labelText="Last name"
-				placeholder="Enter billing contact lastname..."
+				placeholder="Enter billing contact lastname"
 				bind:value={paymentInput.lastName}
 			/>
 		</div>
@@ -278,7 +278,7 @@
 					paymentInput.countryCode = e.detail;
 				}}
 			>
-				<SelectItem value="" text="Choose..." />
+				<SelectItem value="" text="Choose" />
 
 				{#each countries as country}
 					<SelectItem value={country.code} text={country.name + " +" + country.phone} />
@@ -286,7 +286,7 @@
 			</Select>
 			<TextInput
 				labelText="Number"
-				placeholder="Enter phone number..."
+				placeholder="Enter phone number"
 				bind:value={paymentInput.phone}
 				invalid={invalidPhoneNumber.status}
 				invalidText={invalidPhoneNumber.message}
@@ -297,7 +297,7 @@
 		<div slot="value">{payments[0] ? payments[0].email : ''}</div>
 		<div slot="fields">
 			<TextInput
-				placeholder="Enter billing email..."
+				placeholder="Enter billing email"
 				bind:value={paymentInput.email}
 				invalid={invalidEmail.status}
 				invalidText={invalidEmail.message}

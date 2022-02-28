@@ -177,7 +177,7 @@
 						? ''
 						: address[0].country.id.toString()}
 				>
-					<SelectItem value="" text="Choose..." />
+					<SelectItem value="" text="Choose" />
 					{#each countries as country}
 						<SelectItem value={country.id.toString()} text={country.name} />
 					{/each}
@@ -185,30 +185,30 @@
 
 				<TextInput
 					labelText="Province / State"
-					placeholder="Your province or state..."
+					placeholder="Your province or state"
 					bind:value={addressInput.province}
 				/>
 			</div>
 
 			<TextInput
 				labelText="Street address #1"
-				placeholder="Your street #1..."
+				placeholder="Your street #1"
 				bind:value={addressInput.line1}
 			/>
 			<TextInput
 				labelText="Street address #2"
-				placeholder="Your street #2..."
+				placeholder="Your street #2"
 				bind:value={addressInput.line2}
 			/>
 			<div class="select-container">
 				<TextInput
 					labelText="City"
-					placeholder="Your city..."
+					placeholder="Your city"
 					bind:value={addressInput.city}
 				/>
 				<TextInput
 					labelText="Zip code / Postal code"
-					placeholder="Your zip code..."
+					placeholder="Your zip code"
 					bind:value={addressInput.zipcode}
 				/>
 			</div>

@@ -40,7 +40,7 @@
 		<div slot="fields">
 			<TextInput
 				labelText="Edit Insight"
-				placeholder="Enter insight..."
+				placeholder="Enter insight"
 				bind:value={destinations[index].description}
 				maxlength={20}
 			/>

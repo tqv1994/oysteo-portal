@@ -27,6 +27,7 @@
 	import type { Load } from '@sveltejs/kit';
 	import type { Metadata } from '$lib/store/metadata';
 	import type { Locals } from '$lib/store/local';
+import { Forum32 } from 'carbon-icons-svelte';
 	let advisorName = $authStore.user?.advisorMe?.name;
 	let email = $authStore.user?.email;
 	
@@ -59,6 +60,8 @@
 			</Grid>
 		</div>
 	</div>
+</Content>
+
 	<div class="page-container">
 		<section class="boxes">
 			<div class="row">
@@ -114,7 +117,6 @@
 			</div>
 		</section>
 	</div>
-</Content>
 
 <style lang="scss">
 	@use '../../styles/grid';

@@ -19,7 +19,12 @@ import type { User } from '$lib/store/auth';
 import { paymentMethodFieldsFragment } from '$lib/store/payment';
 import { destinationFieldsFragment } from '$lib/store/destination';
 import { interestFieldsFragment, interestTypeFieldsFragment } from '$lib/store/interest';
-import { personalPreferenceFieldsFragment, personalPreferenceTypeFieldsFragment, travelPreferenceFieldsFragment, travelPreferenceTypeFieldsFragment } from '$lib/store/preference';
+import {
+	personalPreferenceFieldsFragment,
+	personalPreferenceTypeFieldsFragment,
+	travelPreferenceFieldsFragment,
+	travelPreferenceTypeFieldsFragment
+} from '$lib/store/preference';
 import { cityFieldsFragment } from '$lib/store/city';
 import { experienceTypeFieldsFragment } from '$lib/store/experienceType';
 
@@ -118,6 +123,7 @@ let metadata: Metadata;
 
 /** @type {import('@sveltejs/kit').Handle} */
 export const handle: Handle = async ({ event, resolve }) => {
+	const request = event.request;
 	console.log('Handling', event.url.pathname, event.url.searchParams.toString(), ++counter);
 
 	if (metadata) {
@@ -138,18 +144,20 @@ export const handle: Handle = async ({ event, resolve }) => {
 		}
 	}
 
-  const headers: Record<string, string> = {};
+	const headers: Record<string, string> = {};
 	if (!event.locals.user) {
-		if (event.request.headers.get('cookie')) {
-			const cookie = getSessionCookie(event.request.headers.get('cookie'));
-			if (cookie) {
+		const cookie = request.headers.get('cookie');
+		if (cookie) {
+			const sessionCookie = getSessionCookie(cookie);
+			if (sessionCookie) {
 				console.log('Authenticating user from cookie...');
 				try {
-					const client = createGraphClient(cookie);
+					const client = createGraphClient(sessionCookie);
 					const res = await client.query<QueryData>(meQuery).toPromise();
 					if (res.error) {
 						console.error('Failed to get session:', res.error.message);
 						const setCookie = res.error.response.headers.getAll('set-cookie');
+						console.log(setCookie);
 						if (setCookie) {
 							headers['set-cookie'] = setCookie;
 						}
@@ -165,13 +173,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 	try {
 		console.log('Resuming request...', event.url.pathname, counter);
 		const response = await resolve(event);
-    const body = await response.text();
+		const body = await response.text();
 
-    for (const key in headers) {
-      response.headers.set(key, headers[key]);
-    }
+		for (const key in headers) {
+			response.headers.set(key, headers[key]);
+		}
 
-    return new Response(body, response);
+		return new Response(body, response);
 	} catch (err) {
 		return makeErrorResponse(
 			500,

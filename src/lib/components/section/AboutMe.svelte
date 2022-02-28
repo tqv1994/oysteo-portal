@@ -150,7 +150,7 @@
 		<div slot="fields">
 			<TextInput
 				bind:value={aboutMeInput.website}
-				placeholder="Enter website..."
+				placeholder="Enter website"
 				invalid={invalidAdvisorWebsite.status}
 				invalidText={invalidAdvisorWebsite.message}
 			/>
@@ -171,7 +171,7 @@
 		<div slot="fields">
 			<TextInput
 				bind:value={aboutMeInput.email2}
-				placeholder="Enter alternate email..."
+				placeholder="Enter alternate email"
 				invalid={invalidAlternativeEmail.status}
 				invalidText={invalidAlternativeEmail.message}
 			/>
@@ -191,7 +191,7 @@
 		<div slot="value">{handleDisplayTimeZone(advisor.timezone)}</div>
 		<div slot="fields">
 			<Select bind:selected={aboutMeInput.timezone}>
-				<SelectItem value="" text="Choose..." />
+				<SelectItem value="" text="Choose" />
 				{#each TIME_ZONES as timeZone}
 					<SelectItem value={timeZone.locale} text={`(${timeZone.gmt}) ${timeZone.zone}`} />
 				{/each}
@@ -229,7 +229,7 @@
 				}}
 				selected={advisor?.language1 === null ? '' : advisor?.language1.id.toString()}
 			>
-				<SelectItem value="" text="Choose..." />
+				<SelectItem value="" text="Choose" />
 				{#each languages as language}
 					<SelectItem value={language.id.toString()} text={language.name} />
 				{/each}

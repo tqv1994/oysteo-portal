@@ -62,15 +62,15 @@ import { getItems } from '$lib/store/types';
 	
 	
 	const onSubmit = async () => {
-		if(documentInputs && documentInputs.length > 0){
-			documentInputs.forEach(documentInput => {
-				if(documentInput.documents == null && documentInput.description == ''){
-					activeSection = '';
-					handleResetForm();
-					return;
-				}
-			});
-		}
+		// if(documentInputs && documentInputs.length > 0){
+		// 	documentInputs.forEach(documentInput => {
+		// 		if(documentInput.documents == null && documentInput.description == ''){
+		// 			activeSection = '';
+		// 			handleResetForm();
+		// 			return;
+		// 		}
+		// 	});
+		// }
 		window.openLoading(true, 'Saving');
 		for (const deleteId of documentDeleteIds) {
 			await deleteDocumentService(deleteId).then(() => {

@@ -97,7 +97,7 @@
 			<TextArea
 				labelText="Max: 100 character"
 				cols={50}
-				placeholder="Enter agency description..."
+				placeholder="Enter agency description"
 				rows={4}
 				maxlength={100}
 				bind:value={marketingInfoInput.description}
@@ -114,7 +114,7 @@
 			<TextArea
 				labelText="Max: 750 character"
 				cols={50}
-				placeholder="Enter agency profile..."
+				placeholder="Enter agency profile"
 				rows={5}
 				maxlength={750}
 				bind:value={marketingInfoInput.profile}
@@ -136,7 +136,7 @@
 		<div slot="value">{agency.website == null ? '' : agency.website}</div>
 		<div slot="fields">
 			<TextInput
-				placeholder="Enter your website..."
+				placeholder="Enter your website"
 				bind:value={marketingInfoInput.website}
 				invalid={invalidMarketingWebsite.status}
 				invalidText={invalidMarketingWebsite.message}

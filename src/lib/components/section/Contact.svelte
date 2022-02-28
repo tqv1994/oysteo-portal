@@ -90,7 +90,7 @@
 		<div slot="value">{object?.name === null ? '' : object?.name}</div>
 		<div slot="fields">
 			<TextInput
-				placeholder={`Enter ${type == 'advisor' ? 'your' : "agency manager's"} name...`}
+				placeholder={`Enter ${type == 'advisor' ? 'your' : "agency manager's"} name`}
 				bind:value={contactInput.name}
 			/>
 		</div>
@@ -109,7 +109,7 @@
 		<div slot="fields">
 			<TextInput
 				bind:value={contactInput.email}
-				placeholder="Enter email address..."
+				placeholder="Enter email address"
 				invalid={invalidContactEmail.status}
 				invalidText={invalidContactEmail.message}
 			/>

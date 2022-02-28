@@ -97,19 +97,19 @@
 		<div slot="fields">
 			<TextInput
 				labelText="Add name"
-				placeholder="Enter destination name..."
+				placeholder="Enter destination name"
 				bind:value={createDestinationData.name}
 			/>
 			<TextInput
 				labelText="Add location"
-				placeholder="Enter destination location..."
+				placeholder="Enter destination location"
 				bind:value={createDestinationData.location}
 				invalid={invalidLocation.status}
 				invalidText={invalidLocation.message}
 			/>
 			<TextArea
 				labelText="Add Insight"
-				placeholder="Enter insight..."
+				placeholder="Enter insight"
 				bind:value={createDestinationData.description}
 			/>
 		</div>

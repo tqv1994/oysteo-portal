@@ -3,8 +3,7 @@
 	import { convertTripToInput, Trip, TRipInput } from '$lib/store/trip';
 	import FormGroup from '$lib/components/form/group.svelte';
 	import FormRow from '$lib/components/form/row.svelte';
-	import { Column, DatePicker, DatePickerInput, Grid, Row } from 'carbon-components-svelte';
-	import type { Traveller } from '$lib/store/traveller';
+	import {DatePicker, DatePickerInput } from 'carbon-components-svelte';
 	import { createTripService, updateTripService } from '$lib/services/trip.services';
 	export let trip: Trip | undefined;
 	//export let isEditing: boolean = false;
@@ -76,7 +75,6 @@
 		<div slot="fields" style="poition: relative">
 			<DatePicker
 				on:change={(e) => {
-					console.log(e.detail);
 					tripInput.depart_at = e.detail?.dateStr || '';
 				}}
 				value={formatOutputDatePicker(tripInput.depart_at)}
@@ -93,7 +91,6 @@
 		<div slot="fields" style="position: relative">
 			<DatePicker
 				on:change={(e) => {
-					console.log(e.detail);
 					tripInput.return_at = e.detail?.dateStr || '';
 				}}
 				value={formatOutputDatePicker(tripInput.return_at)}

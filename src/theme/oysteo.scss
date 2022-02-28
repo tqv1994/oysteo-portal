@@ -328,6 +328,13 @@ video {
 	left: 0 !important;
 }
 
+@media screen and (max-width: $break-point){
+	.flatpickr-calendar {
+		top: 12rem !important;
+		left: 0 !important;
+	}
+}
+
 .bx--date-picker-input__wrapper {
 	width: 100%;
 	input {
@@ -350,7 +357,7 @@ video {
 }
 
 .bx--file__selected-file{
-	width: 100%;
+	width: 200%;
 }
 
 .bx--file-filename{
@@ -410,4 +417,16 @@ video {
 
 .custom-invalid svg{
 	right: 2rem !important;
+}
+
+.hide{
+	display: none !important;
+}
+
+.custom-group{
+	margin-top: -58px;
+}
+
+.bx--col-lg-5{
+	word-break: break-all;
 }
