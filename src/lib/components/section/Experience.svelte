@@ -58,11 +58,11 @@
 			let experienceType4IdSelected: string;
 			let experienceType5IdSelected: string;
 			
-			experienceType1IdSelected = experienceType1Input.id;
-			experienceType2IdSelected = experienceType2Input.id;
-			experienceType3IdSelected = experienceType3Input.id;
-			experienceType4IdSelected = experienceType4Input.id;
-			experienceType5IdSelected = experienceType5Input.id;
+			experienceType1IdSelected = experienceType1Input?.id;
+			experienceType2IdSelected = experienceType2Input?.id;
+			experienceType3IdSelected = experienceType3Input?.id;
+			experienceType4IdSelected = experienceType4Input?.id;
+			experienceType5IdSelected = experienceType5Input?.id;
 			
 			const data = {
 				experienceTypes1: experienceType1IdSelected,
@@ -127,8 +127,8 @@
 			<Select
 				labelText="Experience type"
 				hideLabel
-				name="experiences-{experienceTypes1.id}"
-				selected={experienceTypes1.id.toString()}
+				name="experiences-{experienceTypes1 != null ? experienceTypes1.id : ''}"
+				selected={experienceTypes1 != null ? experienceTypes1.id.toString() : ''}
 				on:change={(e) => {
 					const expSelected = experienceTypeList.filter((ele) => ele.id.toString() == e.detail);
 					if (expSelected.length > 0) {

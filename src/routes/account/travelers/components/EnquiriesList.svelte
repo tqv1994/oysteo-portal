@@ -42,14 +42,19 @@
 	let updated_at: string;
 	let href: string;
 	let budget: string;
-	
+	export let noCTA: boolean = false;
 </script>
 
 <DataTable sortable bind:headers rows={trips} class="table-custom">
 	<div slot="cell" let:cell let:row>
 		{#if cell.key === 'action'}
-			<Button kind="ghost" icon={Phone32} iconDescription="Call" />
-			<Button kind="ghost" icon={Forum32} iconDescription="Chat" />
+			{#if noCTA}
+				<Button kind="ghost" icon={Phone32} disabled/>
+				<Button kind="ghost" icon={Forum32} disabled/>
+			{:else}
+				<Button kind="ghost" icon={Phone32} iconDescription="Call" />
+				<Button kind="ghost" icon={Forum32} iconDescription="Chat" />
+			{/if}
         {:else if cell.key === 'lead_traveller'}
 			{#if row.lead_traveller}
                 <Link href={`/account/travelers/traveler-detail?id=${row.lead_traveller.id}`}>
@@ -75,8 +80,10 @@
 	{#each trips as trip}
 	<div class="data-trip">
 		<div class="custom-button-table">
-			<Button kind="secondary" icon={Phone32} iconDescription="Call" />
-			<Button kind="secondary" icon={Forum32} iconDescription="Chat" />
+			{#if !noCTA}
+				<Button kind="ghost" icon={Phone32} iconDescription="Call" />
+				<Button kind="ghost" icon={Forum32} iconDescription="Chat" />
+			{/if}
 		</div>
 		<div class="hide">
 			{#if trip.lead_traveller == null}

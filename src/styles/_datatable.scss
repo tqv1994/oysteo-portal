@@ -4,6 +4,7 @@
     --cds-border-subtle: #8D8D8D;
     --cds-layer: #F3F3F3;
     :global(.bx--data-table){
+        margin-bottom: 30px;
         border-collapse:separate;
         border-spacing: 0 0.8rem;
         --cds-layer-accent: #fff;

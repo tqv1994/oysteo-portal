@@ -172,6 +172,9 @@ label.bx--btn--primary {
 		width: 100%;
 		height: 100%;
 	}
+	p{
+		font-size: 14px;
+	}
 }
 
 .bx--row img {
@@ -382,7 +385,7 @@ video {
 }
 
 .fix-height{
-	margin-bottom: -5px !important;
+	margin-bottom: 13px !important;
 	.group-buttons{
 		margin-left: 10rem;
 	}
@@ -424,9 +427,15 @@ video {
 }
 
 .custom-group{
-	margin-top: -58px;
+	margin-top: -15px;
 }
 
 .bx--col-lg-5{
 	word-break: break-all;
+}
+
+.group-where{
+	.content{
+		margin-left: -160px;
+	}
 }

@@ -75,6 +75,7 @@
 </script>
 
 <FormGroup
+	groupClass="group group-where"
 	let:isEditing
 	isEditing={activeSection === 'trip-plan-where'}
 	on:edit={() => onEdit('trip-plan-where')}

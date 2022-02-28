@@ -47,7 +47,7 @@ import { Forum32 } from 'carbon-icons-svelte';
 			<Grid>
 				<Row>
 					<Column>
-						<h1 class="pt-0">Hello {advisorName == undefined ? email : advisorName}</h1>
+						<h1 class="pt-0">Hello {advisorName == undefined ? '' : advisorName}</h1>
 					</Column>
 					<Column class="text-right">
 						<Button kind="secondary" class="pl-30 pr-30" href="/account/trips/trip-detail"

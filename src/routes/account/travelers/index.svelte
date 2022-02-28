@@ -166,7 +166,13 @@
 	<div class="section" id="new-enquiry">
 		<Accordion title="New Enquiry" open={true} id="">
 			{#if tripsNew}
-				<EnquiriesList let:typeTraveler typeTraveler={true} trips={tripsNew} />
+				<EnquiriesList 
+					let:noCTA
+					let:typeTraveler 
+					noCTA={true}
+					typeTraveler={true} 
+					trips={tripsNew} 
+					/>
 			{/if}
 		</Accordion>
 	</div>
@@ -191,7 +197,7 @@
 		</Accordion>
 	</div>
 	<div class="section" id="rejected">
-		<Accordion title="Reject" id="">
+		<Accordion title="Rejected" id="">
 			<TravelersList bind:trips={tripsReject} />
 		</Accordion>
 	</div>
