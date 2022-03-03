@@ -7,7 +7,7 @@
 	export let traveller: Traveller;
 </script>
 
-<div class="mt-15">
+<div class="mt-15 desktop-profile">
 	<Grid narrow padding>
 		<Row>
 			<Column class="custom-col"><label>Name</label></Column>
@@ -32,13 +32,28 @@
 	</Grid>
 </div>
 
+<div class="mt-15 mobile-profile">
+	<Grid narrow padding>
+		<Row>
+			<Column class="custom-col">
+				<Row><label>Name: {` ${traveller.forename || ''} ${traveller.surname || ''}`}</label></Row>
+				<Row><label>Language: {traveller.language || ''}</label></Row>
+				<Row><label>Phone: {traveller.mobilePhone || ''}</label></Row>
+				<Row><label>Pref. Contact: {traveller.whatsapp || ''}</label></Row>
+				<Row><label>Email: {traveller.email || ''}</label></Row>
+			</Column>
+			<div class="mobile-icon">
+				<Forum32 />
+			</div>
+		</Row>
+		
+	</Grid>
+</div>
+
 <style lang="scss">
 	div {
 		:global(.bx--row) {
 			margin-bottom: 0;
-		}
-		:global(.custom-col){
-			margin-right: -225px;
 		}
 	}
 </style>

@@ -79,10 +79,10 @@
 <div class="mobile-table">
 	{#each trips as trip}
 	<div class="data-trip">
-		<div class="custom-button-table">
+		<div class="custom-button-table mobile-icon">
 			{#if !noCTA}
-				<Button kind="ghost" icon={Phone32} iconDescription="Call" />
-				<Button kind="ghost" icon={Forum32} iconDescription="Chat" />
+				<Phone32 />
+				<Forum32 />
 			{/if}
 		</div>
 		<div class="hide">

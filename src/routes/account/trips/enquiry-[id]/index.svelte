@@ -65,6 +65,7 @@
 	import Preferences from '../../travelers/traveler-detail/components/Preferences.svelte';
 	import Request from './components/Request.svelte';
 	import { Button } from 'carbon-components-svelte';
+	import { goto } from '$app/navigation';
 
 	export let trip: Trip;
 	export let user: User;
@@ -108,17 +109,19 @@
 		}).catch((error)=>{
 			console.error(error);
 		});
+		goto('/account/trips');
 		window.openLoading(false);
 	}
 	
 	const handleReject = async() => {
 		window.openLoading(true);
-		await updateTripService(trip.id,new TRipInput({advisor: user.advisorMe.id,state: ENUM_TRIP_STATE.rejected})).then((tripOutput)=>{
+		await updateTripService(trip.id,new TRipInput({advisor: user.advisorMe.id,state: ENUM_TRIP_STATE.enquired})).then((tripOutput)=>{
 			trip.advisor = tripOutput.advisor;
 			trip.state = tripOutput.state;
 		}).catch((error)=>{
 			console.error(error);
 		});
+		goto('/account/trips/enquiries');
 		window.openLoading(false);
 	}
 	
@@ -126,8 +129,12 @@
 
 <svelte:window bind:scrollY={y} />
 <OverlayLoading bind:activeLoading bind:label={loadingLabel} />
-<NavigationSection items={enquiriesSections} class={navFixed} />
+<NavigationSection selectedItem={'Status'} items={enquiriesSections} class={navFixed} />
 <div class="content">
+	<div class="title-content">
+		<h1>Enquiries</h1>
+		<DesktopNavigationSection items={enquiriesSections} className={'enquiries-screen'} />
+	</div>
 	{#if (typeof(trip.advisor?.id) === 'undefined') || trip.advisor?.id !== user.advisorMe.id}
 	<div class="content-actions text-right mb-15">
 		<Button
@@ -144,12 +151,8 @@
 		>
 	</div>
 	{/if}
-	<div class="title-content">
-		<h1>Enquiries</h1>
-		<DesktopNavigationSection items={enquiriesSections} className={'enquiries-screen'} />
-	</div>
 	{#if trip}
-		<div class="section" id="home"></div>
+		<div class="section home" id="home"></div>
 		<div class="section" id="status">
 			<Accordion title="Status" open={true} id="">
 				<Status bind:trip />

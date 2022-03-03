@@ -154,12 +154,12 @@ import CollapsibleSection from '$lib/components/form/CollapsibleSection.svelte';
 <div class="mobile-table">
 	{#each data as row}
 	<div class="data-trip">
-		<div class="custom-button-table">
+		<div class="custom-button-table mobile-icon">
 			{#if row.trips[0].state === 'enquired'}
-				<Button kind="secondary" icon={FolderOpen32} iconDescription="Download" />
+				<FolderOpen32 />
 			{/if}
-			<Button kind="secondary" icon={Phone32} iconDescription="Call" />
-			<Button kind="secondary" icon={Forum32} iconDescription="Chat" />
+			<Phone32 />
+			<Forum32 />
 		</div>
 		<div class="hide">
 			{#if row.traveller == null}

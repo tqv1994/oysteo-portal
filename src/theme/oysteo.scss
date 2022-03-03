@@ -373,6 +373,7 @@ video {
 }
 
 .list-advisors{
+	margin-left: -160px;
 	padding-bottom: 20px;
 }
 
@@ -438,4 +439,8 @@ video {
 	.content{
 		margin-left: -160px;
 	}
+}
+
+.custom-logo-image{
+	width: 50% !important;
 }

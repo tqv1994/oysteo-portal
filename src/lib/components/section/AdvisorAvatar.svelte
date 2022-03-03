@@ -103,7 +103,7 @@
 				<Grid fullWidth>
 					<Row>
 						<Column>
-							<ImageLoader src={imageUrlPrefix + advisor.avatar?.url} />
+							<ImageLoader src={imageUrlPrefix + advisor.avatar?.url} class="custom-logo-image"/>
 						</Column>
 					</Row>
 				</Grid>

@@ -38,6 +38,7 @@
 	];
 	export let trips: Trip[];
 	export let detailLinkPrefix: string = '/account/trips/trip-detail?id=';
+	export let noCTA: boolean = false;
 	let fullname: string;
 	let depart_at: string;
 	let updated_at: string;
@@ -48,8 +49,13 @@
 	<div slot="cell" let:cell let:row>
         
 		{#if cell.key === 'action'}
-			<Button kind="ghost" icon={Phone32} iconDescription="Call" />
-			<Button kind="ghost" icon={Forum32} iconDescription="Chat" />
+			{#if noCTA}
+				<Button kind="ghost" icon={Phone32} disabled/>
+				<Button kind="ghost" icon={Forum32} disabled/>
+			{:else}
+				<Button kind="ghost" icon={Phone32} iconDescription="Call" />
+				<Button kind="ghost" icon={Forum32} iconDescription="Chat" />
+			{/if}
         {:else if cell.key === 'lead_traveller.forename'}
 			{#if row.lead_traveller}
 			<Link href={`${detailLinkPrefix}${row.id}`}>
@@ -78,9 +84,9 @@
 <div class="mobile-table">
 	{#each trips as trip}
 	<div class="data-trip">
-		<div class="custom-button-table">
-			<Button kind="secondary" icon={Phone32} iconDescription="Call" />
-			<Button kind="secondary" icon={Forum32} iconDescription="Chat" />
+		<div class="custom-button-table mobile-icon">
+			<Phone32 />
+			<Forum32 />
 		</div>
 		<div class="hide">
 			{#if trip.lead_traveller == null}

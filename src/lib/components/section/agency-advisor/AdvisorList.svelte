@@ -9,6 +9,7 @@
 	import ListItemContainer from '../../form/listitemcontainer.svelte';
 	import FormRow from '../../form/row.svelte';
 	import FormGroup from '../../form/group.svelte';
+	import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 
 	export let advisors: AdvisorAgency[];
 	export let salutationTypes: SalutationType[];
@@ -38,7 +39,6 @@
 
 
 	const onEdit = (groupName: string) => {
-		
 		activeSection = groupName;
 		if (groupName.includes('advisor--')) {
 			const advisorIndex = parseInt(groupName.split('--')[1]);
@@ -108,6 +108,40 @@
 		}
 		activeLoading = false;
 	};
+	
+	const reSendInvitation = async (advisorIndex: number) => {
+		const name = mergeName(advisorNameData);
+		const advisorSelected = advisors[advisorIndex];
+		const data = {
+			name,
+			initials: advisorInputs[advisorIndex].initials || '',
+			email: advisorInputs[advisorIndex].email || '',
+			reference: advisorInputs[advisorIndex].reference || '',
+			active: advisorInputs[advisorIndex].active || false,
+			salutationType: advisorInputs[advisorIndex].salutationType || null
+		};
+		if (!validateEmail(data.email)) {
+			invalidAdvisorEmail.status = true;
+			setTimeout(() => {
+				invalidAdvisorEmail.status = false;
+			}, INVALID_DELAY_TIME);
+			return;
+		}
+		activeLoading = true;
+		const auth = getAuth();
+		sendPasswordResetEmail(auth, data.email)
+		.catch((error) => {
+			invalidAdvisorEmail = {
+				status: true,
+				message: error.message
+			};
+			setTimeout(() => {
+				invalidAdvisorEmail.status = false;
+			}, INVALID_DELAY_TIME);
+		});
+		activeLoading = false;
+		onCancel();
+	};
 </script>
 
 <FormRow label="" class={'mbottom-32'} contentClass={'mtop-d16 list-advisors'}>
@@ -116,6 +150,7 @@
 			<ListItemContainer
 				let:isEditing
 				reSend={true}
+				on:send={() => reSendInvitation(index)}
 				isEditing={activeSection === 'advisor--' + index}
 				on:edit={() => onEdit('advisor--' + index)}
 				on:cancel={onCancel}

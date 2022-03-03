@@ -75,10 +75,8 @@
 	import TripPlanWhere from './components/TripPlanWhere.svelte';
 	import Details from './components/Details.svelte';
 	import Documents from './components/Documents.svelte';
-	import { ENUM_IDENTIFICATION_TYPE } from '$lib/store/identification';
 	import EmergencyList from './components/EmergencyList.svelte';
 	import EmergencyInfo from './components/EmergencyInfo.svelte';
-	import AddtionalInfo from './components/AdditionalInfo.svelte';
 	import { ENUM_DOCUMENT_TYPE } from '$lib/store/document';
 	import type { Traveller } from '$lib/store/traveller';
 	import AdditionalInfo from './components/AdditionalInfo.svelte';
@@ -113,11 +111,12 @@
 	const setEditing = (sectionName: string) => () => {
 		activeSection = sectionName;
 	};
+	
 </script>
 
 <svelte:window bind:scrollY={y} />
 <OverlayLoading bind:activeLoading bind:label={loadingLabel} />
-<NavigationSection items={tripSections} class={navFixed} />
+<NavigationSection selectedItem={'Status'} items={tripSections} class={navFixed} />
 
 <div class="content">
 	<div class="title-content">
@@ -154,11 +153,12 @@
 			<Documents bind:trip type={ENUM_DOCUMENT_TYPE.other} />
 		{/if}
 	</FormSection>
+
 	<FormSection
 		title="Emergency"
 		id="emergency"
 		titleRightIcon={'Add Contact'}
-		rightIcon
+		rightIcon={trip ? true : false }
 		on:add={() => {
 			addContactFormOpen = true;
 		}}

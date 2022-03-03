@@ -1,14 +1,11 @@
 <script lang="ts">
-	import { formatDate } from '$lib/helpers/datetime';
 	import { convertTripToInput, Trip } from '$lib/store/trip';
 	import FormGroup from '$lib/components/form/group.svelte';
 	import FormRow from '$lib/components/form/row.svelte';
 	import ListItemContainer from '$lib/components/form/listitemcontainer.svelte';
 	import { Column, Grid, Row, Select, SelectItem, TextInput } from 'carbon-components-svelte';
-	import type { Traveller } from '$lib/store/traveller';
 	import { convertEmergencyToInput, Emergency, EmergencyInput, EmergencyTrip } from '$lib/store/emergency';
 	import { beforeUpdate, onDestroy } from 'svelte';
-	import { createInsuranceService, updateInsuranceService } from '$lib/services/insurance.service';
 	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 	import { updateTripService } from '$lib/services/trip.services';
 	import { createEmergencyService, updateEmergencyService } from '$lib/services/emergency.service';
@@ -94,6 +91,8 @@
                 window.openNotification({kind:'error',title: 'Error',subtitle: error.message});
             });
         }else{
+			if(!trip){
+			}
             await createEmergencyService(emergencyInput).then(async(output)=>{
 				const tripInput = convertTripToInput(trip);
 				tripInput.emergencies.push(output.id);

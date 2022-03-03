@@ -37,7 +37,10 @@
 					ENUM_TRIP_STATE.enquired,
 					ENUM_TRIP_STATE.planning,
 					ENUM_TRIP_STATE.progressing,
-					ENUM_TRIP_STATE.rejected
+					ENUM_TRIP_STATE.rejected,
+					ENUM_TRIP_STATE.confirmed,
+					ENUM_TRIP_STATE.travelling,
+					ENUM_TRIP_STATE.returned,
 				]
 			});
 			const resAdvisor = await fetch(`/trip.json?${queryStringAdvisor}`, {
@@ -120,6 +123,25 @@
 		}
 		return acc;
 	}, []);
+	let tripsConfirmed: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'confirmed') {
+			acc.push(item);
+		}
+		return acc;
+	}, []);
+	let tripsTravelling: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'travelling') {
+			acc.push(item);
+		}
+		return acc;
+	}, []);
+	let tripsReturned: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'returned') {
+			acc.push(item);
+		}
+		return acc;
+	}, []);
+	
 
 	let activeSection = '';
 	let loadingLabel = 'Saving ...';
@@ -136,10 +158,12 @@
 		{ id: '', text: 'Home', link: '/account' },
 		{ id: 'new-enquiry', text: 'New Enquiry' },
 		{ id: 'planning', text: 'Planning' },
-		{ id: 'active', text: 'Active' },
+		{ id: 'confirmed', text: 'Confirmed' },
+		{ id: 'travelling', text: 'Travelling' },
+		// { id: 'active', text: 'Active' },
 		{ id: 'registered', text: 'Registered' },
 		{ id: 'past', text: 'Past' },
-		{ id: 'rejected', text: 'Rejected' }
+		// { id: 'rejected', text: 'Rejected' },
 	];
 
 	let invalidDateVisited = {
@@ -151,11 +175,12 @@
 		navFixed = prevY > y ? 'nav-fixed' : '';
 		prevY = y;
 	});
+	
 </script>
 
 <svelte:window bind:scrollY={y} />
 <OverlayLoading bind:activeLoading bind:label={loadingLabel} />
-<NavigationSection items={travelersSections} class={navFixed} />
+<NavigationSection selectedItem={'New Enquiry'} items={travelersSections} class={navFixed} />
 
 <div class="content">
 	<div class="title-content">
@@ -181,7 +206,27 @@
 			<TravelersList bind:trips={tripsPlanning} />
 		</Accordion>
 	</div>
-	<div class="section" id="active">
+	<div class="section" id="confirmed">
+		<Accordion title="Confirmed" open={true} id="">
+			<TravelersList bind:trips={tripsConfirmed} />
+		</Accordion>
+	</div>
+	<div class="section" id="travelling">
+		<Accordion title="Travelling" open={true} id="">
+			<TravelersList bind:trips={tripsTravelling} />
+		</Accordion>
+	</div>
+	<div class="section" id="registered">
+		<Accordion title="Registered" open={true} id="">
+			<TravelersList bind:trips={tripsReturned} />
+		</Accordion>
+	</div>
+	<div class="section" id="past">
+		<Accordion title="Past" open={true} id="">
+			<TravelersList bind:trips={tripsPast} />
+		</Accordion>
+	</div>
+	<!-- <div class="section" id="active">
 		<Accordion title="Active" id="">
 			<TravelersList bind:trips={tripsActive} />
 		</Accordion>
@@ -200,7 +245,7 @@
 		<Accordion title="Rejected" id="">
 			<TravelersList bind:trips={tripsReject} />
 		</Accordion>
-	</div>
+	</div> -->
 
 	<div id="fake-height" />
 </div>

@@ -117,7 +117,7 @@
 	on:cancel={onCancel}
 	on:submit={() => updateProfile()}
 >
-	<FormRow label="Description" {isEditing}>
+	<FormRow label="Biography" {isEditing}>
 		<div slot="value">
 			<p class="advisor-profile">
 				{advisor?.description === null ? '' : advisor?.description}
@@ -126,7 +126,7 @@
 		<div slot="fields">
 			<TextArea
 				labelText="Max: 120 character"
-				placeholder="Enter your description"
+				placeholder="Enter your biography"
 				bind:value={profileInput.description}
 				maxlength={120}
 			/>

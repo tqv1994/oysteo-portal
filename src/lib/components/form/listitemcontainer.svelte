@@ -1,4 +1,7 @@
 <script lang="ts">
+import { validateEmail } from '$lib/helpers/utils';
+import type { AdvisorAgency } from '$lib/store/advisor';
+
 	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 	import { Button, Form, FormGroup, Link, Modal } from 'carbon-components-svelte';
 	import { RequestQuote16 } from 'carbon-icons-svelte';
@@ -32,10 +35,11 @@
 		dispatch('cancel');
 		formChangeStatusStore.set({ changing: false });
 	}
-
-	function onSend(){
-		
+	function onSend() {
+		dispatch('send');
+		formChangeStatusStore.set({ changing: false });
 	}
+	
 </script>
 
 <div class="group" style={customGroupStyle}>
@@ -48,9 +52,9 @@
 				<div class="group-buttons">
 					<Button class="btn-cancel" on:click={onCancel}>Cancel</Button>
 					<Button type="submit">Update</Button>
-					<!-- {#if reSend}
+					{#if reSend}
 						<Button class="re-send" on:click={onSend}>Re-send invitation</Button>
-					{/if} -->
+					{/if}
 				</div>
 			</Form>
 		</div>

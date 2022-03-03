@@ -37,7 +37,7 @@
 
 <svelte:window bind:scrollY={y} />
 <OverlayLoading bind:activeLoading bind:label={loadingLabel} />
-<NavigationSection items={messagesSections} class={navFixed} />
+<NavigationSection selectedItem={'Current Messages'} items={messagesSections} class={navFixed} />
 
 <div class="content">
 	<div class="title-content">

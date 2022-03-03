@@ -108,7 +108,7 @@
 
 <svelte:window bind:scrollY={y} />
 <OverlayLoading bind:activeLoading bind:label={loadingLabel} />
-<NavigationSection items={tripsSections} class={navFixed} />
+<NavigationSection selectedItem={'New Enquiry'} items={tripsSections} class={navFixed} />
 
 <div class="content">
 	<div class="title-content">
@@ -119,7 +119,10 @@
 	<div class="section" id="new_enquiry">
 		<Accordion title="New Enquiry" open={true} id="">
 			{#if tripsNewRequiry.length > 0}
-				<TripsList detailLinkPrefix="/account/trips/enquiry-" trips={tripsNewRequiry} />
+				<TripsList 
+					detailLinkPrefix="/account/trips/enquiry-" 
+					trips={tripsNewRequiry} 
+					/>
 			{/if}
 		</Accordion>
 	</div>

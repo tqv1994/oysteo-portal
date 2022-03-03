@@ -74,4 +74,51 @@
 			background-color: #fff;
         }
 	}
+
+	.desktop-profile{
+		display: none;
+	}
+
+	.mobile-profile{
+		.bx--row{
+			margin-bottom: 8px !important;
+		}
+		.custom-col{
+			margin-left: 15px;
+		}
+	}
+	
+	.mobile-icon{
+		svg{
+			margin-left: 10px;
+			background-color: #707070;
+			fill: #fff;
+		}
+	}
+	.desktop-message{
+		display: none;
+	}
+	.mobile-message{
+		.bx--link{
+			color: black;
+		}
+		span{
+			transform: translateX(38px) translateY(18px);
+			padding: 5px;
+			background: white;
+			border-radius: 20px;
+			height: 50%;
+			font-size: 10px;
+		}
+	}
+	.list-advisors{
+		margin-left: 0 !important;
+	}
+
+	// #main-content > .content {
+	// 	max-width: 58%;
+	// 	margin: 0 auto;
+	// 	margin-top: 1rem;
+	// }
 }
+

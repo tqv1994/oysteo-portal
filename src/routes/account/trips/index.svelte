@@ -26,6 +26,7 @@
 			if (res.ok) {
 				const data = await res.json();
 				let trips: Trip[] = data;
+				
 				return {
 					props: {
 						user: user,
@@ -41,6 +42,7 @@
 		}
 		return { props: {} };
 	};
+	
 </script>
 
 <script lang="ts">
@@ -56,18 +58,42 @@
 		}
 		return acc;
 	}, []);
-	let tripsActive: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
-		if (item.state === 'progressing') {
+	let tripsConfirmed: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'confirmed') {
 			acc.push(item);
 		}
 		return acc;
 	}, []);
-	let tripsPast: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
-		if (item.state === 'completed') {
+	let tripsTravelling: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'travelling') {
 			acc.push(item);
 		}
 		return acc;
 	}, []);
+	let tripsReturned: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'returned') {
+			acc.push(item);
+		}
+		return acc;
+	}, []);
+	let tripsCanceled: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+		if (item.state === 'canceled') {
+			acc.push(item);
+		}
+		return acc;
+	}, []);
+	// let tripsActive: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+	// 	if (item.state === 'progressing') {
+	// 		acc.push(item);
+	// 	}
+	// 	return acc;
+	// }, []);
+	// let tripsPast: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+	// 	if (item.state === 'completed') {
+	// 		acc.push(item);
+	// 	}
+	// 	return acc;
+	// }, []);
 
 	let activeSection = '';
 	let loadingLabel = 'Saving ...';
@@ -83,8 +109,12 @@
 	const tripsSections = [
 		{ id: '', text: 'Home', link: '/account' },
 		{ id: 'planning', text: 'Planning' },
-		{ id: 'active', text: 'Active' },
-		{ id: 'past', text: 'Past' }
+		{ id: 'confirmed', text: 'Confirmed' },
+		{ id: 'travelling', text: 'Travelling' },
+		{ id: 'returned', text: 'Returned' },
+		{ id: 'canceled', text: 'Canceled' },
+		// { id: 'active', text: 'Active' },
+		// { id: 'past', text: 'Past' }
 	];
 
 	let invalidDateVisited = {
@@ -100,7 +130,7 @@
 
 <svelte:window bind:scrollY={y} />
 <OverlayLoading bind:activeLoading bind:label={loadingLabel} />
-<NavigationSection items={tripsSections} class={navFixed} />
+<NavigationSection selectedItem={'Planning'} items={tripsSections} class={navFixed} />
 
 <div class="content">
 	<div class="title-content">
@@ -123,7 +153,27 @@
 			<TripsList trips={tripsPlanning} />
 		</Accordion>
 	</div>
-	<div class="section" id="active">
+	<div class="section" id="confirmed">
+		<Accordion title="Confirmed" open={true} id="">
+			<TripsList trips={tripsConfirmed} />
+		</Accordion>
+	</div>
+	<div class="section" id="travelling">
+		<Accordion title="Travelling" open={true} id="">
+			<TripsList trips={tripsTravelling} />
+		</Accordion>
+	</div>
+	<div class="section" id="returned">
+		<Accordion title="Returned" open={true} id="">
+			<TripsList trips={tripsReturned} />
+		</Accordion>
+	</div>
+	<div class="section" id="canceled">
+		<Accordion title="Canceled" open={true} id="">
+			<TripsList trips={tripsCanceled} />
+		</Accordion>
+	</div>
+	<!-- <div class="section" id="active">
 		<Accordion title="Active" id="">
 			<TripsList trips={tripsActive} />
 		</Accordion>
@@ -132,6 +182,6 @@
 		<Accordion title="Past" id="">
 			<TripsList trips={tripsPast} />
 		</Accordion>
-	</div>
+	</div> -->
 	<div id="fake-height" />
 </div>

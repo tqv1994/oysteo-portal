@@ -160,11 +160,13 @@ import { goto } from '$app/navigation';
 	<FormRow label="Status" {isEditing}>
 		<div slot="fields">
 			<Select bind:selected={tripInput.state}>
+				{#if !trip || trip.state == 'enquired' || trip.state == 'new_enquiry'}
 				<SelectItem value={ENUM_TRIP_STATE.new_enquiry} text={ENUM_TRIP_STATE_LABEL.new_enquiry} />
 				<SelectItem value={ENUM_TRIP_STATE.enquired} text={ENUM_TRIP_STATE_LABEL.enquired} />
+				{/if}
 				<SelectItem value={ENUM_TRIP_STATE.planning} text={ENUM_TRIP_STATE_LABEL.planning} />
-				<SelectItem value={ENUM_TRIP_STATE.progressing} text={ENUM_TRIP_STATE_LABEL.progressing} />
-				<SelectItem value={ENUM_TRIP_STATE.completed} text={ENUM_TRIP_STATE_LABEL.completed} />
+				<SelectItem value={ENUM_TRIP_STATE.confirmed} text={ENUM_TRIP_STATE_LABEL.confirmed} />
+				<SelectItem value={ENUM_TRIP_STATE.canceled} text={ENUM_TRIP_STATE_LABEL.canceled} />
 			</Select>
 		</div>
 	</FormRow>

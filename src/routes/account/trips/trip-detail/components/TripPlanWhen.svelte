@@ -52,12 +52,14 @@
 		window.openLoading(false);
 		activeSection = '';
 	};
+	
 	if(!trip){
 		activeSection = 'trip-plan-when';
 		tripInput = new TRipInput();
 	}else{
 		tripInput = convertTripToInput(trip);
 	}
+	
 </script>
 
 <FormGroup
@@ -76,8 +78,11 @@
 			<DatePicker
 				on:change={(e) => {
 					tripInput.depart_at = e.detail?.dateStr || '';
+					if(tripInput.return_at < tripInput.depart_at){
+						tripInput.return_at = e.detail?.dateStr || '';
+					}
 				}}
-				value={formatOutputDatePicker(tripInput.depart_at)}
+				value={formatOutputDatePicker(trip?.depart_at)}
 				datePickerType="single"
 			>
 				<DatePickerInput placeholder="mm/dd/yyyy" />
@@ -92,8 +97,11 @@
 			<DatePicker
 				on:change={(e) => {
 					tripInput.return_at = e.detail?.dateStr || '';
+					if(tripInput.return_at < tripInput.depart_at){
+						tripInput.depart_at = e.detail?.dateStr || '';
+					}
 				}}
-				value={formatOutputDatePicker(tripInput.return_at)}
+				value={formatOutputDatePicker(trip?.return_at)}
 				datePickerType="single"
 			>
 				<DatePickerInput placeholder="mm/dd/yyyy" />

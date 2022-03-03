@@ -1,7 +1,8 @@
 @media (min-width: $break_point) {
 	#main-content > .content {
+		margin-left: 385px;
 		max-width: 65%;
-		margin: 0 auto;
+		// margin: 0 auto;
 		margin-top: 1rem;
 	}
 
@@ -103,5 +104,20 @@
 
 	.mobile-table{
 		display: none;
+	}
+
+	.mobile-profile{
+		display: none;
+	}
+
+	.mobile-message{
+		display: none;
+	}
+}
+@media (max-width: 1440px) and (min-width:$break_point+1){
+	#main-content > .content {
+		margin-left: 320px;
+		max-width: 65%;
+		margin-top: 1rem;
 	}
 }

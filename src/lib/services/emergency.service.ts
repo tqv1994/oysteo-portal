@@ -32,6 +32,7 @@ export const createEmergencyService = async (input: EmergencyInput): Promise<Eme
             ...input
             }),
         });
+        console.log(res);
         
         if(res.ok){
             const data: Emergency = await res.json();

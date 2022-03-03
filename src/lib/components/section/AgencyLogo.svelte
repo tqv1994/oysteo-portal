@@ -100,7 +100,7 @@
 				<Grid fullWidth>
 					<Row>
 						<Column>
-							<ImageLoader src={imageUrlPrefix + agency.logo?.url} />
+							<ImageLoader src={imageUrlPrefix + agency.logo?.url} class="custom-logo-image"/>
 						</Column>
 					</Row>
 				</Grid>
@@ -110,7 +110,7 @@
 			<Grid fullWidth class="d-pleft-16 pright-8">
 				<Row>
 					<Column>
-						<ImageLoader src={imageUrlPrefix + agency.logo?.url} class="mbottom-8" />
+						<ImageLoader src={imageUrlPrefix + agency.logo?.url} class="mbottom-8"/>
 					</Column>
 				</Row>
 			</Grid>

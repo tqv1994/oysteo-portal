@@ -138,7 +138,12 @@ export enum ENUM_TRIP_STATE {
 	planning = 'planning',
 	progressing = 'progressing',
 	completed = 'completed',
-    rejected = 'rejected'
+    rejected = 'rejected',
+    confirmed = 'confirmed',
+    travelling = 'travelling', 
+    returned = 'returned',
+    canceled = 'canceled',
+
 }
 
 export const ENUM_TRIP_STATE_LABEL = {
@@ -147,7 +152,11 @@ export const ENUM_TRIP_STATE_LABEL = {
 	planning: 'Planning',
 	progressing: 'Progressing',
 	completed: 'Completed',
-    rejected: 'Rejected'
+    rejected: 'Rejected',
+    confirmed: 'Confirmed',
+    travelling: 'Travelling', 
+    returned: 'Returned',
+    canceled: 'Canceled',
 };
 
 export const getDatesTrip = (trip: Trip): string => {
