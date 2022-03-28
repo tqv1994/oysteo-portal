@@ -1,5 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 /**
  * @type {import('@sveltejs/kit').Put}
@@ -30,7 +30,7 @@ export const put: RequestHandler = async (event) => {
               }
             }
           }
-        }	  
+        }
       `;
 		const reqBody = await event.request.json();
 		const res = await client
@@ -49,7 +49,7 @@ export const put: RequestHandler = async (event) => {
 		console.error('Error updating destination', error);
 	}
 
-	return makeErrorResponse(
+	return makeEmptyResponse(
 		500,
 		'INTERNAL_SERVER_ERROR',
 		'Error retrieving data for the destination'

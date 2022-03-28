@@ -1,14 +1,16 @@
+@use '../font';
+
 @media (min-width: $break_point) {
 	.container {
 		display: flex;
 	}
 
 	.overview-container {
-		border: 0.2rem solid white;
+		border: 0.2rem solid $oysteo-white;
 	}
 
 	.overview-wrapper {
-		padding: 7rem 5rem;
+		padding: 6rem 5rem;
 		flex-basis: 50%;
 
 		.section-logo {
@@ -40,35 +42,8 @@
 	}
 
 	.register-wrapper {
-		padding: 6.5rem 8rem;
+		padding: 4rem 8rem;
 		flex-basis: 50%;
-	}
-
-	.login-wrapper,
-	.register-wrapper {
-		input {
-			padding-bottom: 1rem;
-			font-size: 1.25rem;
-		}
-	}
-
-	.login-wrapper,
-	.overview-wrapper {
-		.section-logo svg {
-			width: 19rem;
-			height: 7rem;
-		}
-
-		h1 {
-			font-size: 2rem;
-		}
-	}
-
-	.login-wrapper {
-		justify-content: flex-end;
-		.section-login {
-			flex-basis: 50%;
-		}
 	}
 
 	.section-redirect {
@@ -78,7 +53,7 @@
 		margin-left: 1rem;
 		gap: 1rem;
 		p {
-			color: black;
+			color: $oysteo-black;
 			font-size: 1.25rem;
 		}
 		a {
@@ -104,7 +79,8 @@
 
 	.section-contact,
 	.section-resetpw {
-		justify-content: center;
+		padding-top: 30px;
+		justify-content: left;
 		align-items: flex-start;
 		gap: 1rem;
 		p,
@@ -118,18 +94,15 @@
 		justify-content: flex-start;
 	}
 
+	.radio-group,
 	a[href='#register-wrapper'] {
-		display: none;
-	}
-
-	.radio-group {
 		display: none;
 	}
 
 	.radio-group-desktop {
 		legend {
 			font-size: 1.25rem;
-			color: white;
+			color: $oysteo-white;
 			text-align: center;
 			margin-bottom: 2rem;
 		}
@@ -142,9 +115,12 @@
 		}
 
 		.both-radio-button {
-			float: right;
-			margin-right: 2rem;
-			margin-top: 0rem;
+			// float: right;
+			// margin-right: 2rem;
+			// margin-top: 0rem;
+			margin: 0;
+			justify-content: center;
+			display: flex;
 			font-size: 0.6rem;
 		}
 
@@ -155,13 +131,33 @@
 
 	.bx--radio-button:checked + .bx--radio-button__label .bx--radio-button__appearance,
 	.bx--radio-button__appearance {
-		border: 1px solid white;
+		border: 1px solid $oysteo-white;
 		&:before {
-			background-color: white;
+			background-color: $oysteo-white;
 		}
 	}
 
-	.bx--radio-button-wrapper .bx--radio-button__label {
-		align-items: center;
+	.bx--radio-button-wrapper {
+		margin: 0 auto;
+		.bx--radio-button__label {
+			align-items: center;
+		}
+	}
+	.section-resetpw {
+		a,
+		p {
+			font-family: Surt;
+			font-size: 14px !important;
+		}
+	}
+
+	.bx--password-input-wrapper {
+		margin: 0;
+	}
+
+	.section-login--messenge {
+		p {
+			margin-bottom: 0.75rem;
+		}
 	}
 }

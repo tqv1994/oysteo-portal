@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { Accordion, AccordionItem } from 'carbon-components-svelte';
-	export let title: string = '';
-    export let open: boolean = false;
-    export let id: string;
+	export let title = '';
+	export let open = false;
+	export let id: string;
 </script>
 
-<div class="accordion" id={id}>
+<div class="accordion" {id}>
 	<Accordion>
 		<AccordionItem bind:open>
 			<div slot="title">
@@ -20,7 +20,7 @@
 
 <style lang="scss">
 	.accordion {
-        margin-bottom: 1rem;
+		margin-bottom: 1rem;
 		background-color: #fff;
 		:global(.bx--accordion__item:last-child) {
 			border-top: none;

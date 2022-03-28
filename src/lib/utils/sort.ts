@@ -1,3 +1,4 @@
+import type { Country } from '$lib/store/country';
 import type { Nameable, Publishable } from '$lib/store/types';
 
 export function sortByName<T extends Nameable>(items: T[]): T[] {
@@ -15,4 +16,20 @@ export function sortByPublishedAt<T extends Publishable>(items: T[]): T[] {
 	return items.sort(
 		(a, b) => new Date(a.published_at).getTime() - new Date(b.published_at).getTime()
 	);
+}
+
+export function sortByOrder<T extends Country>(items: T[]): T[] {
+	return items.sort((a, b) => {
+		if (a.order === null) {
+			return 1;
+		}
+		else if (b.order === null) {
+			return -1;
+		} else if (a.order > b.order) {
+			return 1;
+		} else if (a.order < b.order) {
+			return -1;
+		} else 
+		return 0;
+	});
 }

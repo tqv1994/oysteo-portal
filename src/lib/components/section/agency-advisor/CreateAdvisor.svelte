@@ -1,8 +1,12 @@
 <script lang="ts">
-	import { mergeName, validateEmail } from '$lib/helpers/utils';
+	import { notify } from '$lib/components/Toast.svelte';
+
+	import { mergeName, isValidEmail } from '$lib/helpers/utils';
 
 	import type { Advisor, AdvisorAgency } from '$lib/store/advisor';
-	import type { SalutationType } from '$lib/store/salutationType';
+	import { authStore } from '$lib/store/auth';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
+	import { SalutationType, salutationTypeStore } from '$lib/store/salutationType';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import { Checkbox, Select, SelectItem, TextInput } from 'carbon-components-svelte';
 	import { getAuth, inMemoryPersistence, sendPasswordResetEmail } from 'firebase/auth';
@@ -12,11 +16,12 @@
 
 	export let agencyId: string;
 	export let advisors: AdvisorAgency[];
-	export let salutationTypes: SalutationType[];
-	export let activeSection: string = '';
-	export let activeLoading: boolean;
-	let firstName: string = '';
-	let lastName: string = '';
+	export let activeSection = '';
+
+	const salutationTypes = Object.values($salutationTypeStore.items);
+
+	let firstName = '';
+	let lastName = '';
 
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
@@ -27,7 +32,7 @@
 		resetAdvisorData();
 	};
 
-	const resetAdvisorData = () =>{
+	const resetAdvisorData = () => {
 		createAdvisorData = {
 			salutationType: salutationTypes[0]?.id || '',
 			name: '',
@@ -36,9 +41,9 @@
 			reference: '',
 			active: false
 		};
-		firstName = "";
-		lastName = "";
-	}
+		firstName = '';
+		lastName = '';
+	};
 
 	let createAdvisorData = {
 		salutationType: '',
@@ -49,6 +54,22 @@
 		active: false
 	};
 	resetAdvisorData();
+
+	type FormError = {
+		email?: string;
+		firstName?: string;
+		lastName?: string;
+	};
+
+	let formErrors: FormError;
+
+	function showErrors(errors: FormError) {
+		formErrors = errors;
+		setTimeout(() => {
+			formErrors = undefined;
+		}, INVALID_DELAY_TIME);
+	}
+
 	let invalidAdvisorEmail = {
 		status: false,
 		message: 'Invalid email'
@@ -62,33 +83,25 @@
 		message: 'Lastname is required'
 	};
 	const createAdvisor = async () => {
-		if (!validateEmail(createAdvisorData.email)) {
-			invalidAdvisorEmail.status = true;
-			setTimeout(() => {
-				invalidAdvisorEmail.status = false;
-			}, INVALID_DELAY_TIME);
-			return;
+		const errors: FormError = {};
+		if (!isValidEmail(createAdvisorData.email)) {
+			errors.email = 'Email address is invalid';
 		}
 		if (firstName == '') {
-			invalidAdvisorFirstName.status = true;
-			setTimeout(() => {
-				invalidAdvisorFirstName.status = false;
-			}, INVALID_DELAY_TIME);
-			return;
+			errors.firstName = 'First name is required';
 		}
 		if (lastName == '') {
-			invalidAdvisorLastName.status = true;
-			setTimeout(() => {
-				invalidAdvisorLastName.status = false;
-			}, INVALID_DELAY_TIME);
+			errors.lastName = 'Last name is required';
+		}
+		if (Object.keys(errors).length) {
+			showErrors(errors);
 			return;
 		}
-
 		createAdvisorData.name = firstName + ' ' + lastName;
 
-		activeLoading = true;
+		isFormSavingStore.set({ saving: true });
 		try {
-			const res = await fetch('/agency/advisors/create.json', {
+			const res = await fetch('/account/agency/advisors/create.json', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -98,20 +111,25 @@
 					salutationType: createAdvisorData.salutationType || null
 				})
 			});
-			
+
 			if (res.ok) {
 				const data: AdvisorAgency = await res.json();
+				advisors = advisors || [];
 				advisors.push(data);
+				if ($authStore.user.agencyMe) {
+					$authStore.user.agencyMe.advisors = advisors;
+				}
+				authStore.set({ user: $authStore.user });
 				const auth = getAuth();
 				onCancel();
 			} else {
 				let error = await res.json();
-				window.openNotification({ kind: 'error', title: 'Error', subtitle: error.message });
+				notify({ kind: 'error', title: 'Error', subtitle: error.message });
 			}
 		} catch (error) {
-			window.openNotification({ kind: 'error', title: 'Error', subtitle: error.message });
+			notify({ kind: 'error', title: 'Error', subtitle: error.message });
 		}
-		activeLoading = false;
+		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
@@ -135,11 +153,12 @@
 				{/each}
 			</Select>
 			<TextInput
+				autofocus
 				labelText="First name"
-				placeholder="Enter advisor firstname"
+				placeholder="Enter advisor first name"
 				bind:value={firstName}
-				invalid={invalidAdvisorFirstName.status}
-				invalidText={invalidAdvisorFirstName.message}
+				invalid={!!formErrors?.firstName}
+				invalidText={formErrors?.firstName}
 			/>
 			<TextInput
 				labelText="Middle Initial (optional)"
@@ -149,18 +168,18 @@
 			/>
 			<TextInput
 				labelText="Last name"
-				placeholder="Enter advisor lastname"
+				placeholder="Enter advisor last name"
 				bind:value={lastName}
-				invalid={invalidAdvisorLastName.status}
-				invalidText={invalidAdvisorLastName.message}
+				invalid={!!formErrors?.lastName}
+				invalidText={formErrors?.lastName}
 			/>
 
 			<TextInput
 				labelText="Email Address"
 				placeholder="Enter advisor email"
 				bind:value={createAdvisorData.email}
-				invalid={invalidAdvisorEmail.status}
-				invalidText={invalidAdvisorEmail.message}
+				invalid={!!formErrors?.email}
+				invalidText={formErrors?.email}
 			/>
 			<TextInput
 				labelText="Agency Reference"

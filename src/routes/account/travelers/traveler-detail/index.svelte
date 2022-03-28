@@ -1,8 +1,6 @@
 <script lang="ts" context="module">
-	import 'carbon-components-svelte/css/all.css';
 	import DesktopNavigationSection from '$lib/components/navigation/desktop_nav_section.svelte';
 	import NavigationSection from '$lib/components/navigation/modal.svelte';
-	import '$lib/utils/firebase';
 	import type { Load } from '@sveltejs/kit';
 	import { afterUpdate } from 'svelte';
 	import OverlayLoading from '$lib/components/form/loading.svelte';
@@ -19,7 +17,7 @@
 			let metadata: Metadata = session.metadata;
 			let traveller: Traveller;
 			let userTraveller: User;
-			let isMyTraveller: boolean = false;
+			let isMyTraveller = false;
 			let trips: Trip[];
 			const res = await fetch(`/traveller/${url.searchParams.get('id')}.json`);
 			if (res.ok) {
@@ -35,7 +33,11 @@
 				console.error(error);
 			}
 
-			const resTrips = await fetch(`/trip.json?lead_traveller=${url.searchParams.get('id')}&state=${ENUM_TRIP_STATE.new_enquiry}`);
+			const resTrips = await fetch(
+				`/trip.json?lead_traveller=${url.searchParams.get('id')}&state=${
+					ENUM_TRIP_STATE.new_enquiry
+				}`
+			);
 			if (resTrips.ok) {
 				const data: Trip[] = await resTrips.json();
 				trips = data;
@@ -148,7 +150,7 @@
 		<DesktopNavigationSection items={travelersSections} className={'travelers-screen'} />
 	</div>
 	{#if traveller}
-	<div class="section" id="home"></div>
+		<div class="section" id="home" />
 		<FormSection
 			title="Profile"
 			id="profile"
@@ -160,7 +162,7 @@
 		>
 			<Profile bind:traveller />
 		</FormSection>
-		
+
 		<FormSection title="Preferences" id="preferences">
 			<Preferences bind:traveller />
 		</FormSection>

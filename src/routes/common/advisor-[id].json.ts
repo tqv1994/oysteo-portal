@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import type { Advisor } from '$lib/store/advisor';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { Advisor, advisorFieldsFragment } from '$lib/store/advisor';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import {
 	affiliatteAgencyFieldsFragment,
@@ -9,6 +9,11 @@ import {
 } from '$lib/store/affiliate';
 import { experienceFieldsFragment } from '$lib/store/experience';
 import { experienceTypeFieldsFragment } from '$lib/store/experienceType';
+import { destinationFieldsFragment } from '$lib/store/destination';
+import { countryFieldsFragment } from '$lib/store/country';
+import { languageFieldsFragment } from '$lib/store/language';
+import { addressFieldsFragment } from '$lib/store/address';
+import { uploadFileFieldsFragment } from '$lib/store/media';
 /**
  * @type {import('@sveltejs/kit').Put}
  */
@@ -23,42 +28,21 @@ export const put: RequestHandler = async (event) => {
 			}) 
 			{
 				advisor {
-					id
-					affiliate_agencies{
-						...affiliateAgencyFields
-					}
-					affiliate_networks{
-						...affiliateNetworkFields
-					}
-					affiliate_benefit_programs{
-						...affiliateBenefitProgramFields
-					}
-					experiences{
-						...experienceFields
-					}
-					experienceTypes1{
-						...experienceTypeFields
-					}
-					experienceTypes2{
-						...experienceTypeFields
-					}
-					experienceTypes3{
-						...experienceTypeFields
-					}
-					experienceTypes4{
-						...experienceTypeFields
-					}
-					experienceTypes5{
-						...experienceTypeFields
-					}
+					...advisorFields
 				}
 			}
 		  }	  
-		  ${affiliatteNetworkFieldsFragment}
-		  ${affiliatteAgencyFieldsFragment}
-		  ${affiliatteBenefitProgramFieldsFragment}
-		  ${experienceFieldsFragment}
-		  ${experienceTypeFieldsFragment}
+		${advisorFieldsFragment}
+		${destinationFieldsFragment}
+		${experienceFieldsFragment}
+		${experienceTypeFieldsFragment}
+		${countryFieldsFragment}
+		${languageFieldsFragment}
+		${affiliatteAgencyFieldsFragment}
+		${affiliatteNetworkFieldsFragment}
+		${affiliatteBenefitProgramFieldsFragment}
+		${addressFieldsFragment}
+		${uploadFileFieldsFragment}
 		`;
 		const reqBody = await event.request.json();
 		const res = await client
@@ -74,5 +58,5 @@ export const put: RequestHandler = async (event) => {
 		console.error('Error updating advisor', error);
 	}
 
-	return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Error retrieving data for the advisor');
+	return makeEmptyResponse(500);
 };

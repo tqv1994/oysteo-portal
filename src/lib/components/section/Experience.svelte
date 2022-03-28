@@ -1,7 +1,9 @@
 <script lang="ts">
 	import type { Advisor } from '$lib/store/advisor';
 	import type { Experience } from '$lib/store/experience';
-	import type { ExperienceType } from '$lib/store/experienceType';
+	import { ExperienceType, experienceTypeStore } from '$lib/store/experienceType';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
+import { sortByName } from '$lib/utils/sort';
 	import { Link, Select, SelectItem, UnorderedList } from 'carbon-components-svelte';
 	import { CloseOutline20 } from 'carbon-icons-svelte';
 	import { onDestroy } from 'svelte';
@@ -11,15 +13,14 @@
 	export let type: string;
 	export let advisorId: string;
 	// export let experiences: Experience[];
-	export let experienceList: Experience[];
-	export let experienceTypeList: ExperienceType[];
-	export let activeSection: string = '';
-	export let activeLoading: boolean = false;
+	export let activeSection = '';
 	export let experienceTypes1: ExperienceType;
 	export let experienceTypes2: ExperienceType;
 	export let experienceTypes3: ExperienceType;
 	export let experienceTypes4: ExperienceType;
 	export let experienceTypes5: ExperienceType;
+
+	const experienceTypeList = sortByName(Object.values($experienceTypeStore.items));
 	// let experienceInput: Expeience[]
 	let experienceType1Input: ExperienceType;
 	let experienceType2Input: ExperienceType;
@@ -30,7 +31,7 @@
 	const resetExperienceInput = () => {
 		// experienceTypeInput = '';
 	};
-	
+
 	resetExperienceInput();
 	onDestroy(() => {
 		resetExperienceInput();
@@ -38,14 +39,13 @@
 
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
-		
+
 		experienceType1Input = experienceTypes1;
 		experienceType2Input = experienceTypes2;
 		experienceType3Input = experienceTypes3;
 		experienceType4Input = experienceTypes4;
 		experienceType5Input = experienceTypes5;
 		// experienceInput = [...experiences];
-		
 	};
 	const onCancel = () => {
 		activeSection = '';
@@ -57,13 +57,13 @@
 			let experienceType3IdSelected: string;
 			let experienceType4IdSelected: string;
 			let experienceType5IdSelected: string;
-			
-			experienceType1IdSelected = experienceType1Input?.id;
-			experienceType2IdSelected = experienceType2Input?.id;
-			experienceType3IdSelected = experienceType3Input?.id;
-			experienceType4IdSelected = experienceType4Input?.id;
-			experienceType5IdSelected = experienceType5Input?.id;
-			
+
+			experienceType1IdSelected = experienceType1Input?.id || null;
+			experienceType2IdSelected = experienceType2Input?.id || null;
+			experienceType3IdSelected = experienceType3Input?.id || null;
+			experienceType4IdSelected = experienceType4Input?.id || null;
+			experienceType5IdSelected = experienceType5Input?.id || null;
+
 			const data = {
 				experienceTypes1: experienceType1IdSelected,
 				experienceTypes2: experienceType2IdSelected,
@@ -71,8 +71,8 @@
 				experienceTypes4: experienceType4IdSelected,
 				experienceTypes5: experienceType5IdSelected
 			};
-			
-			activeLoading = true;
+
+			isFormSavingStore.set({ saving: true });
 
 			const res = await fetch(`/common/${type}-${advisorId}.json`, {
 				method: 'PUT',
@@ -81,7 +81,7 @@
 				},
 				body: JSON.stringify({ ...data })
 			});
-			
+
 			if (res.ok) {
 				const data = await res.json();
 				experienceTypes1 = data.updateAdvisor.advisor.experienceTypes1;
@@ -93,9 +93,8 @@
 				onCancel();
 			}
 		} catch (error) {}
-		activeLoading = false;
+		isFormSavingStore.set({ saving: false });
 	};
-	
 </script>
 
 <FormGroup
@@ -133,15 +132,17 @@
 					const expSelected = experienceTypeList.filter((ele) => ele.id.toString() == e.detail);
 					if (expSelected.length > 0) {
 						experienceType1Input = expSelected[0];
+					} else {
+						experienceType1Input = null;
 					}
 				}}
 			>
-				<SelectItem text="Choose" value="" />
+				<SelectItem text="Choose" value="0" />
 				{#each experienceTypeList as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
 			</Select>
-			
+
 			<Select
 				labelText="Experience type"
 				hideLabel
@@ -151,10 +152,12 @@
 					const expSelected = experienceTypeList.filter((ele) => ele.id.toString() == e.detail);
 					if (expSelected.length > 0) {
 						experienceType2Input = expSelected[0];
+					} else {
+						experienceType2Input = null;
 					}
 				}}
 			>
-				<SelectItem text="Choose" value="" />
+				<SelectItem text="Choose" value="0" />
 				{#each experienceTypeList as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
@@ -168,10 +171,12 @@
 					const expSelected = experienceTypeList.filter((ele) => ele.id.toString() == e.detail);
 					if (expSelected.length > 0) {
 						experienceType3Input = expSelected[0];
+					} else {
+						experienceType3Input = null;
 					}
 				}}
 			>
-				<SelectItem text="Choose" value="" />
+				<SelectItem text="Choose" value="0" />
 				{#each experienceTypeList as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
@@ -185,10 +190,12 @@
 					const expSelected = experienceTypeList.filter((ele) => ele.id.toString() == e.detail);
 					if (expSelected.length > 0) {
 						experienceType4Input = expSelected[0];
+					} else {
+						experienceType4Input = null;
 					}
 				}}
 			>
-				<SelectItem text="Choose" value="" />
+				<SelectItem text="Choose" value="0" />
 				{#each experienceTypeList as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
@@ -202,10 +209,12 @@
 					const expSelected = experienceTypeList.filter((ele) => ele.id.toString() == e.detail);
 					if (expSelected.length > 0) {
 						experienceType5Input = expSelected[0];
+					} else {
+						experienceType5Input = null;
 					}
 				}}
 			>
-				<SelectItem text="Choose" value="" />
+				<SelectItem text="Choose" value="0" />
 				{#each experienceTypeList as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}

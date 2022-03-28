@@ -3,7 +3,7 @@ const { PhoneNumberUtil } = pkg;
 const phoneUtil = PhoneNumberUtil.getInstance();
 
 export function convert2InternationalPhone(phoneNumber: string, countryCode: string) {
-	if (phoneNumber == null || phoneNumber == '' || countryCode == null || countryCode == '') {
+	if (phoneNumber == 'null' || phoneNumber == null || phoneNumber == '' || countryCode == null || countryCode == '') {
 		return '';
 	}
 	phoneNumber = convert2NationalPhone(phoneNumber, countryCode);
@@ -12,7 +12,7 @@ export function convert2InternationalPhone(phoneNumber: string, countryCode: str
 }
 
 export function convert2NationalPhone(phoneNumber: string, countryCode: string) {
-	if (phoneNumber == null || phoneNumber == '' || countryCode == null || countryCode == '') {
+	if (phoneNumber == 'null' || phoneNumber == null || phoneNumber == '' || countryCode == null || countryCode == '') {
 		return '';
 	}
 	const number = phoneUtil.parse(phoneNumber.toString(), countryCode);
@@ -20,7 +20,7 @@ export function convert2NationalPhone(phoneNumber: string, countryCode: string) 
 }
 
 export function isValidPhoneNumber(phoneNumber: string, countryCode: string) {
-	if (phoneNumber == null || phoneNumber == '' || countryCode == null || countryCode == '') {
+	if (phoneNumber == 'null' || phoneNumber == null || phoneNumber == '' || countryCode == null || countryCode == '') {
 		return true;
 	}
 	const number = phoneUtil.parseAndKeepRawInput(phoneNumber.toString(), countryCode);

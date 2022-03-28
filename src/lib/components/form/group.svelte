@@ -1,9 +1,13 @@
 <script lang="ts">
-import { formChangeStatusStore } from '$lib/store/formChangeStatus';
+	import { focusInput } from '$lib/helpers/scripts';
 
-	import { Button, Form, FormGroup, Link } from 'carbon-components-svelte';
+	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
+
+	import { Button, Form, FormGroup, InlineLoading, Link } from 'carbon-components-svelte';
 	import { RequestQuote16 } from 'carbon-icons-svelte';
 	import { createEventDispatcher } from 'svelte';
+	import { openWarningSaveForm } from '$lib/components/form/PopupWarningSaveForm.svelte';
 
 	export let isEditing = false;
 	export let groupName = '';
@@ -21,24 +25,35 @@ import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 			dispatch('edit');
 			setTimeout(() => {
 				const form = document.querySelector('form');
+				focusInput(form);
 				form.addEventListener('input', function () {
 					formChangeStatusStore.set({ changing: true });
 				});
 			}, 0);
 		} else {
-			window.openWarningSaveForm({handleConfirm: onEdit});
+			openWarningSaveForm({ handleConfirm: onEdit });
 		}
 	}
 
 	function onSubmit() {
 		dispatch('submit');
-		formChangeStatusStore.set({changing: false});
+		formChangeStatusStore.update((s) => {
+			s.changing = false;
+			return s;
+		});
 	}
 
 	function onCancel() {
 		dispatch('cancel');
-		formChangeStatusStore.set({changing: false});
+		formChangeStatusStore.update((s) => {
+			s.changing = false;
+			return s;
+		});
 	}
+
+	// function openWarningSaveForm(arg0: { handleConfirm: () => void }) {
+	// 	throw new Error('Function not implemented.');
+	// }
 </script>
 
 <div class={groupClass + (isEditing ? ' group-border' : '')}>
@@ -47,15 +62,24 @@ import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 			<Form on:submit={onSubmit}>
 				<FormGroup>
 					<slot {isEditing} />
+					{#if $isFormSavingStore.saving}
+						<div class="saving-modal" />
+					{/if}
 				</FormGroup>
 				<div class="group-buttons">
-					<Button class="btn-cancel" on:click={onCancel}>Cancel</Button>
-					{#if isPhotoGroup}
-						<Button class="btn-remove" type="submit" disabled={disabledRemoveButton}>Remove</Button>
-					{:else if groupClass.includes('group-add')}
-						<Button type="submit">Add</Button>
+					{#if $isFormSavingStore.saving}
+						<InlineLoading status="active" description="Saving..." />
 					{:else}
-						<Button type="submit">Update</Button>
+						<Button class="btn-cancel" on:click={onCancel}>Cancel</Button>
+						{#if isPhotoGroup}
+							<Button class="btn-remove" type="submit" disabled={disabledRemoveButton}
+								>Remove</Button
+							>
+						{:else if groupClass.includes('group-add')}
+							<Button type="submit">Add</Button>
+						{:else}
+							<Button type="submit">Update</Button>
+						{/if}
 					{/if}
 				</div>
 			</Form>
@@ -67,7 +91,9 @@ import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 
 		{#if groupName === '' && !hideEditButton}
 			<div class="actions">
-				<Link on:click={onEdit} class="btn-edit">{editLabel}&nbsp;{#if !hideEditIcon}<RequestQuote16 />{/if}</Link>
+				<Link on:click={onEdit} class="btn-edit"
+					>{editLabel}&nbsp;{#if !hideEditIcon}<RequestQuote16 />{/if}</Link
+				>
 			</div>
 		{:else}
 			<div class="">
@@ -136,11 +162,23 @@ import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 	}
 	.form {
 		flex: 1;
+		position: relative;
 	}
 	.values {
 		display: flex;
 		flex-direction: column;
 		flex: 1;
+	}
+	.saving-modal {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		justify-items: center;
+		justify-content: center;
+		background: rgba(255, 255, 255, 0.4);
 	}
 	@media (min-width: $break_point) {
 		.form {

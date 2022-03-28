@@ -1,5 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import { cmsUrlPrefix } from '$lib/utils/_env';
 import { extractSetCookieHeader, getSessionCookie } from '$lib/utils/session';
 /**
@@ -25,12 +25,12 @@ export const put: RequestHandler = async (event) => {
 				});
 			} else {
 				const error = await res.json();
-				return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', error.message);
+				return makeEmptyResponse(500);
 			}
 		}
 	} catch (error) {
 		console.error('Error change password', error);
 	}
 
-	return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Error change password');
+	return makeEmptyResponse(500);
 };

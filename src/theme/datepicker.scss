@@ -1,0 +1,27 @@
+.flatpickr-calendar {
+	top: 42px !important;
+	left: auto !important;
+}
+
+.fix-position {
+	.flatpickr-calendar {
+		top: 5rem !important;
+		left: auto !important;
+	}
+}
+
+@media screen and (max-width: $break-point) {
+	.fix-position {
+		.flatpickr-calendar {
+			top: 7.3rem !important;
+			left: auto !important;
+		}
+	}
+}
+
+.group-destinations {
+	.flatpickr-calendar {
+		top: 62px !important;
+		left: auto !important;
+	}
+}

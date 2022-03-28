@@ -1,20 +1,23 @@
 <script lang="ts">
 	import { formatDate } from '$lib/helpers/datetime';
-
-	import type { Trip } from '$lib/store/trip';
 	import {
 		Button,
+		Column,
 		DataTable,
 		Link,
 		OverflowMenu,
-		OverflowMenuItem
+		OverflowMenuItem,
+		Row
 	} from 'carbon-components-svelte';
-	import type { DataTableHeader } from 'carbon-components-svelte/types/DataTable/DataTable';
+	import type { DataTableHeader } from 'carbon-components-svelte/types/DataTable/DataTable.svelte';
 	import {
+		Email24,
+		EmailNew24,
 		FolderOpen32,
 		Forum32,
 		Phone32,
 		Slisor32,
+		Star24,
 		Star32,
 		TrashCan32
 	} from 'carbon-icons-svelte';
@@ -66,57 +69,104 @@
 			isRead: true
 		}
 	];
-	export let detailLinkPrefix: string = '/account/trips/trip-detail?id=';
+	export let detailLinkPrefix = '/account/trips/trip-detail?id=';
 </script>
+
 <div>
-<DataTable sortable bind:headers rows={messages} class="table-custom">
-	<div slot="cell" let:cell let:row>
-		{#if cell.key === 'action'}
-			<div class="actions">
-				<Button kind="ghost" icon={Star32} iconDescription="Like" />
-				<Button kind="ghost" icon={Slisor32} iconDescription="Open" />
-				<Button kind="ghost" icon={TrashCan32} iconDescription="Delete" />
-				<Button kind="ghost" icon={FolderOpen32} iconDescription="Download" />
-				<Button kind="ghost" icon={Phone32} iconDescription="Call" />
-				<Button kind="ghost" icon={Forum32} iconDescription="Chat" />
-			</div>
-		{:else if cell.key === 'created_at'}
-			<Link href={`#`}>
-				<span class={`${!row.isRead ? 'active fix-width-date' : ''}`}>
-					{formatDate(cell.value)}
+	<DataTable sortable bind:headers rows={messages} class="table-custom">
+		<div slot="cell" let:cell let:row>
+			{#if cell.key === 'action'}
+				<div class="actions">
+					<Button kind="ghost" icon={Star32} iconDescription="Like" />
+					<Button kind="ghost" icon={Slisor32} iconDescription="Open" />
+					<Button kind="ghost" icon={TrashCan32} iconDescription="Delete" />
+					<Button kind="ghost" icon={FolderOpen32} iconDescription="Download" />
+					<Button kind="ghost" icon={Phone32} iconDescription="Call" />
+					<Button kind="ghost" icon={Forum32} iconDescription="Chat" />
+				</div>
+			{:else if cell.key === 'created_at'}
+				<Link href={`#`}>
+					<span class={`${!row.isRead ? 'active fix-width-date' : ''}`}>
+						{formatDate(cell.value)}
+					</span>
+				</Link>
+			{:else if cell.key === 'description'}
+				<span class={`${!row.isRead ? 'active' : ''}`}>
+					{cell.value}
 				</span>
-			</Link>
-		{:else if cell.key === 'description'}
-			<span class={`${!row.isRead ? 'active' : ''}`}>
-				{cell.value}
-			</span>
-		{:else}
-			<span class={`${!row.isRead ? 'active' : ''}`}>
-				{cell.value}
-			</span>
-		{/if}
-	</div>
-</DataTable>
+			{:else}
+				<span class={`${!row.isRead ? 'active' : ''}`}>
+					{cell.value}
+				</span>
+			{/if}
+		</div>
+	</DataTable>
 </div>
+<div class="mobile-table">
+	{#each messages as message}
+		<div class="data-message">
+			<Row>
+				<Column class="col-button" lg={1}>
+					<Row>
+						{#if message.isRead}
+							<Email24 />
+						{:else}
+							<EmailNew24 />
+						{/if}
+					</Row>
+					<Row>
+						<Star24 />
+					</Row>
+				</Column>
+				<Column>
+					<Row>
+						<span class={`${!message.isRead ? 'active' : ''}`}>
+							{formatDate(message.created_at)}
+						</span>
+					</Row>
+					<Row>
+						<span class={`${!message.isRead ? 'active' : ''}`}>
+							{message.type}
+						</span>
+					</Row>
+					<Row>
+						<span class={`${!message.isRead ? 'active' : ''}`}>
+							{message.description}
+						</span>
+					</Row>
+				</Column>
+				<Column class="col-button" lg={1}>
+					<OverflowMenu open flipped>
+						<OverflowMenuItem text="Delete" />
+						<OverflowMenuItem text="Archive" />
+						<OverflowMenuItem text="Call" />
+						<OverflowMenuItem text="Message" />
+					</OverflowMenu>
+				</Column>
+			</Row>
+		</div>
+	{/each}
+</div>
+
 <style lang="scss">
 	@use '../../../../styles/datatable';
 	div {
 		.active {
 			font-weight: bold;
 		}
-		
-        :global(td){
-            :global(.actions) {
-                visibility: hidden;
-            }
-            &:hover{
-                :global(.actions) {
-                    visibility: initial;
-                }
-            }
-        }
 
-		.fix-width-date{
+		:global(td) {
+			:global(.actions) {
+				visibility: hidden;
+			}
+			&:hover {
+				:global(.actions) {
+					visibility: initial;
+				}
+			}
+		}
+
+		.fix-width-date {
 			width: 140px;
 		}
 	}

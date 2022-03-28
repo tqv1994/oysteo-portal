@@ -8,16 +8,16 @@
 		ImageLoader,
 		Row
 	} from 'carbon-components-svelte';
-    import type { Advisor } from '$lib/store/advisor';
+	import type { Advisor } from '$lib/store/advisor';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
+	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
 
 	export let advisor: Advisor;
-	export let activeSection: string = '';
-	export let activeLoading: boolean = false;
-	export let loadingLabel: string;
-	let disabledRemoveLogo: boolean = false;
+	export let activeSection = '';
+	let disabledRemoveLogo = false;
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
 		disabledRemoveLogo = advisor.avatar == null ? true : false;
@@ -33,9 +33,8 @@
 		formData.append('ref', 'advisor');
 		formData.append('refId', advisor.id.toString());
 		formData.append('field', 'avatar');
-        
-		activeLoading = true;
-		loadingLabel = 'Uploading ...';
+		
+		isFormSavingStore.set({ saving: true });
 		const res = await fetch(cmsUrlPrefix + '/upload', {
 			method: 'POST',
 			body: formData
@@ -43,14 +42,15 @@
 
 		if (res.ok) {
 			const content = await res.json();
-            
+
 			if (content.length > 0) {
 				await removeLogo(true);
 				advisor.avatar = content[0];
 			}
 		}
-		activeLoading = false;
-		loadingLabel = 'Saving ...';
+		isFormSavingStore.set({ saving: false });
+		activeSection = '';
+		formChangeStatusStore.set({ changing: false });
 	};
 	const removeLogo = async (isOldLogo = false) => {
 		if (advisor.avatar == null) {
@@ -62,8 +62,7 @@
 				return;
 			}
 		}
-		activeLoading = true;
-		loadingLabel = 'Removing ...';
+		isFormSavingStore.set({ saving: true });
 
 		const res = await fetch('/file.json', {
 			method: 'DELETE',
@@ -79,8 +78,7 @@
 				onCancel();
 			}
 		}
-		activeLoading = false;
-		loadingLabel = 'Saving ...';
+		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
@@ -95,7 +93,7 @@
 	groupClass="group image-group group-destinations"
 	isPhotoGroup={true}
 >
-	<FormRow label="Avatar" {isEditing}>
+	<FormRow label="Profile Photo" {isEditing}>
 		<div slot="value">
 			{#if advisor.avatar == null}
 				no image selected
@@ -103,7 +101,7 @@
 				<Grid fullWidth>
 					<Row>
 						<Column>
-							<ImageLoader src={imageUrlPrefix + advisor.avatar?.url} class="custom-logo-image"/>
+							<ImageLoader src={imageUrlPrefix + advisor.avatar?.url} />
 						</Column>
 					</Row>
 				</Grid>
@@ -119,7 +117,7 @@
 			</Grid>
 
 			<FileUploaderDropContainer
-				labelText="Upload avatar"
+				labelText="Upload photo"
 				accept={['image/*']}
 				on:add={(e) => uploadFile(e)}
 			/>

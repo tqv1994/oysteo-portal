@@ -3,8 +3,7 @@ import { createGraphClient } from '$lib/utils/graph';
 import { getSessionCookie } from '$lib/utils/session';
 import { languageFieldsFragment } from '$lib/store/language';
 import { countryFieldsFragment } from '$lib/store/country';
-import { makeErrorResponse } from '$lib/utils/fetch';
-import { experienceFieldsFragment } from '$lib/store/experience';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import {
 	affiliatteAgencyFieldsFragment,
 	affiliatteBenefitProgramFieldsFragment,
@@ -16,7 +15,7 @@ import type { GetSession, Handle } from '@sveltejs/kit';
 import { salutationFieldsFragment } from '$lib/store/salutationType';
 import { uploadFileFieldsFragment } from '$lib/store/upload-file';
 import type { User } from '$lib/store/auth';
-import { paymentMethodFieldsFragment } from '$lib/store/payment';
+import { paymentFieldsFragment } from '$lib/store/payment';
 import { destinationFieldsFragment } from '$lib/store/destination';
 import { interestFieldsFragment, interestTypeFieldsFragment } from '$lib/store/interest';
 import {
@@ -25,8 +24,13 @@ import {
 	travelPreferenceFieldsFragment,
 	travelPreferenceTypeFieldsFragment
 } from '$lib/store/preference';
-import { cityFieldsFragment } from '$lib/store/city';
 import { experienceTypeFieldsFragment } from '$lib/store/experienceType';
+import { destinationTypeFieldsFragment } from '$lib/store/destinationType';
+import { advisorAgencyFieldsFragment, advisorFieldsFragment } from '$lib/store/advisor';
+import { addressFieldsFragment } from '$lib/store/address';
+import { agencyFieldsFragment } from '$lib/store/agency';
+import { paymentMethodFieldsFragment } from '$lib/store/paymentMethod';
+import { experienceFieldsFragment } from '$lib/store/experience';
 
 type QueryData = {
 	me?: User;
@@ -34,7 +38,7 @@ type QueryData = {
 
 const meQuery = `query {
   me {
-	id
+    id
     name
     username
     email
@@ -43,69 +47,78 @@ const meQuery = `query {
     avatar {
       ...uploadFileFields
     }
-    advisorMe {
-      id
-	  name
-	  destinations{
-		  ...destinationFields
-	  }
-    }
     myAdvisors {
       id
     }
-	agencyMe {
-		id
-	}
+    advisorMe {
+      ...advisorFields
+    }
+    agencyMe {
+      ...agencyFields
+    }
   }
 }
-${uploadFileFieldsFragment}
+${advisorFieldsFragment}
+${agencyFieldsFragment}
 ${destinationFieldsFragment}
+${experienceFieldsFragment}
+${experienceTypeFieldsFragment}
 ${countryFieldsFragment}
+${languageFieldsFragment}
+${affiliatteAgencyFieldsFragment}
+${affiliatteNetworkFieldsFragment}
+${affiliatteBenefitProgramFieldsFragment}
+${addressFieldsFragment}
+${uploadFileFieldsFragment}
+${salutationFieldsFragment}
+${paymentFieldsFragment}
+${paymentMethodFieldsFragment}
+${advisorAgencyFieldsFragment}
 `;
 
 const metadataQuery = `query {
-    salutationTypes (sort:"name"){
-        ...salutationTypeFields
-    }
-	paymentMethods (sort:"name"){
-		...paymentMethodFields
-	}
-    countries (sort:"name"){
-        ...countryFields
-    }
-    languages (sort:"name"){
-        ...languageFields
-    }
-    experiences (sort:"name") {
-        ...experienceFields
-    }
-    affiliateAgencies (sort:"name"){
-        ...affiliateAgencyFields
-    }
-    affiliateNetworks (sort:"name"){
-        ...affiliateNetworkFields
-    }
-    affiliateBenefitPrograms (sort:"name"){
-        ...affiliateBenefitProgramFields
-    }
-	interestTypes{
-		...interestTypeFields
-	}
-	travelPreferenceTypes{
-		...travelPreferenceTypeFields
-	}
-	personalPreferenceTypes{
-		...personalPreferenceTypeFields
-	}
-	experienceTypes (sort:"name") {
+  salutationTypes (sort:"name"){
+      ...salutationTypeFields
+  }
+  paymentMethods (sort:"name"){
+    ...paymentMethodFields
+  }
+  countries (sort:"order:asc,name:asc"){
+      ...countryFields
+  }
+  languages (sort:"name"){
+      ...languageFields
+  }
+  affiliateAgencies (sort:"name"){
+      ...affiliateAgencyFields
+  }
+  affiliateNetworks (sort:"name"){
+      ...affiliateNetworkFields
+  }
+  affiliateBenefitPrograms (sort:"name"){
+      ...affiliateBenefitProgramFields
+  }
+  interestTypes{
+    ...interestTypeFields
+  }
+  travelPreferenceTypes{
+    ...travelPreferenceTypeFields
+  }
+  personalPreferenceTypes{
+    ...personalPreferenceTypeFields
+  }
+  experienceTypes (sort:"name") {
         ...experienceTypeFields
     }
+  destinationTypes{
+    ...destinationTypeFields
+  }
 }
+${destinationTypeFieldsFragment}
 ${experienceTypeFieldsFragment}
 ${salutationFieldsFragment}
 ${languageFieldsFragment}
 ${countryFieldsFragment}
-${experienceFieldsFragment}
 ${affiliatteAgencyFieldsFragment}
 ${affiliatteBenefitProgramFieldsFragment}
 ${affiliatteNetworkFieldsFragment}
@@ -125,7 +138,6 @@ let metadata: Metadata;
 export const handle: Handle = async ({ event, resolve }) => {
 	const request = event.request;
 	console.log('Handling', event.url.pathname, event.url.searchParams.toString(), ++counter);
-
 	if (metadata) {
 		event.locals.metadata = metadata;
 	} else {
@@ -150,16 +162,18 @@ export const handle: Handle = async ({ event, resolve }) => {
 		if (cookie) {
 			const sessionCookie = getSessionCookie(cookie);
 			if (sessionCookie) {
-				console.log('Authenticating user from cookie...');
 				try {
 					const client = createGraphClient(sessionCookie);
 					const res = await client.query<QueryData>(meQuery).toPromise();
 					if (res.error) {
-						console.error('Failed to get session:', res.error.message);
-						const setCookie = res.error.response.headers.getAll('set-cookie');
-						console.log(setCookie);
-						if (setCookie) {
-							headers['set-cookie'] = setCookie;
+						if (res.error.networkError) {
+							throw res.error.networkError;
+						}
+						if (res.error.response.headers) {
+							const setCookie = res.error.response.headers.getAll('set-cookie');
+							if (setCookie) {
+								headers['set-cookie'] = setCookie;
+							}
 						}
 					}
 					event.locals.user = res.data?.me;
@@ -173,15 +187,12 @@ export const handle: Handle = async ({ event, resolve }) => {
 	try {
 		console.log('Resuming request...', event.url.pathname, counter);
 		const response = await resolve(event);
-		const body = await response.text();
-
 		for (const key in headers) {
 			response.headers.set(key, headers[key]);
 		}
-
-		return new Response(body, response);
+		return response;
 	} catch (err) {
-		return makeErrorResponse(
+		return makeEmptyResponse(
 			500,
 			'INTERNAL_SERVER_ERROR',
 			`There was an error loading ${event.url.pathname}: ${err.message}`

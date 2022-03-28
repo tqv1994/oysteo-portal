@@ -16,9 +16,9 @@
 </div>
 
 <Modal passiveModal bind:open on:open>
-	<ul>
-		{#each items as item (item.id)}
-			<li>
+	<div class="menu-mobile">
+		<ul>
+			{#each items as item (item.id)}
 				<a
 					href={item.link || `#${item.id}`}
 					on:click={() => {
@@ -28,11 +28,11 @@
 						}
 						selectedItem = item.text;
 						open = false;
-					}}>{item.text}</a
+					}}><li>{item.text}</li></a
 				>
-			</li>
-		{/each}
-	</ul>
+			{/each}
+		</ul>
+	</div>
 </Modal>
 
 <style lang="scss">

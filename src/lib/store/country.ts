@@ -5,6 +5,7 @@ export type Country = Identifiable &
 	Nameable & {
 		code?: string;
 		phone?: number;
+		order?: number;
 	};
 
 export const countryStore = writable<CollectionStore<Country>>({
@@ -17,5 +18,6 @@ fragment countryFields on Country {
   name
   code
   phone
+  order
 }
 `;

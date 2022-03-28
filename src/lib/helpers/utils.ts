@@ -1,12 +1,12 @@
-import { INVALID_DELAY_TIME } from '$lib/utils/constants';
-
-export function validateEmail(email: string) {
-	if (email == null || email == '') {
-		return true;
-	}
+export function isValidEmail(email: string) {
 	return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
 		email
 	);
+}
+
+export function isPasswordComplex(password: string) {
+  const re = new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})');
+  return re.test(password);
 }
 
 export function validateWebsite(website: string): boolean {
@@ -114,70 +114,69 @@ export function capitalizeFirstLetter(str: string): string {
 }
 
 export const queryURLParamToJSON = (query: string) => {
-    var re = /([^&=]+)=?([^&]*)/g;
-    var decodeRE = /\+/g;
+	const re = /([^&=]+)=?([^&]*)/g;
+	const decodeRE = /\+/g;
 
-    var decode = function (str: string) {
-        return decodeURIComponent(str.replace(decodeRE, " "));
-    };
+	const decode = function (str: string) {
+		return decodeURIComponent(str.replace(decodeRE, ' '));
+	};
 
-    var params: any = {}, e;
-    while (e = re.exec(query)) {
-        var k = decode(e[1]), v = decode(e[2]);
-        if (k.substring(k.length - 2) === '[]') {
-            k = k.substring(0, k.length - 2);
-            (params[k] || (params[k] = [])).push(v);
-        }
-        else params[k] = v;
-    }
+	let params: any = {},
+		e;
+	while ((e = re.exec(query))) {
+		let k = decode(e[1]),
+			v = decode(e[2]);
+		if (k.substring(k.length - 2) === '[]') {
+			k = k.substring(0, k.length - 2);
+			(params[k] || (params[k] = [])).push(v);
+		} else params[k] = v;
+	}
 
-    var assign = function (obj: any, keyPath: string, value: any) {
-        var lastKeyIndex = keyPath.length - 1;
-        for (var i = 0; i < lastKeyIndex; ++i) {
-            var key = keyPath[i];
-            if (!(key in obj))
-                obj[key] = {}
-            obj = obj[key];
-        }
-        obj[keyPath[lastKeyIndex]] = value;
-    }
+	const assign = function (obj: any, keyPath: string, value: any) {
+		const lastKeyIndex = keyPath.length - 1;
+		for (let i = 0; i < lastKeyIndex; ++i) {
+			const key = keyPath[i];
+			if (!(key in obj)) obj[key] = {};
+			obj = obj[key];
+		}
+		obj[keyPath[lastKeyIndex]] = value;
+	};
 
-    for (var prop in params) {
-        var structure = prop.split('[');
-        if (structure.length > 1) {
-            var levels: any = [];
-            structure.forEach(function (item, i) {
-                var key = item.replace(/[?[\]\\ ]/g, '');
-                levels.push(key);
-            });
-            assign(params, levels, params[prop]);
-            delete(params[prop]);
-        }
-    }
-    return params;
+	for (const prop in params) {
+		const structure = prop.split('[');
+		if (structure.length > 1) {
+			var levels: any = [];
+			structure.forEach(function (item, i) {
+				const key = item.replace(/[?[\]\\ ]/g, '');
+				levels.push(key);
+			});
+			assign(params, levels, params[prop]);
+			delete params[prop];
+		}
+	}
+	return params;
 };
 
 export const objectToQueryString = (obj: any, prefix?: string): string => {
-    const query = Object.keys(obj).map((key) => {
-      const value  = obj[key];
-  
-      if (obj.constructor === Array)
-        key = `${prefix}[]`;
-      else if (obj.constructor === Object)
-        key = (prefix ? `${prefix}[${key}]` : key);
-  
-      if (typeof value === 'object')
-        return objectToQueryString(value, key);
-      else
-        return `${key}=${encodeURIComponent(value)}`;
-    });
-  
-    return [].concat.apply([], query).join('&');
-  };
+	const query = Object.keys(obj).map((key) => {
+		const value = obj[key];
 
- export const formatNumber = (num) => {
-    var p = num.toFixed(0);
-    return p.split("").reverse().reduce(function(acc, num, i, orig) {
-        return num + (num != "-" && i && !(i % 3) ? "," : "") + acc;
-    }, "");
-}
+		if (obj.constructor === Array) key = `${prefix}[]`;
+		else if (obj.constructor === Object) key = prefix ? `${prefix}[${key}]` : key;
+
+		if (typeof value === 'object') return objectToQueryString(value, key);
+		else return `${key}=${encodeURIComponent(value)}`;
+	});
+
+	return [].concat.apply([], query).join('&');
+};
+
+export const formatNumber = (num) => {
+	const p = num.toFixed(0);
+	return p
+		.split('')
+		.reverse()
+		.reduce(function (acc, num, i, orig) {
+			return num + (num != '-' && i && !(i % 3) ? ',' : '') + acc;
+		}, '');
+};

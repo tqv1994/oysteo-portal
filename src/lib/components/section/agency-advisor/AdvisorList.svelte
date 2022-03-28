@@ -1,20 +1,22 @@
 <script lang="ts">
-	import { mergeName, separateFirstAndLastName, validateEmail } from '$lib/helpers/utils';
+	import { mergeName, separateFirstAndLastName, isValidEmail } from '$lib/helpers/utils';
 
 	import type { AdvisorAgency } from '$lib/store/advisor';
-	import type { SalutationType } from '$lib/store/salutationType';
+	import { salutationTypeStore } from '$lib/store/salutationType';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import { Checkbox, Select, SelectItem, TextInput } from 'carbon-components-svelte';
 
 	import ListItemContainer from '../../form/listitemcontainer.svelte';
 	import FormRow from '../../form/row.svelte';
-	import FormGroup from '../../form/group.svelte';
-	import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+	import { onAfterOpenForm } from '$lib/helpers/scripts';
+	import { notify } from '$lib/components/Toast.svelte';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
 
 	export let advisors: AdvisorAgency[];
-	export let salutationTypes: SalutationType[];
-	export let activeSection: string = '';
-	export let activeLoading: boolean;
+
+	export let activeSection = '';
+
+	const salutationTypes = Object.values($salutationTypeStore.items);
 
 	type AdvisorInput = {
 		name: string;
@@ -24,19 +26,18 @@
 		active: boolean;
 		salutationType: string | null;
 	};
-	
-	const advisorInputs: AdvisorInput[] = advisors.reduce((acc: AdvisorInput[], advisor) => {
+
+	const advisorInputs: AdvisorInput[] = (advisors || []).reduce((acc: AdvisorInput[], advisor) => {
 		acc.push({
 			name: advisor.name,
 			initials: advisor.initials,
 			email: advisor.email,
 			reference: advisor.reference,
 			active: advisor.active,
-			salutationType: advisor.salutationType?.id+"" || null
+			salutationType: advisor.salutationType?.id + '' || null
 		});
 		return acc;
 	}, []);
-
 
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
@@ -44,16 +45,16 @@
 			const advisorIndex = parseInt(groupName.split('--')[1]);
 			advisorNameData = separateFirstAndLastName(advisors[advisorIndex].name);
 			if (!advisorInputs[advisorIndex]) {
-				console.log('salutationType', advisors[advisorIndex].salutationType?.id);
 				advisorInputs.push({
 					name: advisors[advisorIndex].name,
 					initials: advisors[advisorIndex].initials,
 					email: advisors[advisorIndex].email,
 					reference: advisors[advisorIndex].reference,
 					active: advisors[advisorIndex].active,
-					salutationType: advisors[advisorIndex].salutationType?.id+"" || null
+					salutationType: advisors[advisorIndex].salutationType?.id + '' || null
 				});
 			}
+			onAfterOpenForm();
 		}
 	};
 	const onCancel = () => {
@@ -81,7 +82,7 @@
 			salutationType: advisorInputs[advisorIndex].salutationType || null
 		};
 
-		if (!validateEmail(data.email)) {
+		if (!isValidEmail(data.email)) {
 			invalidAdvisorEmail.status = true;
 			setTimeout(() => {
 				invalidAdvisorEmail.status = false;
@@ -89,8 +90,8 @@
 			return;
 		}
 		try {
-			activeLoading = true;
-			const res = await fetch(`/agency/advisors/update-${advisorSelected.id}.json`, {
+			isFormSavingStore.set({ saving: true });
+			const res = await fetch(`/account/agency/advisors/update-${advisorSelected.id}.json`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json'
@@ -106,47 +107,46 @@
 		} catch (error) {
 			console.log(error);
 		}
-		activeLoading = false;
+		isFormSavingStore.set({ saving: false });
+		onCancel();
 	};
-	
+
 	const reSendInvitation = async (advisorIndex: number) => {
-		const name = mergeName(advisorNameData);
 		const advisorSelected = advisors[advisorIndex];
-		const data = {
-			name,
-			initials: advisorInputs[advisorIndex].initials || '',
-			email: advisorInputs[advisorIndex].email || '',
-			reference: advisorInputs[advisorIndex].reference || '',
-			active: advisorInputs[advisorIndex].active || false,
-			salutationType: advisorInputs[advisorIndex].salutationType || null
-		};
-		if (!validateEmail(data.email)) {
-			invalidAdvisorEmail.status = true;
-			setTimeout(() => {
-				invalidAdvisorEmail.status = false;
-			}, INVALID_DELAY_TIME);
-			return;
+		try {
+			isFormSavingStore.set({ saving: true });
+			const res = await fetch(`/account/agency/advisors/resend.json`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ ...advisorSelected })
+			});
+
+			if (res.ok) {
+				activeSection = '';
+				notify({
+					kind: 'success',
+					title: 'success',
+					subtitle: 'Re-send success'
+				});
+			}
+		} catch (error) {
+			console.log(error);
+			notify({
+				kind: 'error',
+				title: 'error',
+				subtitle: 'Re-send fail'
+			});
 		}
-		activeLoading = true;
-		const auth = getAuth();
-		sendPasswordResetEmail(auth, data.email)
-		.catch((error) => {
-			invalidAdvisorEmail = {
-				status: true,
-				message: error.message
-			};
-			setTimeout(() => {
-				invalidAdvisorEmail.status = false;
-			}, INVALID_DELAY_TIME);
-		});
-		activeLoading = false;
+		isFormSavingStore.set({ saving: false });
 		onCancel();
 	};
 </script>
 
 <FormRow label="" class={'mbottom-32'} contentClass={'mtop-d16 list-advisors'}>
 	<div slot="value">
-		{#each advisors as advisor, index}
+		{#each advisors || [] as advisor, index}
 			<ListItemContainer
 				let:isEditing
 				reSend={true}
@@ -176,7 +176,7 @@
 							</Select>
 							<TextInput
 								labelText="First name"
-								placeholder="Enter advisor firstname"
+								placeholder="Enter advisor first name"
 								bind:value={advisorNameData.firstName}
 							/>
 							<TextInput
@@ -187,7 +187,7 @@
 							/>
 							<TextInput
 								labelText="Last name"
-								placeholder="Enter advisor lastname"
+								placeholder="Enter advisor last name"
 								bind:value={advisorNameData.lastName}
 							/>
 

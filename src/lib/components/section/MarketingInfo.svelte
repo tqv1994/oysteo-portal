@@ -2,6 +2,7 @@
 	import { validateWebsite } from '$lib/helpers/utils';
 
 	import type { Agency } from '$lib/store/agency';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 
 	import { TextArea, TextInput } from 'carbon-components-svelte';
@@ -12,8 +13,7 @@
 
 	export let type: string;
 	export let agency: Agency;
-	export let activeSection: string = '';
-	export let activeLoading: boolean = false;
+	export let activeSection = '';
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
 		marketingInfoInput = {
@@ -46,21 +46,34 @@
 		onResetMarketingInfoInput();
 	});
 
+	type FormError = {
+		website?: string;
+	};
+
+	let formErrors: FormError;
+
+	function showErrors(errors: FormError) {
+		formErrors = errors;
+		setTimeout(() => {
+			formErrors = undefined;
+		}, INVALID_DELAY_TIME);
+	}
+
 	let invalidMarketingWebsite = {
 		status: false,
 		message: 'Invalid website'
 	};
 	const updateMarketingInformation = async () => {
+		const errors: FormError = {};
 		try {
 			if (!validateWebsite(marketingInfoInput.website)) {
-				invalidMarketingWebsite.status = true;
-				setTimeout(() => {
-					invalidMarketingWebsite.status = false;
-				}, INVALID_DELAY_TIME);
+				errors.website = 'Website address is invalid';
+			}
+			if (Object.keys(errors).length) {
+				showErrors(errors);
 				return;
 			}
-
-			activeLoading = true;
+			isFormSavingStore.set({ saving: true });
 			const res = await fetch(`/common/${type}-${agency.id}.json`, {
 				method: 'PUT',
 				headers: {
@@ -76,7 +89,7 @@
 				onResetMarketingInfoInput();
 			}
 		} catch (error) {}
-		activeLoading = false;
+		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
@@ -95,6 +108,7 @@
 		</div>
 		<div slot="fields">
 			<TextArea
+				autofocus
 				labelText="Max: 100 character"
 				cols={50}
 				placeholder="Enter agency description"
@@ -136,10 +150,11 @@
 		<div slot="value">{agency.website == null ? '' : agency.website}</div>
 		<div slot="fields">
 			<TextInput
+				autofocus
 				placeholder="Enter your website"
 				bind:value={marketingInfoInput.website}
-				invalid={invalidMarketingWebsite.status}
-				invalidText={invalidMarketingWebsite.message}
+				invalid={!!formErrors?.website}
+				invalidText={formErrors?.website}
 			/>
 		</div>
 	</FormRow>

@@ -1,15 +1,15 @@
 <script lang="ts">
-import { validateEmail } from '$lib/helpers/utils';
-import type { AdvisorAgency } from '$lib/store/advisor';
-
 	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
-	import { Button, Form, FormGroup, Link, Modal } from 'carbon-components-svelte';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
+	import { Button, Form, FormGroup, InlineLoading, Link, Modal } from 'carbon-components-svelte';
 	import { RequestQuote16 } from 'carbon-icons-svelte';
 	import { createEventDispatcher } from 'svelte';
+	import { openWarningSaveForm } from './PopupWarningSaveForm.svelte';
 
 	export let isEditing = false;
 	export let customGroupStyle = '';
 	export let reSend = false;
+	export let hasDelete = false;
 	const dispatch = createEventDispatcher();
 
 	function onEdit() {
@@ -22,7 +22,7 @@ import type { AdvisorAgency } from '$lib/store/advisor';
 				});
 			}, 0);
 		} else {
-			window.openWarningSaveForm({handleConfirm: onEdit});
+			openWarningSaveForm({ handleConfirm: onEdit });
 		}
 	}
 
@@ -39,21 +39,35 @@ import type { AdvisorAgency } from '$lib/store/advisor';
 		dispatch('send');
 		formChangeStatusStore.set({ changing: false });
 	}
-	
+
+	function onDelete() {
+		dispatch('delete');
+		formChangeStatusStore.set({ changing: false });
+	}
 </script>
 
 <div class="group" style={customGroupStyle}>
 	{#if isEditing}
 		<div class="form">
-			<Form on:submit>
+			<Form on:submit={onSubmit}>
 				<FormGroup>
 					<slot {isEditing} />
+					{#if $isFormSavingStore.saving}
+						<div class="saving-modal" />
+					{/if}
 				</FormGroup>
 				<div class="group-buttons">
-					<Button class="btn-cancel" on:click={onCancel}>Cancel</Button>
-					<Button type="submit">Update</Button>
-					{#if reSend}
-						<Button class="re-send" on:click={onSend}>Re-send invitation</Button>
+					{#if $isFormSavingStore.saving}
+						<InlineLoading status="active" description="Saving..." />
+					{:else}
+						<Button class="btn-cancel" on:click={onCancel}>Cancel</Button>
+						<Button type="submit">Update</Button>
+						{#if reSend}
+							<Button class="re-send" on:click={onSend}>Re-send invitation</Button>
+						{/if}
+						{#if hasDelete}
+							<Button class="re-send" on:click={onDelete}>Delete</Button>
+						{/if}
 					{/if}
 				</div>
 			</Form>
@@ -101,6 +115,17 @@ import type { AdvisorAgency } from '$lib/store/advisor';
 		display: flex;
 		flex-direction: column;
 		flex: 1;
+	}
+	.saving-modal {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		justify-items: center;
+		justify-content: center;
+		background: rgba(255, 255, 255, 0.4);
 	}
 	@media (min-width: $break_point) {
 		.form {

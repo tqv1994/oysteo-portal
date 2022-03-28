@@ -3,8 +3,12 @@
 	import { convertTripToInput, Trip, TRipInput } from '$lib/store/trip';
 	import FormGroup from '$lib/components/form/group.svelte';
 	import FormRow from '$lib/components/form/row.svelte';
-	import {DatePicker, DatePickerInput } from 'carbon-components-svelte';
+	import { DatePicker, DatePickerInput } from 'carbon-components-svelte';
 	import { createTripService, updateTripService } from '$lib/services/trip.services';
+	import { notify } from '$lib/components/Toast.svelte';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
+	import { onMount } from 'svelte';
+import ODatePickerInput from '$lib/components/input/ODatePickerInput.svelte';
 	export let trip: Trip | undefined;
 	//export let isEditing: boolean = false;
 	let activeSection = '';
@@ -17,13 +21,14 @@
 		}
 		activeSection = section;
 	};
+
 	const onCancel = () => {
 		activeSection = '';
 		tripInput = new TRipInput();
 	};
 
 	const onSubmit = async () => {
-		window.openLoading(true, 'Saving');
+		isFormSavingStore.set({ saving: true });
 		if (trip) {
 			await updateTripService(trip.id, {
 				...tripInput,
@@ -34,7 +39,7 @@
 					trip = output;
 				})
 				.catch((error) => {
-					window.openNotification({ kind: 'error', title: 'Error', subtitle: error.message });
+					notify({ kind: 'error', title: 'Error', subtitle: error.message });
 				});
 		} else {
 			await createTripService({
@@ -46,20 +51,22 @@
 					trip = output;
 				})
 				.catch((error) => {
-					window.openNotification({ kind: 'error', title: 'Error', subtitle: error.message });
+					notify({ kind: 'error', title: 'Error', subtitle: error.message });
 				});
 		}
-		window.openLoading(false);
+		isFormSavingStore.set({ saving: false });
 		activeSection = '';
 	};
-	
-	if(!trip){
-		activeSection = 'trip-plan-when';
+
+	if (!trip) {
 		tripInput = new TRipInput();
-	}else{
+	} else {
 		tripInput = convertTripToInput(trip);
 	}
-	
+
+	const formatDateInput = (event: CustomEvent) => {
+
+	}
 </script>
 
 <FormGroup
@@ -76,16 +83,18 @@
 		</div>
 		<div slot="fields" style="poition: relative">
 			<DatePicker
+				class="fix-position"
 				on:change={(e) => {
-					tripInput.depart_at = e.detail?.dateStr || '';
-					if(tripInput.return_at < tripInput.depart_at){
+					tripInput.depart_at = e?.detail?.dateStr || '';
+					if (tripInput.return_at < tripInput.depart_at) {
 						tripInput.return_at = e.detail?.dateStr || '';
 					}
 				}}
+				maxDate={tripInput.return_at}
 				value={formatOutputDatePicker(trip?.depart_at)}
 				datePickerType="single"
 			>
-				<DatePickerInput placeholder="mm/dd/yyyy" />
+				<ODatePickerInput placeholder="mm/dd/yyyy" />
 			</DatePicker>
 		</div>
 	</FormRow>
@@ -96,15 +105,16 @@
 		<div slot="fields" style="position: relative">
 			<DatePicker
 				on:change={(e) => {
-					tripInput.return_at = e.detail?.dateStr || '';
-					if(tripInput.return_at < tripInput.depart_at){
+					tripInput.return_at = e?.detail?.dateStr || '';
+					if (tripInput.return_at < tripInput.depart_at) {
 						tripInput.depart_at = e.detail?.dateStr || '';
 					}
 				}}
-				value={formatOutputDatePicker(trip?.return_at)}
+				minDate={tripInput.depart_at}
+				value={formatOutputDatePicker(tripInput?.return_at)}
 				datePickerType="single"
 			>
-				<DatePickerInput placeholder="mm/dd/yyyy" />
+				<ODatePickerInput placeholder="mm/dd/yyyy" />
 			</DatePicker>
 		</div>
 	</FormRow>

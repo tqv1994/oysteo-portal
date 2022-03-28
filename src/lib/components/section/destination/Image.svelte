@@ -10,11 +10,11 @@
 
 	export let index: number;
 	export let destinations: Destination[];
-	export let activeSection: string = '';
+	export let activeSection = '';
 	export let activeLoading: boolean;
 	export let loadingLabel: string;
 
-	let disabledRemove: boolean = true;
+	let disabledRemove = true;
 	let mediaSelected: number;
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;

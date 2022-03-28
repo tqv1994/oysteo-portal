@@ -8,6 +8,7 @@
 	} from '$lib/helpers/datetime';
 
 	import type { Agency } from '$lib/store/agency';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	import { INVALID_DELAY_TIME, TIME_ZONES } from '$lib/utils/constants';
 	import {
 		DatePicker,
@@ -23,8 +24,7 @@
 
 	export let type: string;
 	export let agency: Agency;
-	export let activeSection: string = '';
-	export let activeLoading: boolean = false;
+	export let activeSection = '';
 
 	type BusinessInfoInput = {
 		legalName: string;
@@ -65,22 +65,32 @@
 		activeSection = '';
 	};
 
-	let invalidEstablishedAt = {
-		status: false,
-		message: 'Invalid date'
+	type FormError = {
+		established_at?: string;
 	};
+
+	let formErrors: FormError;
+
+	function showErrors(errors: FormError) {
+		formErrors = errors;
+		setTimeout(() => {
+			formErrors = undefined;
+		}, INVALID_DELAY_TIME);
+	}
+
 	const updateBusinessInformation = async () => {
+		const errors: FormError = {};
 		try {
 			if (!validateMMDDYYYY(businessInfo.established_at)) {
-				invalidEstablishedAt.status = true;
-				setTimeout(() => {
-					invalidEstablishedAt.status = false;
-				}, INVALID_DELAY_TIME);
-				return;
+				errors.established_at = 'Email address is invalid';
 			}
 			businessInfo.established_at = normalizeInputDatePicker(businessInfo.established_at);
+			if (Object.keys(errors).length) {
+				showErrors(errors);
+				return;
+			}
 
-			activeLoading = true;
+			isFormSavingStore.set({ saving: true });
 
 			const res = await fetch(`/common/${type}-${agency.id}.json`, {
 				method: 'PUT',
@@ -97,7 +107,7 @@
 				onCancel();
 			}
 		} catch (error) {}
-		activeLoading = false;
+		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
@@ -112,6 +122,7 @@
 		<div slot="value">{agency.legalName === null ? '' : agency.legalName}</div>
 		<div slot="fields" class="business-fields">
 			<TextInput
+				autofocus
 				labelText="Legal Name"
 				placeholder="Enter your legal name"
 				bind:value={businessInfo.legalName}
@@ -154,8 +165,8 @@
 				<DatePickerInput
 					labelText="Business Established"
 					placeholder="mm/dd/yyyy"
-					invalid={invalidEstablishedAt.status}
-					invalidText={invalidEstablishedAt.message}
+					invalid={!!formErrors?.established_at}
+					invalidText={formErrors?.established_at}
 				/>
 			</DatePicker>
 		</div>

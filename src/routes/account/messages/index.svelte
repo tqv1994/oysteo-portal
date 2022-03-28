@@ -1,8 +1,6 @@
 <script lang="ts" context="module">
-	import 'carbon-components-svelte/css/all.css';
 	import DesktopNavigationSection from '$lib/components/navigation/desktop_nav_section.svelte';
 	import NavigationSection from '$lib/components/navigation/modal.svelte';
-	import '$lib/utils/firebase';
 	import type { Load } from '@sveltejs/kit';
 	import { afterUpdate } from 'svelte';
 	import OverlayLoading from '$lib/components/form/loading.svelte';
@@ -44,7 +42,7 @@
 		<h1>Messages</h1>
 		<DesktopNavigationSection items={messagesSections} className={'messages-screen'} />
 	</div>
-	<div class="section" id="home"></div>
+	<div class="section" id="home" />
 	<div class="section" id="current-messages">
 		<Accordion title="Current Messages" open={true} id="">
 			<MessagesList />

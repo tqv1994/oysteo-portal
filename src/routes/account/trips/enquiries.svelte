@@ -1,8 +1,6 @@
 <script lang="ts" context="module">
-	import 'carbon-components-svelte/css/all.css';
 	import DesktopNavigationSection from '$lib/components/navigation/desktop_nav_section.svelte';
 	import NavigationSection from '$lib/components/navigation/modal.svelte';
-	import '$lib/utils/firebase';
 	import type { Load } from '@sveltejs/kit';
 	import { afterUpdate } from 'svelte';
 	import OverlayLoading from '$lib/components/form/loading.svelte';
@@ -16,8 +14,11 @@
 		try {
 			let user: User | undefined = session.user;
 			let metadata: Metadata = session.metadata;
-            let trips: Trip[] = [];
-			const queryString = objectToQueryString({ advisor: user.advisorMe.id, state: ENUM_TRIP_STATE.enquired });
+			let trips: Trip[] = [];
+			const queryString = objectToQueryString({
+				advisor: user.advisorMe.id,
+				state: ENUM_TRIP_STATE.enquired
+			});
 			const res = await fetch(`/trip.json?${queryString}`, {
 				method: 'GET',
 				headers: {
@@ -32,7 +33,7 @@
 				console.error(error);
 			}
 
-            const queryNewTripString = objectToQueryString({state: ENUM_TRIP_STATE.new_enquiry });
+			const queryNewTripString = objectToQueryString({ state: ENUM_TRIP_STATE.new_enquiry });
 			const resNewTrip = await fetch(`/trip.json?${queryNewTripString}`, {
 				method: 'GET',
 				headers: {
@@ -46,12 +47,12 @@
 				const error = await res.json();
 				console.error(error);
 			}
-            return {
-                props: {
-                    user: user,
-                    trips
-                }
-            };
+			return {
+				props: {
+					user: user,
+					trips
+				}
+			};
 		} catch (error) {
 			console.log('Fetch advisor data:' + error);
 		}
@@ -60,13 +61,11 @@
 </script>
 
 <script lang="ts">
-	import { Button } from 'carbon-components-svelte';
-	import { goto } from '$app/navigation';
 	import { objectToQueryString } from '$lib/helpers/utils';
 
 	export let user: User;
 	export let trips: Trip[] = [];
-    let tripsNewRequiry: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
+	let tripsNewRequiry: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
 		if (item.state === ENUM_TRIP_STATE.new_enquiry) {
 			acc.push(item);
 		}
@@ -115,14 +114,15 @@
 		<h1>Trips</h1>
 		<DesktopNavigationSection items={tripsSections} className={'trips-screen'} />
 	</div>
-	<div class="section" id="home"></div>
+	<div class="section" id="home" />
 	<div class="section" id="new_enquiry">
 		<Accordion title="New Enquiry" open={true} id="">
 			{#if tripsNewRequiry.length > 0}
-				<TripsList 
-					detailLinkPrefix="/account/trips/enquiry-" 
-					trips={tripsNewRequiry} 
-					/>
+				<TripsList
+					noCTA={true}
+					detailLinkPrefix="/account/trips/enquiry-"
+					trips={tripsNewRequiry}
+				/>
 			{/if}
 		</Accordion>
 	</div>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Advisor } from '$lib/store/advisor';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 
 	import { Checkbox, TextArea, TextInput } from 'carbon-components-svelte';
@@ -10,8 +11,7 @@
 
 	export let type: string;
 	export let advisor: Advisor;
-	export let activeSection: string = '';
-	export let activeLoading: boolean = false;
+	export let activeSection = '';
 	let invalidInstagram = {
 		status: false,
 		message: 'Instagram must contain the "@" character.'
@@ -23,8 +23,7 @@
 		twitter: string;
 		pinterest: string;
 		linkedIn: string;
-		description: string;
-		planningFee?: boolean;
+		biography: string;
 	};
 
 	let profileInput: ProfileInput;
@@ -36,7 +35,7 @@
 			twitter: '',
 			pinterest: '',
 			linkedIn: '',
-			description: ''
+			biography: ''
 		};
 	};
 
@@ -53,7 +52,7 @@
 			twitter: advisor.twitter || '',
 			pinterest: advisor.pinterest || '',
 			linkedIn: advisor.linkedIn || '',
-			description: advisor.description || ''
+			biography: advisor.biography || ''
 		};
 	};
 	const onCancel = () => {
@@ -61,8 +60,8 @@
 	};
 
 	const updateProfile = async (isPlanningFee = false) => {
-		if (profileInput.instagram.indexOf('@') != 0){
-			invalidInstagram.status = true
+		if (profileInput.instagram && profileInput.instagram.indexOf('@') != 0) {
+			invalidInstagram.status = true;
 			setTimeout(() => {
 				invalidInstagram.status = false;
 			}, INVALID_DELAY_TIME);
@@ -81,12 +80,12 @@
 				twitter: advisor.twitter || '',
 				pinterest: advisor.pinterest || '',
 				linkedIn: advisor.linkedIn || '',
-				description: advisor.description || ''
+				biography: advisor.biography || ''
 			};
 		}
-		profileInput.planningFee = planningFee;
+		// profileInput.planningFee = planningFee;
 		try {
-			activeLoading = true;
+			isFormSavingStore.set({ saving: true });
 
 			const res = await fetch(`/common/${type}-${advisor.id}.json`, {
 				method: 'PUT',
@@ -106,7 +105,27 @@
 		} catch (error) {
 			console.log(error);
 		}
-		activeLoading = false;
+		isFormSavingStore.set({ saving: false });
+	};
+
+	const updatePlanningFee = async () => {
+		isFormSavingStore.set({ saving: true });
+		try {
+			const res = await fetch(`/common/${type}-${advisor.id}.json`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ planningFee: advisor.planningFee })
+			});
+
+			if (res.ok) {
+				onCancel();
+			}
+		} catch (error) {
+			console.log(error);
+		}
+		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
@@ -120,14 +139,15 @@
 	<FormRow label="Biography" {isEditing}>
 		<div slot="value">
 			<p class="advisor-profile">
-				{advisor?.description === null ? '' : advisor?.description}
+				{advisor?.biography === null ? '' : advisor?.biography}
 			</p>
 		</div>
 		<div slot="fields">
 			<TextArea
+				autofocus
 				labelText="Max: 120 character"
 				placeholder="Enter your biography"
-				bind:value={profileInput.description}
+				bind:value={profileInput.biography}
 				maxlength={120}
 			/>
 		</div>
@@ -139,7 +159,7 @@
 			labelText="Planning Fee"
 			hideLabel
 			bind:checked={advisor.planningFee}
-			on:change={() => updateProfile(true)}
+			on:change={updatePlanningFee}
 		/>
 	</div>
 </FormRow>
@@ -155,7 +175,8 @@
 		<div slot="value">{advisor?.instagram === null ? '' : advisor?.instagram}</div>
 		<div slot="fields">
 			<TextInput
-				labelText="{advisor?.instagram === null ? 'Add instagram' : 'Edit instagram'}"
+				autofocus
+				labelText={advisor?.instagram === null ? 'Add instagram' : 'Edit instagram'}
 				placeholder="Enter"
 				bind:value={profileInput.instagram}
 				invalid={invalidInstagram.status}
@@ -166,9 +187,11 @@
 	<FormRow label="Twitter" {isEditing}>
 		<div slot="value">{advisor?.twitter === null ? '' : advisor?.twitter}</div>
 		<div slot="fields">
-			<TextInput labelText="{advisor?.twitter === null ? 'Add twitter' : 'Edit twitter'}" 
-			placeholder="Enter" 
-			bind:value={profileInput.twitter} />
+			<TextInput
+				labelText={advisor?.twitter === null ? 'Add twitter' : 'Edit twitter'}
+				placeholder="Enter"
+				bind:value={profileInput.twitter}
+			/>
 		</div>
 	</FormRow>
 	<FormRow label="Facebook" {isEditing}>

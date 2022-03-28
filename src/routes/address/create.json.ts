@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import { Address, addressFieldsFragment } from '$lib/store/address';
 import { countryFieldsFragment } from '$lib/store/country';
 /**
@@ -20,15 +20,16 @@ export const post: RequestHandler = async (event) => {
           data: $address
         }) {
             address{
-                id
+                ...addressFields
             }
         }
       }
+	  ${countryFieldsFragment}
+	  ${addressFieldsFragment}
     `;
 		const reqBody = await event.request.json();
-		const res = await client
-			.mutation<createAddressData>(query, { address: reqBody })
-			.toPromise();
+		const res = await client.mutation<createAddressData>(query, { address: reqBody }).toPromise();
+
 		if (res.data) {
 			return new Response(JSON.stringify(res.data));
 		}
@@ -38,5 +39,5 @@ export const post: RequestHandler = async (event) => {
 	} catch (error) {
 		console.error('Error create data for the address', error);
 	}
-	return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Error creating data for the address');
+	return makeEmptyResponse(500);
 };

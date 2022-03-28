@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { Destination, destinationFieldsFragment } from '$lib/store/destination';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import { uploadFileFieldsFragment } from '$lib/store/upload-file';
 import { countryFieldsFragment } from '$lib/store/country';
@@ -27,7 +27,7 @@ export const put: RequestHandler = async (event) => {
                         ...destinationFields
                     }
 				}
-			}	  
+			}
 			${destinationFieldsFragment}
             ${uploadFileFieldsFragment}
 			${countryFieldsFragment}
@@ -46,7 +46,7 @@ export const put: RequestHandler = async (event) => {
 		console.error('Error updating destination', error);
 	}
 
-	return makeErrorResponse(
+	return makeEmptyResponse(
 		500,
 		'INTERNAL_SERVER_ERROR',
 		'Error retrieving data for the destination'

@@ -8,7 +8,7 @@
 
 	export let index: number;
 	export let destinations: Destination[];
-	export let activeSection: string = '';
+	export let activeSection = '';
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
 	};
@@ -30,14 +30,15 @@
 	on:submit={() => onUpdate('location')}
 	groupClass={'group group-destinations'}
 >
-	<FormRow label="Location" {isEditing}>
+	<FormRow label="Cities/Regions" {isEditing}>
 		<div slot="value">
 			{destinations[index].location == null ? '' : destinations[index].location}
 		</div>
 		<div slot="fields">
 			<TextInput
-				labelText="Edit Location"
-				placeholder="Enter destination location"
+				autofocus
+				labelText="Edit Cities/Regions"
+				placeholder="Enter Cities/Regions"
 				bind:value={destinations[index].location}
 			/>
 		</div>

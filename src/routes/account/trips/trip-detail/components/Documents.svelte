@@ -6,6 +6,7 @@
 	import {
 		Column,
 		FileUploader,
+		FileUploaderButton,
 		Grid,
 		Link,
 		Row,
@@ -16,13 +17,14 @@
 		ENUM_DOCUMENT_TYPE,
 		ENUM_DOCUMENT_TYPE_LABEL,
 		Document,
-		DocumentInput,
+		DocumentInput
 	} from '$lib/store/document';
 	import { CloseOutline20 } from 'carbon-icons-svelte';
 	import ListItemContainer from '$lib/components/form/listitemcontainer.svelte';
 	import { createDocumentService, deleteDocumentService } from '$lib/services/document.service';
 	import { uploadFileService } from '$lib/services/uploadFile.service';
-import { getItems } from '$lib/store/types';
+	import { getItems } from '$lib/store/types';
+import { isFormSavingStore } from '$lib/store/isFormSaving';
 	export let trip: Trip | undefined;
 	let activeSection = '';
 	let documentInputs: DocumentInput[];
@@ -59,8 +61,6 @@ import { getItems } from '$lib/store/types';
 		activeSection = '';
 	};
 
-	
-	
 	const onSubmit = async () => {
 		// if(documentInputs && documentInputs.length > 0){
 		// 	documentInputs.forEach(documentInput => {
@@ -71,13 +71,13 @@ import { getItems } from '$lib/store/types';
 		// 		}
 		// 	});
 		// }
-		window.openLoading(true, 'Saving');
+		isFormSavingStore.set({saving: true});
 		for (const deleteId of documentDeleteIds) {
 			await deleteDocumentService(deleteId).then(() => {
-				trip.documents = trip.documents.filter((item, index)=>item.id !== deleteId);
+				trip.documents = trip.documents.filter((item, index) => item.id !== deleteId);
 			});
 		}
-		
+
 		if (documentInputs && documentInputs.length > 0) {
 			for (const [index, documentInput] of documentInputs.entries()) {
 				await createDocumentService({ ...documentInput, type, trip: trip.id }).then(
@@ -94,23 +94,23 @@ import { getItems } from '$lib/store/types';
 						}
 						trip.documents.push(document);
 					}
-					);
-				}
+				);
 			}
+		}
 		activeSection = '';
 		handleResetForm();
-		window.openLoading(false);
+		isFormSavingStore.set({saving: false});
 	};
 
 	const handleClearInput = (index) => {
 		// let data: any[] = documentInputs;
-		documentInputs = documentInputs.filter((item ,indexItem)=>indexItem !== index );
-		fileDocuments = fileDocuments.filter((item , indexItem)=>indexItem !== index);
+		documentInputs = documentInputs.filter((item, indexItem) => indexItem !== index);
+		fileDocuments = fileDocuments.filter((item, indexItem) => indexItem !== index);
 	};
 
 	const onAddDocument = () => {
 		let dataFileDocuments: any = [...fileDocuments];
-		dataFileDocuments.push({files: []});
+		dataFileDocuments.push({ files: [] });
 		fileDocuments = dataFileDocuments;
 		let dataDocumentInputs: any = [...documentInputs];
 		dataDocumentInputs.push(new DocumentInput());
@@ -130,59 +130,82 @@ import { getItems } from '$lib/store/types';
 	<h6>{ENUM_DOCUMENT_TYPE_LABEL[type]}</h6>
 	<FormRow label="Document" {isEditing}>
 		<div slot="value">
-			<Grid>
+			<Grid class="document-desktop">
 				<Row>
-					<Column lg={5}>
+					<Column>
 						<label>File</label>
 					</Column>
-					<Column lg={5}>
+					<Column>
 						<label>Description</label>
 					</Column>
-					<Column lg={5}>
+					<Column>
 						<label>Uploaded</label>
 					</Column>
 				</Row>
 				{#each documents || [] as document}
 					<Row>
-						<Column lg={5}>
+						<Column>
 							{#if document.documents && document.documents[0]}
 								<Link href={document.documents[0].url} target="_blank"
 									>{document.documents[0].name}</Link
 								>
 							{/if}
 						</Column>
-						<Column lg={5}>
+						<Column>
 							{document.description || ''}
 						</Column>
-						<Column lg={5}>
+						<Column>
 							{formatDate(document.created_at || '')}
 						</Column>
 					</Row>
+				{/each}
+			</Grid>
+
+			<Grid class="document-mobile">
+				{#each documents || [] as document}
+					<Column>
+						<Row>
+							<label>
+								File:
+								{#if document.documents && document.documents[0]}
+									<Link href={document.documents[0].url} target="_blank"
+										>{document.documents[0].name}</Link
+									>
+								{/if}
+							</label>
+						</Row>
+						<Row>
+							<label>Description: {document.description || ''}</label>
+						</Row>
+						<Row>
+							<label>Uploaded: {formatDate(document.created_at || '')}</label>
+						</Row>
+					</Column>
 				{/each}
 			</Grid>
 		</div>
 		<div slot="fields">
 			<Grid>
 				<Row>
-					<Column lg={5}>
+					<Column>
 						<label>File</label>
 					</Column>
-					<Column lg={5}>
+					<Column>
 						<label>Description</label>
 					</Column>
-					<Column lg={5} />
+					<Column lg={1} />
 				</Row>
 				{#each documents || [] as document, index}
 					<Row>
-						<Column lg={5}>
+						<Column>
 							{#if document.documents && document.documents[0]}
 								<Link href={document.documents[0].url} target="_blank"
 									>{document.documents[0].name}</Link
 								>
 							{/if}
 						</Column>
-						<Column lg={5}>{document.description || ''}</Column>
-						<Column lg={5}>
+						<Column>{document.description || ''}</Column>
+						<Column lg={1}>
 							<CloseOutline20
 								on:click={() => {
 									documents = documents.filter((ele, key) => {
@@ -198,13 +221,17 @@ import { getItems } from '$lib/store/types';
 				{/each}
 				{#each documentInputs as input, index}
 					<Row>
-						<Column lg={5}>
-							<FileUploader buttonLabel="Add files" bind:files={fileDocuments[index].files} status="complete"/>
+						<Column>
+							<FileUploader
+								buttonLabel="Add files"
+								bind:files={fileDocuments[index].files}
+								status="complete"
+							/>
 						</Column>
-						<Column lg={5}>
-							<TextArea bind:value={input.description} rows={2} />
+						<Column>
+							<TextArea autofocus bind:value={input.description} rows={3} />
 						</Column>
-						<Column lg={5} >
+						<Column lg={1}>
 							<CloseOutline20
 								on:click={() => {
 									handleClearInput(index);
@@ -227,15 +254,4 @@ import { getItems } from '$lib/store/types';
 			display: block;
 		}
 	}
-
-	:global(.bx--loading){
-		// display: none;
-	}
-
-	@media screen and (max-width: 768px) {
-		:global(.bx--file__selected-file){
-			width: 302px;
-		}
-	}
-	
 </style>

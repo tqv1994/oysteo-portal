@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DatePicker, DatePickerInput } from 'carbon-components-svelte';
+	import { Checkbox, DatePicker, DatePickerInput } from 'carbon-components-svelte';
 
 	import type { Destination } from '$lib/store/destination';
 
@@ -11,12 +11,12 @@
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 
 	export let index: number;
-	let invalidDateVisited =  { 
+	let invalidDateVisited = {
 		status: false,
-		message: 'please enter date visited' 
+		message: 'please enter last date visited'
 	};
 	export let destinations: Destination[];
-	export let activeSection: string = '';
+	export let activeSection = '';
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
 	};
@@ -27,18 +27,22 @@
 	const onUpdate = (field: string) => {
 		const date_visited = document.getElementById('date_visited');
 
-		if(date_visited.value == ''){
+		if (date_visited.value == '') {
 			invalidDateVisited.status = true;
 			setTimeout(() => {
 				invalidDateVisited.status = false;
 			}, INVALID_DELAY_TIME);
 			return;
-		}else{
+		} else {
 			destinations[index].date_visited = date_visited.value;
 			invalidDateVisited.status = false;
 			dispatcher('submit', { index, field });
 			activeSection = '';
 		}
+	};
+	const onUpdateVisible = (field: string) => {
+		dispatcher('submit', { index, field });
+		activeSection = '';
 	};
 </script>
 
@@ -50,14 +54,13 @@
 	on:submit={() => onUpdate('date_visited')}
 	groupClass={'group group-destinations'}
 >
-	<FormRow label="Date Visited" {isEditing}>
+	<FormRow label="Last Date Visited" {isEditing}>
 		<div slot="value">
 			{destinations[index]?.date_visited === null
 				? ''
 				: formatMonthAndYear(destinations[index]?.date_visited)}
 		</div>
-		<div slot="fields" style="position:relative"
-		>
+		<div slot="fields" style="position:relative">
 			<DatePicker
 				on:change={(e) => {
 					invalidDateVisited.status = false;
@@ -68,7 +71,7 @@
 			>
 				<DatePickerInput
 					id="date_visited"
-					labelText="date visited"
+					labelText="last date visited"
 					placeholder="mm/dd/yyyy"
 					invalid={invalidDateVisited.status}
 					invalidText={invalidDateVisited.message}
@@ -77,3 +80,10 @@
 		</div>
 	</FormRow>
 </FormGroup>
+<Checkbox
+	labelText="Visible"
+	bind:checked={destinations[index].visible}
+	on:change={() => {
+		onUpdateVisible('visible');
+	}}
+/>

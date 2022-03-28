@@ -1,7 +1,7 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { extractSetCookieHeader, getSessionCookie } from '$lib/utils/session';
 import { cmsUrlPrefix } from '$lib/utils/_env';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 /**
  * @type {import('@sveltejs/kit').Delete}
  */
@@ -20,7 +20,7 @@ export const del: RequestHandler = async (event) => {
 			});
 			if (!res.ok) {
 				console.error('Error delete file', res);
-				return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Failed to sign out');
+				return makeEmptyResponse(500);
 			}
 			return new Response('', {
 				status: 202,
@@ -29,6 +29,6 @@ export const del: RequestHandler = async (event) => {
 		}
 	} catch (err) {
 		console.error('Error deleting file', err);
-    return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Failed to sign out')
+		return makeEmptyResponse(500);
 	}
 };

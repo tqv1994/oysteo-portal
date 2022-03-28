@@ -14,7 +14,7 @@ export type AdvisorUser = {
 
 export type Advisor = Base &
 	Nameable & {
-		description?: string;
+		biography?: string;
 		accept?: boolean;
 		planningFee?: boolean;
 		email?: string;
@@ -38,18 +38,23 @@ export type Advisor = Base &
 		reference?: string;
 		website?: string;
 		timezone?: string;
-		address?: Address;
+		address?: Address[];
 		country?: Country;
 		language1?: Language;
+		language2?: Language;
+		language3?: Language;
+		language4?: Language;
+		language5?: Language;
+		language6?: Language;
 		experiences?: Experience[];
 		destinations?: Destination[];
-        avatar?: Media;
-        name?: string;
-        experienceTypes1?: ExperienceType;
-        experienceTypes2?: ExperienceType;
-        experienceTypes3?: ExperienceType;
-        experienceTypes4?: ExperienceType;
-        experienceTypes5?: ExperienceType;
+		avatar?: Media;
+		name?: string;
+		experienceTypes1?: ExperienceType;
+		experienceTypes2?: ExperienceType;
+		experienceTypes3?: ExperienceType;
+		experienceTypes4?: ExperienceType;
+		experienceTypes5?: ExperienceType;
 	};
 
 export const advisorFieldsFragment = `
@@ -69,7 +74,7 @@ fragment advisorFields on Advisor {
     cell_mobile_code
     whatsapp_code
     emergency_code
-    description
+    biography
     accept
     planningFee
     email2
@@ -101,6 +106,21 @@ fragment advisorFields on Advisor {
     language1{
         ...languageFields
     }
+    language2{
+        ...languageFields
+    }
+    language3{
+        ...languageFields
+    }
+    language4{
+        ...languageFields
+    }
+    language5{
+        ...languageFields
+    }
+    language6{
+        ...languageFields
+    }
     address{
       ...addressFields
     }
@@ -109,15 +129,6 @@ fragment advisorFields on Advisor {
     }
     destinations{
        ...destinationFields
-    }
-    affiliate_agencies{
-        ...affiliateAgencyFields
-    }
-    affiliate_networks{
-        ...affiliateNetworkFields
-    }
-    affiliate_benefit_programs{
-        ...affiliateBenefitProgramFields
     }
     experienceTypes1{
         ...experienceTypeFields

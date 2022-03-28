@@ -9,7 +9,11 @@ export type Destination = Base &
 		date_visited?: string;
 		gallery: Media[];
 		intro: string;
-    country: Country;
+		country: Country;
+		visible: boolean;
+		author: {
+			id: string;
+		};
 		// videos: Media[];
 	};
 
@@ -25,6 +29,14 @@ fragment destinationFields on Destination {
     }
     country{
       ...countryFields
+    }
+    visible
+    author{
+      id
+    }
+    type1{
+      id
+      name
     }
 }
 `;

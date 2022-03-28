@@ -1,12 +1,10 @@
 <script lang="ts">
-import CollapsibleSection from '$lib/components/form/CollapsibleSection.svelte';
-
+	import CollapsibleSection from '$lib/components/form/CollapsibleSection.svelte';
 	import { formatDate } from '$lib/helpers/datetime';
 	import type { Traveller } from '$lib/store/traveller';
-
 	import { ENUM_TRIP_STATE_LABEL, Trip } from '$lib/store/trip';
 	import { Button, DataTable, Link, TextInput } from 'carbon-components-svelte';
-	import type { DataTableHeader } from 'carbon-components-svelte/types/DataTable/DataTable';
+	import type { DataTableHeader } from 'carbon-components-svelte/types/DataTable/DataTable.svelte';
 	import { FolderOpen32, Forum32, Phone32 } from 'carbon-icons-svelte';
 	type TravellerTrips = {
 		id: string | number;
@@ -60,7 +58,7 @@ import CollapsibleSection from '$lib/components/form/CollapsibleSection.svelte';
 		}
 	];
 	export let trips: Trip[];
-	
+	export let noCTA = false;
 	let data: TravellerTrips[] = trips.reduce((acc: TravellerTrips[], item: Trip) => {
 		if (item.lead_traveller) {
 			const indexExist = acc.findIndex(
@@ -87,10 +85,10 @@ import CollapsibleSection from '$lib/components/form/CollapsibleSection.svelte';
 	let depart_at: string;
 	let updated_at: string;
 	let href: string;
-	export let typeTraveler: boolean = false;
+	export let typeTraveler = false;
 	let activeTrip: string | number;
 	let lastTrip: string;
-	let detailLinkPrefix: string = '/account/trips/trip-detail?id=';
+	let detailLinkPrefix = '/account/trips/trip-detail?id=';
 </script>
 
 <DataTable expandable sortable bind:headers rows={data} class="table-custom">
@@ -153,98 +151,77 @@ import CollapsibleSection from '$lib/components/form/CollapsibleSection.svelte';
 </DataTable>
 <div class="mobile-table">
 	{#each data as row}
-	<div class="data-trip">
-		<div class="custom-button-table mobile-icon">
-			{#if row.trips[0].state === 'enquired'}
-				<FolderOpen32 />
-			{/if}
-			<Phone32 />
-			<Forum32 />
-		</div>
-		<div class="hide">
-			{#if row.traveller == null}
-				{fullname = ''}
-				{href = `/account/travelers/traveler-detail?id=${row.id}`}
-			{:else}
-				{fullname = `${row.traveller.forename} ${row.traveller.surname}`}
-				{href = `/account/travelers/traveler-detail?id=${row.traveller.id}`}
-			{/if}
-			{row.trips[0].state !== 'completed' ? activeTrip =  0 : activeTrip = '-'}
-			{lastTrip = formatDate(row.trips.reduce((acc, item) => {
-				if (!acc) {
-					acc = item.depart_at;
-				} else if (new Date(item.depart_at) > new Date(acc)) {
-					acc = item.depart_at;
-				}
-				return acc;
-			}, undefined))}
-		</div>
-		<Link href={href}>
-			<TextInput
-				labelText='Client name'
-				bind:value={fullname}
-			/>
-		</Link>
-		<CollapsibleSection headerText={'Show Trip'} >
-			<div class="content">
-				<div class="mobile-table">
-					{#each row.trips as trip}
-					<div class="data-trip">
-						<div class="hide">
-							{#if trip.lead_traveller == null}
-								{fullname = ''}
-							{:else}
-								{fullname = `${trip.lead_traveller.forename} ${trip.lead_traveller.surname}`}
-							{/if}
-							{depart_at = formatDate(trip.depart_at)}
-							{updated_at = formatDate(trip.updated_at)}
-						</div>
-						<Link href={`${detailLinkPrefix}${trip.id}`}>
-							<TextInput
-								labelText='Departure'
-								bind:value={depart_at}
-							/>
-						</Link>
-						<Link href={`${detailLinkPrefix}${trip.id}`}>
-							<TextInput
-								labelText='Description'
-								bind:value={trip.description}
-							/>
-						</Link>
-						<Link class="half-width" href={`${detailLinkPrefix}${trip.id}`}>
-							<TextInput
-								labelText='Status'
-								bind:value={ENUM_TRIP_STATE_LABEL[trip.state]}
-							/>
-							<TextInput
-								labelText='Update'
-								bind:value={updated_at}
-							/>
-						</Link>
-					</div>
-					{/each}
+		<div class="data-trip">
+			{#if !noCTA}
+				<div class="custom-button-table mobile-icon">
+					{#if row.trips[0].state === 'enquired'}
+						<FolderOpen32 />
+					{/if}
+					<Phone32 />
+					<Forum32 />
 				</div>
+			{/if}
+			<div class="hide">
+				{#if row.traveller == null}
+					{(fullname = '')}
+					{(href = `/account/travelers/traveler-detail?id=${row.id}`)}
+				{:else}
+					{(fullname = `${row.traveller.forename} ${row.traveller.surname}`)}
+					{(href = `/account/travelers/traveler-detail?id=${row.traveller.id}`)}
+				{/if}
+				{row.trips[0].state !== 'completed' ? (activeTrip = 0) : (activeTrip = '-')}
+				{(lastTrip = formatDate(
+					row.trips.reduce((acc, item) => {
+						if (!acc) {
+							acc = item.depart_at;
+						} else if (new Date(item.depart_at) > new Date(acc)) {
+							acc = item.depart_at;
+						}
+						return acc;
+					}, undefined)
+				))}
 			</div>
-		</CollapsibleSection>
-		<Link class="half-width" href={href}>
-			<TextInput
-				labelText='Total Trip'
-				bind:value={row.trips.length}
-			/>
-			<TextInput
-				labelText='Active Trip'
-				bind:value={activeTrip}
-			/>
-		</Link>
-		<Link href={href}>
-			<TextInput
-				labelText='Last Trip'
-				bind:value={lastTrip}
-			/>
-		</Link>
-	</div>
+			<Link {href}>
+				<TextInput labelText="Client name" bind:value={fullname} />
+			</Link>
+			<CollapsibleSection headerText={'Show Trip'}>
+				<div class="content">
+					<div class="mobile-table">
+						{#each row.trips as trip}
+							<div class="data-trip">
+								<div class="hide">
+									{#if trip.lead_traveller == null}
+										{(fullname = '')}
+									{:else}
+										{(fullname = `${trip.lead_traveller.forename} ${trip.lead_traveller.surname}`)}
+									{/if}
+									{(depart_at = formatDate(trip.depart_at))}
+									{(updated_at = formatDate(trip.updated_at))}
+								</div>
+								<Link href={`${detailLinkPrefix}${trip.id}`}>
+									<TextInput labelText="Departure" bind:value={depart_at} />
+								</Link>
+								<Link href={`${detailLinkPrefix}${trip.id}`}>
+									<TextInput labelText="Description" bind:value={trip.description} />
+								</Link>
+								<Link class="half-width" href={`${detailLinkPrefix}${trip.id}`}>
+									<TextInput labelText="Status" bind:value={ENUM_TRIP_STATE_LABEL[trip.state]} />
+									<TextInput labelText="Update" bind:value={updated_at} />
+								</Link>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</CollapsibleSection>
+			<Link class="half-width" {href}>
+				<TextInput labelText="Total Trip" bind:value={row.trips.length} />
+				<TextInput labelText="Active Trip" bind:value={activeTrip} />
+			</Link>
+			<Link {href}>
+				<TextInput labelText="Last Trip" bind:value={lastTrip} />
+			</Link>
+		</div>
 	{/each}
-	
 </div>
 
 <style lang="scss">

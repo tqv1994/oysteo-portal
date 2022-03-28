@@ -1,93 +1,106 @@
 <script lang="ts">
-import type { Traveller } from "$lib/store/traveller";
+	import type { Traveller } from '$lib/store/traveller';
 
-import { Button, Column, Grid, Link, Row } from "carbon-components-svelte";
-import { Forum16, Forum32, Phone32 } from "carbon-icons-svelte";
+	import { Button, Column, Grid, Link, Row } from 'carbon-components-svelte';
+	import { Forum16, Forum32, Phone32 } from 'carbon-icons-svelte';
 
-export let traveller: Traveller;
+	export let traveller: Traveller;
 </script>
+
 <div class="mt-15 desktop-profile">
-<Grid narrow padding>
-    <Row>
-        <Column><label>Name</label></Column>
-        <Column><label>Language</label></Column>
-        <Column><label>Phone</label></Column>
-        <Column><label>Pref. Contact</label></Column>
-        <Column><label>Email</label></Column>
-        <Column lg={1}></Column>
-    </Row>
-    <Row>
-        <Column>{`${traveller.forename || ''} ${traveller.surname || ''}`}</Column>
-        <Column>{traveller.language || ''}</Column>
-        <Column>{traveller.mobilePhone || ''}</Column>
-        <Column>{traveller.whatsapp || ''}</Column>
-        <Column>{traveller.email || ''}</Column>
-        <Column lg={1}><Link href="#"><Forum16/></Link></Column>
-    </Row>
-    <Row>
-        <Column><label>Country</label></Column>
-        <Column><label>Address</label></Column>
-        <Column><label>Time Zone</label></Column>
-        <Column><label>Age</label></Column>
-        <Column></Column>
-        <Column lg={1}></Column>
-    </Row>
-    <Row>
-        <Column>{traveller.residence?.name || ''}</Column>
-        <Column>
-            {#if traveller.addresses && traveller.addresses[0]}
-                {`${traveller.addresses[0]?.line1 || ''}, ${traveller.addresses[0]?.province || ''}, ${traveller.addresses[0]?.country?.code || ''} ${traveller.addresses[0]?.zipcode || ''}`}
-            {/if}
-        </Column>
-        <Column>{''}</Column>
-        <Column>{new Date().getFullYear() - new Date(traveller.birthday).getFullYear()}</Column>
-        <Column></Column>
-        <Column lg={1}></Column>
-    </Row>
-</Grid>
-<Grid narrow padding>
-    <Row>
-        <Column><label>Profile Description</label></Column>
-    </Row>
-    <Row>
-        <Column>{''}</Column>
-    </Row>
-</Grid>
+	<Grid narrow padding>
+		<Row>
+			<Column><label>Name</label></Column>
+			<Column><label>Language</label></Column>
+			<Column><label>Phone</label></Column>
+			<Column><label>Pref. Contact</label></Column>
+			<Column><label>Email</label></Column>
+			<Column lg={1} />
+		</Row>
+		<Row>
+			<Column>{`${traveller.forename || ''} ${traveller.surname || ''}`}</Column>
+			<Column>{traveller.language || ''}</Column>
+			<Column>{traveller.mobilePhone || ''}</Column>
+			<Column>{traveller.whatsapp || ''}</Column>
+			<Column>{traveller.email || ''}</Column>
+			<Column lg={1}><Link href="#"><Forum16 /></Link></Column>
+		</Row>
+		<Row>
+			<Column><label>Country</label></Column>
+			<Column><label>Address</label></Column>
+			<Column><label>Time Zone</label></Column>
+			<Column><label>Age</label></Column>
+			<Column />
+			<Column lg={1} />
+		</Row>
+		<Row>
+			<Column>{traveller.residence?.name || ''}</Column>
+			<Column>
+				{#if traveller.addresses && traveller.addresses[0]}
+					{`${traveller.addresses[0]?.line1 || ''}, ${traveller.addresses[0]?.province || ''}, ${
+						traveller.addresses[0]?.country?.code || ''
+					} ${traveller.addresses[0]?.zipcode || ''}`}
+				{/if}
+			</Column>
+			<Column>{''}</Column>
+			<Column>{new Date().getFullYear() - new Date(traveller.birthday).getFullYear()}</Column>
+			<Column />
+			<Column lg={1} />
+		</Row>
+	</Grid>
+	<Grid narrow padding>
+		<Row>
+			<Column><label>Profile Description</label></Column>
+		</Row>
+		<Row>
+			<Column>{''}</Column>
+		</Row>
+	</Grid>
 </div>
 
 <div class="mt-15 mobile-profile">
-<Grid narrow padding>
-    <Row>
-        <Column class="custom-col">
-            <Row><label>Name: {` ${traveller.forename || ''} ${traveller.surname || ''}`}</label></Row>
-            <Row><label>Language: {traveller.language || ''}</label></Row>
-            <Row><label>Phone: {traveller.mobilePhone || ''}</label></Row>
-            <Row><label>Pref. Contact: {traveller.whatsapp || ''}</label></Row>
-            <Row><label>Email: {traveller.email || ''}</label></Row>
-        </Column>
-        <div class="mobile-icon">
-            <Forum32 />
-        </div>
-    </Row>
-    <Column>
-        <Row><label>Country: {traveller.residence?.name || ''}</label></Row>
-        <Row><label>Address: 
-        {#if traveller.addresses && traveller.addresses[0]}
-            {`${traveller.addresses[0]?.line1 || ''}, ${traveller.addresses[0]?.province || ''}, ${traveller.addresses[0]?.country?.code || ''} ${traveller.addresses[0]?.zipcode || ''}`}
-        {/if}</label></Row>
-        <Row><label>Time Zone: {''}</label></Row>
-        <Row><label>Age: {new Date().getFullYear() - new Date(traveller.birthday).getFullYear()} </label></Row>
-    </Column>
-    <Column>
-        <Row><label>Profile Description: {''}</label></Row>
-    </Column>
-</Grid>
-
+	<Grid narrow padding>
+		<Row>
+			<Column class="custom-col">
+				<Row><label>Name: {` ${traveller.forename || ''} ${traveller.surname || ''}`}</label></Row>
+				<Row><label>Language: {traveller.language || ''}</label></Row>
+				<Row><label>Phone: {traveller.mobilePhone || ''}</label></Row>
+				<Row><label>Pref. Contact: {traveller.whatsapp || ''}</label></Row>
+				<Row><label>Email: {traveller.email || ''}</label></Row>
+			</Column>
+			<div class="mobile-icon">
+				<Forum32 />
+			</div>
+		</Row>
+		<Column>
+			<Row><label>Country: {traveller.residence?.name || ''}</label></Row>
+			<Row
+				><label
+					>Address:
+					{#if traveller.addresses && traveller.addresses[0]}
+						{`${traveller.addresses[0]?.line1 || ''}, ${traveller.addresses[0]?.province || ''}, ${
+							traveller.addresses[0]?.country?.code || ''
+						} ${traveller.addresses[0]?.zipcode || ''}`}
+					{/if}</label
+				></Row
+			>
+			<Row><label>Time Zone: {''}</label></Row>
+			<Row
+				><label
+					>Age: {new Date().getFullYear() - new Date(traveller.birthday).getFullYear()}
+				</label></Row
+			>
+		</Column>
+		<Column>
+			<Row><label>Profile Description: {''}</label></Row>
+		</Column>
+	</Grid>
 </div>
+
 <style lang="scss">
-    div{
-        :global(.bx--row){
-            margin-bottom: 0;
-        }
-    }
+	div {
+		:global(.bx--row) {
+			margin-bottom: 0;
+		}
+	}
 </style>

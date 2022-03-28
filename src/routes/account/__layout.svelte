@@ -1,65 +1,43 @@
 <script lang="ts" context="module">
-	import {
-		Header,
-		SkipToContent,
-		HeaderNav,
-		HeaderNavItem,
-		HeaderUtilities,
-		HeaderPanelLinks,
-		HeaderPanelLink,
-		HeaderAction,
-		SideNav,
-		SideNavItems,
-		SideNavLink,
-		Content
-	} from 'carbon-components-svelte';
-	import { User20 } from 'carbon-icons-svelte';
-	import { expoIn } from 'svelte/easing';
-	import { authStore } from '$lib/store/auth';
-	import { afterUpdate, beforeUpdate, onDestroy, onMount } from 'svelte';
+	import 'carbon-components-svelte/css/all.css';
+	import '$lib/utils/firebase';
+	import { Content } from 'carbon-components-svelte';
+	import OHeader from '$lib/components/navigation/OHeader.svelte';
 	import type { Load } from '@sveltejs/kit';
-	import type { Locals } from '$lib/store/local';
-	let typeUser = 'agency';
-	export const load: Load<{ session: Locals }> = async ({ session,url }) => {
-		if(!session.user.agencyMe){
-			typeUser = 'advisor';
+	import { get } from 'svelte/store';
+	import { authStore } from '$lib/store/auth';
+	import { afterUpdate } from 'svelte';
+	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
+	import { redirect } from '$lib/helpers/redirect.svelte';
+
+	export const load: Load = async () => {
+		const { user } = get(authStore);
+		if (!user) {
+			return redirect('/auth/sign-in');
 		}
-		return {
-			props: {
-				navSelected: url.pathname.startsWith('/account/agency')
-					? 'agency'
-					: url.pathname.startsWith('/account/advisor')
-					? 'advisor'
-					: ''
-			}
-		};
+		return {};
 	};
 </script>
 
 <script lang="ts">
-	import PopupWarningSaveForm from '$lib/components/form/PopupWarningSaveForm.svelte';
-	import 'carbon-components-svelte/css/all.css';
-	import '../../theme/oysteo.scss';
-	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
-	import { goto } from '$app/navigation';
-	let isSideNavOpen = false;
-	let isOpen = false;
-	let selected = '0';
-	export let navSelected: string;
-	let transitions = {
-		'0': {
-			text: 'Default (duration: 200ms)',
-			value: { duration: 200 }
-		},
-		'1': {
-			text: 'Custom (duration: 600ms, delay: 50ms, easing: expoIn)',
-			value: { duration: 600, delay: 50, easing: expoIn }
-		},
-		'2': {
-			text: 'Disabled',
-			value: false
+	import { beforeNavigate } from '$app/navigation';
+	import { globalState } from '$lib/store/state';
+	import { notify } from '$lib/components/Toast.svelte';
+
+	beforeNavigate(({ cancel }) => {
+		const anchor = get(globalState).editingAnchor;
+		if (anchor) {
+			notify({
+				title: 'Unsaved changes',
+				subtitle: 'You must cancel the changes to navigate away from this page',
+				timeout: 3000
+			});
+			document.querySelector(anchor).scrollIntoView({
+				behavior: 'smooth'
+			});
+			cancel();
 		}
-	};
+	});
 
 	const onLoad = () => {
 		const marginTop = 60;
@@ -69,8 +47,9 @@
 		if (desktopNavSectionEl && contentEl && divFakeHeight) {
 			desktopNavSectionEl.querySelectorAll('a').forEach((element) => {
 				element.addEventListener('click', () => {
+					console.log('clickky');
 					const target = element.getAttribute('href');
-					
+
 					if (target.indexOf('#') > -1) {
 						// Handling when the height of the screen is not enough, can't scroll to the position of the last sections
 						let heightOfSections = 0;
@@ -96,7 +75,6 @@
 			// The event handler after clicking the edit button will be on top to the section
 			contentEl.querySelectorAll('.section .btn-edit').forEach((btnEl, key) => {
 				btnEl.addEventListener('click', (e: PointerEvent) => {
-					
 					if ($formChangeStatusStore.changing === false) {
 						if (e.path && Array.isArray(e.path)) {
 							const sectionCurrent = e.path.reduce((acc: Element, item: Element) => {
@@ -106,10 +84,12 @@
 								return acc;
 							}, null);
 							desktopNavSectionEl.querySelectorAll('a').forEach((element) => {
-								if (element.getAttribute('href') == `#${sectionCurrent.id}` && `#${sectionCurrent.id}` != '#documents') {
+								if (
+									element.getAttribute('href') == `#${sectionCurrent.id}` &&
+									`#${sectionCurrent.id}` != '#documents'
+								) {
 									element.click();
 								}
-								
 							});
 						}
 					}
@@ -123,9 +103,10 @@
 		const doc = document.documentElement;
 		const desktopNavSectionEl = document.getElementById('desktop-nav-section');
 		const contentEl = document.querySelector('.content');
+
 		if (desktopNavSectionEl) {
 			let scrollDistance: number = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
-			
+
 			contentEl.querySelectorAll('.section').forEach((sectionEl, key) => {
 				if (getOffset(sectionEl).top - marginTop <= scrollDistance) {
 					desktopNavSectionEl.querySelectorAll('li.active').forEach((activeEl) => {
@@ -135,7 +116,6 @@
 						desktopNavSectionEl.querySelectorAll('li')[key].classList.add('active');
 					}
 				}
-				
 			});
 		}
 	};
@@ -149,151 +129,10 @@
 	};
 
 	afterUpdate(onLoad);
-
-	const gotoAgency = () => {
-		if (!$formChangeStatusStore.changing) {
-			goto('/account/agency');
-			isSideNavOpen = false;
-		} else {
-			window.openWarningSaveForm({ handleConfirm: gotoAgency });
-		}
-	};
-
-	const gotoAdvisor = () => {
-		if (!$formChangeStatusStore.changing) {
-			goto('/account/advisor');
-			isSideNavOpen = false;
-		} else {
-			window.openWarningSaveForm({ handleConfirm: gotoAdvisor });
-		}
-	};
-
-	const gotoAccount = () => {
-		if (!$formChangeStatusStore.changing) {
-			goto('/account');
-			isSideNavOpen = false;
-		} else {
-			window.openWarningSaveForm({ handleConfirm: gotoAccount });
-		}
-	};
-
-	const gotoLogout = () => {
-		if (!$formChangeStatusStore.changing) {
-			goto('/account/logout');
-			isSideNavOpen = false;
-		} else {
-			window.openWarningSaveForm({ handleConfirm: gotoLogout });
-		}
-	};
 </script>
 
 <svelte:window on:scroll={onScroll} />
-<Header
-	bind:isSideNavOpen
-	persistentHamburgerMenu={true}
-	class={isSideNavOpen ? 'header-dark' : ''}
->
-	<div id="logo">
-		<svg xmlns="http://www.w3.org/2000/svg" width="92" height="21" viewBox="0 0 92 21">
-			<a href="/">
-				<text
-					id="OYSTEO"
-					transform="translate(0 17)"
-					font-size="18"
-					letter-spacing="0.2em"><tspan x="0" y="0">OYSTEO</tspan></text
-				>
-			</a>
-		</svg>
-	</div>
-	<div slot="skip-to-content">
-		<SkipToContent />
-	</div>
-
-	<HeaderNav>
-		<HeaderNavItem href="#" text="My OYSTEO" on:click={gotoAccount} />
-		<HeaderNavItem
-			isSelected={navSelected == 'advisor'}
-			href="#"
-			text="Advisor"
-			on:click={() => {
-				gotoAdvisor();
-			}}
-		/>
-		{#if typeUser == 'agency'}
-		<HeaderNavItem
-			isSelected={navSelected == 'agency'}
-			href="#"
-			text="Agency"
-			on:click={() => {
-				gotoAgency();
-			}}
-		/>
-		{:else}
-		<HeaderNavItem
-			class="disable-agency"
-			href="#"
-			text="Agency"
-		/>
-		{/if}
-	</HeaderNav>
-	<HeaderUtilities>
-		<HeaderAction
-			bind:isOpen
-			icon={User20}
-			transition={transitions[selected].value}
-			class="ultilities-logout"
-		>
-			<HeaderPanelLinks>
-				<p id="account-name">{$authStore.user?.email || ''}</p>
-				<HeaderPanelLink class="btn-logout" href="#" on:click={gotoLogout}>Logout</HeaderPanelLink>
-			</HeaderPanelLinks>
-		</HeaderAction>
-	</HeaderUtilities>
-</Header>
-
-<SideNav isOpen={isSideNavOpen} id="main-sidebar">
-	<SideNavItems>
-		<SideNavLink text="My OYSTEO" href="#" on:click={gotoAccount} />
-		<SideNavLink
-			text="Advisors"
-			href="#"
-			isSelected={navSelected == 'advisor'}
-			on:click={() => {
-				gotoAdvisor();
-			}}
-		/>
-		{#if typeUser == 'agency'}
-		<SideNavLink
-			text="Agency"
-			href="#"
-			isSelected={navSelected == 'agency'}
-			on:click={() => {
-				gotoAgency();
-			}}
-		/>
-		{/if}
-	</SideNavItems>
-</SideNav>
-
+<OHeader />
 <Content>
-	<slot {isSideNavOpen} />
+	<slot />
 </Content>
-<PopupWarningSaveForm />
-
-<style lang="scss">
-	:global(#main-sidebar) {
-		z-index: 9999;
-	}
-	@media (max-width: 1056px) {
-		:global(.bx--side-nav ~ .bx--content) {
-			margin-left: 0;
-			padding-left: 1rem;
-			padding-right: 1rem;
-		}
-	}
-	:global(header) {
-		:global(.btn-logout.btn-logout:hover) {
-			color: rgba(255, 255, 255, 0.7);
-		}
-	}
-</style>

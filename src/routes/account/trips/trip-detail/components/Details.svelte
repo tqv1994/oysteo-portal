@@ -5,6 +5,8 @@
 	import FormRow from '$lib/components/form/row.svelte';
 	import { TextArea } from 'carbon-components-svelte';
 	import { createTripService, updateTripService } from '$lib/services/trip.services';
+	import { notify } from '$lib/components/Toast.svelte';
+import { isFormSavingStore } from '$lib/store/isFormSaving';
 	export let trip: Trip | undefined;
 	//export let isEditing: boolean = false;
 	let activeSection = '';
@@ -24,14 +26,14 @@
 	};
 
 	const onSubmit = async () => {
-		window.openLoading(true, 'Saving');
+		isFormSavingStore.set({saving: true});
 		if (trip) {
 			await updateTripService(trip.id, tripInput)
 				.then((output) => {
 					trip = output;
 				})
 				.catch((error) => {
-					window.openNotification({ kind: 'error', title: 'Error', subtitle: error.message });
+					notify({ kind: 'error', title: 'Error', subtitle: error.message });
 				});
 		} else {
 			await createTripService(tripInput)
@@ -39,17 +41,17 @@
 					trip = output;
 				})
 				.catch((error) => {
-					window.openNotification({ kind: 'error', title: 'Error', subtitle: error.message });
+					notify({ kind: 'error', title: 'Error', subtitle: error.message });
 				});
 		}
 		tripInput = new TRipInput();
-		window.openLoading(false);
+		isFormSavingStore.set({saving: false});
 		activeSection = '';
 	};
-	if(!trip){
+	if (!trip) {
 		activeSection = 'details';
 		tripInput = new TRipInput();
-	}else{
+	} else {
 		tripInput = convertTripToInput(trip);
 	}
 </script>
@@ -66,7 +68,7 @@
 			{trip?.description || ''}
 		</div>
 		<div slot="fields">
-			<TextArea bind:value={tripInput.description} />
+			<TextArea autofocus bind:value={tripInput.description} />
 		</div>
 	</FormRow>
 	<FormRow label="Notes" {isEditing}>

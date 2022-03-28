@@ -5,7 +5,7 @@ export type City = Identifiable &
 	Nameable & {
 		description?: string;
 		lat?: number;
-        long?: number;
+		long?: number;
 	};
 
 export const cityStore = writable<CollectionStore<City>>({

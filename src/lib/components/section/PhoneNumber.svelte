@@ -7,18 +7,18 @@
 
 	import type { Advisor } from '$lib/store/advisor';
 	import type { Agency } from '$lib/store/agency';
-	import type { Country } from '$lib/store/country';
+	import { countryStore } from '$lib/store/country';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
+	import { sortByName, sortByOrder } from '$lib/utils/sort';
 	import { Select, SelectItem, TextInput } from 'carbon-components-svelte';
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy } from 'svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
 
 	export let object: Advisor | Agency;
-	export let countries: Country[];
-	export let activeSection: string = '';
-	export let activeLoading: boolean = false;
+	export let activeSection = '';
 	export let type: string;
 	type PhonesInput = {
 		phone_number: string;
@@ -30,6 +30,9 @@
 		whatsapp_code?: string;
 		emergency_code?: string;
 	};
+
+	const countries = sortByOrder(sortByName(Object.values($countryStore.items)));
+
 	let phonesInput: PhonesInput;
 
 	const onResetPhonesInput = () => {
@@ -94,7 +97,7 @@
 				return;
 			}
 
-			activeLoading = true;
+			isFormSavingStore.set({ saving: true });
 			const res = await fetch(`/common/${type}-${object.id}.json`, {
 				method: 'PUT',
 				headers: {
@@ -118,9 +121,8 @@
 		} catch (error) {
 			console.log('Update Phone Number : ' + error);
 		}
-		activeLoading = false;
+		isFormSavingStore.set({ saving: false });
 	};
-	
 </script>
 
 <FormGroup
@@ -151,6 +153,8 @@
 				{/each}
 			</Select>
 			<TextInput
+				autofocus
+				type="text"
 				labelText="Number"
 				placeholder="Enter your phone number"
 				bind:value={phonesInput.phone_number}
@@ -180,6 +184,7 @@
 				{/each}
 			</Select>
 			<TextInput
+				type="text"
 				labelText="Number"
 				placeholder="Enter cell/mobile number"
 				bind:value={phonesInput.cell_mobile}
@@ -209,6 +214,7 @@
 				{/each}
 			</Select>
 			<TextInput
+				type="text"
 				labelText="Number"
 				placeholder="Enter your WhatsApp number"
 				bind:value={phonesInput.whatsapp}
@@ -238,6 +244,7 @@
 				{/each}
 			</Select>
 			<TextInput
+				type="text"
 				labelText="Number"
 				placeholder="Enter your emergency contact number"
 				bind:value={phonesInput.emergency}

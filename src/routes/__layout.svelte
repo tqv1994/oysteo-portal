@@ -1,66 +1,50 @@
 <script lang="ts" context="module">
+	import 'carbon-components-svelte/css/all.css';
 	import type { Load } from '@sveltejs/kit';
-	import { authStore, User } from '$lib/store/auth';
 	import { insertToStore } from '$lib/store/types';
 	import { countryStore } from '$lib/store/country';
 	import { languageStore } from '$lib/store/language';
-	import type { Locals } from '$lib/store/local';
 	import { salutationTypeStore } from '$lib/store/salutationType';
-	export const load: Load<{ session: Locals }> = async ({ session, url }) => {
-		insertToStore(countryStore, session.metadata?.countries, false);
-		insertToStore(languageStore, session.metadata?.languages, false);
-		insertToStore(salutationTypeStore, session.metadata?.salutationTypes, false);
-		insertToStore(interestTypeStore, session.metadata?.interestTypes, false);
-		insertToStore(travelPreferenceTypeStore, session.metadata?.travelPreferenceTypes, false);
-		insertToStore(personalPreferenceTypeStore, session.metadata?.personalPreferenceTypes, false);
-		let redirect = null;
-		if (session.user) {
-			authStore.set({ user: session.user });
-			if (!url.pathname.startsWith('/account')) {
-				redirect = '/account';
-			} else {
-				if (!session.user.advisorMe && url.pathname.startsWith('/account/advisor')) {
-					window.openNotification({
-						kind: 'warning',
-						title: 'Warning',
-						subtitle: 'You are not an advisor, so you do not have access to this function.'
-					});
-					redirect = '/account';
-				} else if (!session.user.agencyMe && url.pathname.startsWith('/account/agency')) {
-					window.openNotification({
-						kind: 'warning',
-						title: 'Warning',
-						subtitle: 'You are not an agency, so you do not have access to this function.'
-					});
-					redirect = '/account';
-				}
-			}
-		} else {
-			if (url.pathname.startsWith('/account')) {
-				redirect = '/';
-			}
+	import { interestTypeStore } from '$lib/store/interest';
+	import { personalPreferenceTypeStore, travelPreferenceTypeStore } from '$lib/store/preference';
+	import type { RootSessionData } from '$lib/store/session';
+	import { destinationTypeStore } from '$lib/store/destinationType';
+	import { experienceTypeStore } from '$lib/store/experienceType';
+	import { paymentMethodStore } from '$lib/store/paymentMethod';
+	import {
+		affiliateAgencyStore,
+		affiliateBenefitProgramStore,
+		affiliateNetworkStore
+	} from '$lib/store/affiliate';
+	import { authStore } from '$lib/store/auth';
+	import Toast from '$lib/components/Toast.svelte';
+	import PopupWarningSaveForm from '$lib/components/form/PopupWarningSaveForm.svelte';
+
+	export const load: Load = async ({ session }) => {
+		const { user, metadata } = session as RootSessionData;
+
+		if (metadata) {
+			insertToStore(countryStore, metadata.countries, false);
+			insertToStore(languageStore, metadata.languages, false);
+			insertToStore(salutationTypeStore, metadata.salutationTypes, false);
+			insertToStore(interestTypeStore, metadata.interestTypes, false);
+			insertToStore(travelPreferenceTypeStore, metadata.travelPreferenceTypes, false);
+			insertToStore(personalPreferenceTypeStore, metadata.personalPreferenceTypes, false);
+			insertToStore(paymentMethodStore, metadata.paymentMethods, false);
+			insertToStore(affiliateAgencyStore, metadata.affiliateAgencies, false);
+			insertToStore(affiliateNetworkStore, metadata.affiliateNetworks, false);
+			insertToStore(affiliateBenefitProgramStore, metadata.affiliateBenefitPrograms, false);
+			insertToStore(experienceTypeStore, metadata.experienceTypes, false);
+			insertToStore(destinationTypeStore, metadata.destinationTypes, false);
 		}
 
-		if (redirect) {
-			return {
-				status: 302,
-				redirect
-			};
-		}
+		authStore.set({ user });
 		return {
 			props: {}
 		};
 	};
 </script>
 
-<script lang="ts">
-	import Loading from '$lib/components/form/loading.svelte';
-	import Notification from '$lib/components/Notification.svelte';
-	import { interestTypeStore } from '$lib/store/interest';
-	import { personalPreferenceTypeStore, travelPreferenceTypeStore } from '$lib/store/preference';
-import type { Metadata } from '$lib/store/metadata';
-</script>
-
 <slot />
-<svelte:component this={Notification} />
-<svelte:component this={Loading} />
+<Toast />
+<PopupWarningSaveForm />

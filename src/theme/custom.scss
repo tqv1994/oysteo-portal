@@ -1,0 +1,55 @@
+.custom-phone-number {
+	margin-top: 4px;
+}
+
+.custom-invalid svg {
+	right: 2rem !important;
+}
+
+.custom-group {
+	margin-top: -15px;
+}
+
+.fix-height {
+	padding: 0em !important;
+	border-top: none !important;
+	margin-bottom: 13px !important;
+	.group-buttons {
+		margin-left: 10rem;
+	}
+}
+
+.fix-height-trip {
+	padding: 1em 0 !important;
+}
+
+.re-send {
+	background: $oysteo-red-50 !important;
+}
+
+.logo {
+	.bx--link {
+		color: $oysteo-black;
+	}
+	.bx--link:hover {
+		color: $oysteo-black;
+	}
+}
+
+.logo-index {
+	.bx--link {
+		color: $oysteo-white;
+	}
+	.bx--link:hover {
+		color: $oysteo-white;
+	}
+}
+#destinations {
+	.bx--checkbox-wrapper {
+		margin-bottom: 20px;
+	}
+}
+
+.center {
+	text-align: center;
+}

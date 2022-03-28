@@ -1,8 +1,9 @@
 import type { Address } from './address';
-import type { Advisor } from './advisor';
+import type { AdvisorAgency } from './advisor';
 import type { AffiliateAgencies, AffiliateBenefitPrograms, AffiliateNetwork } from './affiliate';
 import type { Base, Nameable } from './types';
 import type { Media } from './media';
+import type { Payment } from './payment';
 
 export type Agency = Base &
 	Nameable & {
@@ -39,7 +40,8 @@ export type Agency = Base &
 		affiliate_agencies?: AffiliateAgencies[];
 		affiliate_benefit_programs?: AffiliateBenefitPrograms[];
 		addresses?: Address[];
-		advisors?: Advisor[];
+		advisors?: AdvisorAgency[];
+		payments: Payment[];
 	};
 export enum AGENCY_TYPE {
 	company = 'company',

@@ -26,22 +26,22 @@
 		li {
 			padding: 0.875rem 0rem;
 			padding-left: 0.5rem;
-			border-left: 4px solid #e0e0e0;
+			border-left: 4px solid $oysteo-gray-20;
 			&:hover {
-				border-left-color: #c6c6c6;
+				border-left-color: $oysteo-gray-30-hover;
 			}
 		}
 
 		li.active {
-			border-left-color: $blue;
+			border-left-color: $oysteo-blue-60;
 			a {
-				color: black;
+				color: $oysteo-black;
 			}
 		}
 
 		a {
 			text-decoration: none;
-			color: #525252;
+			color: $oysteo-gray-70;
 			font-size: 1rem;
 		}
 	}

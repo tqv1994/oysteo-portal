@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import { uploadFileFieldsFragment } from '$lib/store/upload-file';
 import { subTravellerFieldsFragment, travellerFieldsFragment } from '$lib/store/traveller';
 import { visaFieldsFragment } from '$lib/store/visa';
@@ -13,7 +13,10 @@ import { docmentFieldsFragment } from '$lib/store/document';
 import { insuranceFieldsFragment } from '$lib/store/insurance';
 import { interestFieldsFragment } from '$lib/store/interest';
 import { addressFieldsFragment } from '$lib/store/address';
-import { personalPreferenceFieldsFragment, travelPreferenceFieldsFragment } from '$lib/store/preference';
+import {
+	personalPreferenceFieldsFragment,
+	travelPreferenceFieldsFragment
+} from '$lib/store/preference';
 import { tripWhereFieldsFragment } from '$lib/store/tripWhere';
 import { experienceFieldsFragment } from '$lib/store/experience';
 import { experienceTypeFieldsFragment } from '$lib/store/experienceType';
@@ -26,16 +29,15 @@ import { destinationTypeFieldsFragment } from '$lib/store/destinationType';
 import { emergencyFieldsFragments } from '$lib/store/emergency';
 
 export type updateTripData = {
-    updateTrip: {
-        trip: Trip
-    };
+	updateTrip: {
+		trip: Trip;
+	};
 };
 
-export const put: RequestHandler = async (
-    event) => {
-    try {
-        const client = createGraphClientFromRequest(event.request);
-        const query = `mutation ($id: ID!,$trip: editTripInput){
+export const put: RequestHandler = async (event) => {
+	try {
+		const client = createGraphClientFromRequest(event.request);
+		const query = `mutation ($id: ID!,$trip: editTripInput){
         updateTrip(input:{
             where: {id: $id},
             data: $trip
@@ -71,16 +73,18 @@ export const put: RequestHandler = async (
         ${travelingWithYouFieldsFragment}
         ${destinationTypeFieldsFragment}
     `;
-        const reqBody = await event.request.json();
-        const res = await client.mutation<updateTripData>(query, { id: event.params.id || '', trip: reqBody }).toPromise();
-        if (res.data) {
-            return new Response(JSON.stringify(res.data.updateTrip?.trip));
-        }
-        if (res.error) {
-            console.log(JSON.stringify(res.error, null, 2));
-        }
-    } catch (error) {
-        console.error('Error update data for the trip', error);
-    }
-    return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Error updating data for the trip');
+		const reqBody = await event.request.json();
+		const res = await client
+			.mutation<updateTripData>(query, { id: event.params.id || '', trip: reqBody })
+			.toPromise();
+		if (res.data) {
+			return new Response(JSON.stringify(res.data.updateTrip?.trip));
+		}
+		if (res.error) {
+			console.log(JSON.stringify(res.error, null, 2));
+		}
+	} catch (error) {
+		console.error('Error update data for the trip', error);
+	}
+	return makeEmptyResponse(500);
 };

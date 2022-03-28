@@ -36,26 +36,26 @@ export type Trip = Base & {
 	updated_at: string;
 	tripWheres: TripWhere[];
 	numberOfNights?: number;
-    numberOfAdults?: number;
-    numberOfChildren?: number;
-    numberOfRoom?: number;
-    desiredDestinations?: string;
-    lodgingTypeOther?: string;
-    needFlights?: boolean;
-    travelByFlight?: string;
-    travelAnotherWay?: string;
-    numberOfTripsInSixMonths?: string;
-    experiences?: Experience[];
-    travelingWithYous?: TravelingWithYou[];
-    lodgingTypes?: LodgingType[];
-    roomStyles?: RoomStyle[];
-    currency?: Currency;
-    destinationTypes?: Destination[];
-    roomPreferences?: RoomPreference[];
-    additionalInfo?: string;
-    policyId: string;
-    contact: string;
-    website: string;
+	numberOfAdults?: number;
+	numberOfChildren?: number;
+	numberOfRoom?: number;
+	desiredDestinations?: string;
+	lodgingTypeOther?: string;
+	needFlights?: boolean;
+	travelByFlight?: string;
+	travelAnotherWay?: string;
+	numberOfTripsInSixMonths?: string;
+	experiences?: Experience[];
+	travelingWithYous?: TravelingWithYou[];
+	lodgingTypes?: LodgingType[];
+	roomStyles?: RoomStyle[];
+	currency?: Currency;
+	destinationTypes?: Destination[];
+	roomPreferences?: RoomPreference[];
+	additionalInfo?: string;
+	policyId: string;
+	contact: string;
+	website: string;
 };
 
 export class TRipInput {
@@ -73,7 +73,7 @@ export class TRipInput {
 	vaccinated: boolean;
 	documents: string[]; // ID[]
 	insurance: string; // ID[]
-    emergencies: Emergency[];
+	emergencies: Emergency[];
 	travellers: string[]; // ID[]
 	published_at: string | Date;
 	emergencyName: string;
@@ -82,25 +82,25 @@ export class TRipInput {
 	emergencyReference: string;
 	tripWheres: string[]; // ID[]
 	numberOfNights: number;
-    numberOfAdults: number;
-    numberOfChildren: number;
-    numberOfRoom: number;
-    desiredDestinations: string;
-    lodgingTypeOther: string;
-    needFlights: boolean;
-    travelByFlight: string;
-    travelAnotherWay: string;
-    numberOfTripsInSixMonths: number;
-    experiences: string[]; // ID[]
-    travelingWithYous: string[]; // ID[]
-    lodgingTypes: string[]; // ID[]
-    roomStyles: string[]; // ID []
-    destinationTypes: string[]; // ID[]
-    roomPreferences: string[]; //ID[]
-    additionalInfo?: string;
-    policyId: string;
-    contact: string;
-    website: string;
+	numberOfAdults: number;
+	numberOfChildren: number;
+	numberOfRoom: number;
+	desiredDestinations: string;
+	lodgingTypeOther: string;
+	needFlights: boolean;
+	travelByFlight: string;
+	travelAnotherWay: string;
+	numberOfTripsInSixMonths: number;
+	experiences: string[]; // ID[]
+	travelingWithYous: string[]; // ID[]
+	lodgingTypes: string[]; // ID[]
+	roomStyles: string[]; // ID []
+	destinationTypes: string[]; // ID[]
+	roomPreferences: string[]; //ID[]
+	additionalInfo?: string;
+	policyId: string;
+	contact: string;
+	website: string;
 
 	constructor(values: Object = {}) {
 		Object.assign(this, values);
@@ -118,13 +118,13 @@ export const convertTripToInput = (trip: Trip): TRipInput => {
 	data.emergencies = (trip.emergencies || []).map((item) => item.id);
 	data.travellers = (trip.travellers || []).map((item) => item.id);
 	data.tripWheres = (trip.tripWheres || []).map((item) => item.id);
-	data.experiences = (trip.experiences || []).map((item)=>item.id+"");
-    data.travelingWithYous = (trip.travelingWithYous || []).map((item)=>item.id+"");
-    data.lodgingTypes = (trip.lodgingTypes || []).map((item)=>item.id + "");
-    data.roomStyles = (trip.roomStyles || []).map((item) => item.id + "");
-    data.currency = trip.currency?.id;
-    data.destinationTypes = (trip.destinationTypes || []).map((item)=> item.id + "");
-    data.roomPreferences = (trip.roomPreferences || []).map((item)=> item.id+"");
+	data.experiences = (trip.experiences || []).map((item) => item.id + '');
+	data.travelingWithYous = (trip.travelingWithYous || []).map((item) => item.id + '');
+	data.lodgingTypes = (trip.lodgingTypes || []).map((item) => item.id + '');
+	data.roomStyles = (trip.roomStyles || []).map((item) => item.id + '');
+	data.currency = trip.currency?.id;
+	data.destinationTypes = (trip.destinationTypes || []).map((item) => item.id + '');
+	data.roomPreferences = (trip.roomPreferences || []).map((item) => item.id + '');
 	delete data.id;
 	delete data.updated_at;
 	delete data.__typename;
@@ -138,12 +138,11 @@ export enum ENUM_TRIP_STATE {
 	planning = 'planning',
 	progressing = 'progressing',
 	completed = 'completed',
-    rejected = 'rejected',
-    confirmed = 'confirmed',
-    travelling = 'travelling', 
-    returned = 'returned',
-    canceled = 'canceled',
-
+	rejected = 'rejected',
+	confirmed = 'confirmed',
+	travelling = 'travelling',
+	returned = 'returned',
+	canceled = 'canceled'
 }
 
 export const ENUM_TRIP_STATE_LABEL = {
@@ -152,11 +151,11 @@ export const ENUM_TRIP_STATE_LABEL = {
 	planning: 'Planning',
 	progressing: 'Progressing',
 	completed: 'Completed',
-    rejected: 'Rejected',
-    confirmed: 'Confirmed',
-    travelling: 'Travelling', 
-    returned: 'Returned',
-    canceled: 'Canceled',
+	rejected: 'Rejected',
+	confirmed: 'Confirmed',
+	travelling: 'Travelling',
+	returned: 'Returned',
+	canceled: 'Canceled'
 };
 
 export const getDatesTrip = (trip: Trip): string => {
@@ -181,7 +180,7 @@ export const getTravellersString = (trip: Trip): string => {
 	travellers.map((traveller) => {
 		if (
 			traveller.birthday &&
-      // TODO: Use dayjs for date maths
+			// TODO: Use dayjs for date maths
 			new Date().getFullYear() - new Date(traveller.birthday).getFullYear() >= 15
 		) {
 			countAdult += 1;

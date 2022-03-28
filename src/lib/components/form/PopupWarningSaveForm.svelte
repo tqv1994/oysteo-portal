@@ -1,10 +1,11 @@
-<script lang="ts">
+<script lang="ts" context="module">
+	import { focusInput } from '$lib/helpers/scripts';
+
 	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
+	import { isPopupWarningSaveFormStore } from '$lib/store/isPopupWarningSaveForm';
 	import { Modal } from 'carbon-components-svelte';
-	import { onMount } from 'svelte';
-	let warningSaveOpen: boolean = false;
 	const onSaveCancel = () => {
-		warningSaveOpen = false;
+		isPopupWarningSaveFormStore.set({ open: false });
 		if (handleCallBackCancel) {
 			handleCallBackCancel();
 		}
@@ -14,17 +15,14 @@
 	let handleCallBackCancel;
 
 	const onSaveConfirm = () => {
-		warningSaveOpen = false;
+		isPopupWarningSaveFormStore.set({ open: false });
 		formChangeStatusStore.set({ changing: false });
 		if (handleCallBackConfirm) {
 			handleCallBackConfirm();
 		}
 	};
-	const openWarningSaveForm = (config: {
-		handleClose?: any;
-		handleConfirm?: any;
-	}) => {
-		warningSaveOpen = true;
+	export function openWarningSaveForm(config: { handleClose?: any; handleConfirm?: any }) {
+		isPopupWarningSaveFormStore.set({ open: true });
 		if (typeof config.handleClose == 'function') {
 			// handleCallBackConfirm;
 			handleCallBackCancel = config.handleClose;
@@ -32,18 +30,22 @@
 		// console.log(typeof config.handleConfirm);
 		if (typeof config.handleConfirm == 'function') {
 			handleCallBackConfirm = config.handleConfirm;
+			setTimeout(() => {
+				const form = document.querySelector('form');
+				if (form != null) {
+					const form = document.querySelector('form');
+					focusInput(form);
+				}
+			});
 		}
-	};
-
-	onMount(() => {
-		window.openWarningSaveForm = openWarningSaveForm;
-	});
+	}
 </script>
 
 <Modal
+	class="custom-modal-mobile"
 	size="sm"
 	preventCloseOnClickOutside
-	bind:open={warningSaveOpen}
+	open={$isPopupWarningSaveFormStore.open}
 	modalHeading="Your changes have not been saved"
 	primaryButtonText="Yes"
 	secondaryButtonText="No"

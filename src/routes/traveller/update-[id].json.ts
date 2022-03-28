@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import {
 	subTravellerFieldsFragment,
 	Traveller,
@@ -27,6 +27,7 @@ export type updateTravellerData = {
 };
 
 export const put: RequestHandler = async (event) => {
+	console.log('event123123', event);
 	try {
 		const client = createGraphClientFromRequest(event.request);
 		const query = `mutation updateTraveller ($id: ID!,$traveller: editTravellerInput){
@@ -52,9 +53,11 @@ export const put: RequestHandler = async (event) => {
         ${personalPreferenceFieldsFragment}
     `;
 		const reqBody = await event.request.json();
+		console.log('fdbsdbv', reqBody);
+
 		const res = await client
 			.mutation<updateTravellerData>(query, {
-				id: request.params.id || '',
+				id: event.params.id || '',
 				traveller: reqBody
 			})
 			.toPromise();
@@ -67,5 +70,5 @@ export const put: RequestHandler = async (event) => {
 	} catch (error) {
 		console.error('Error update data for the traveller', error);
 	}
-	return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Error updating data for the traveller');
+	return makeEmptyResponse(500);
 };

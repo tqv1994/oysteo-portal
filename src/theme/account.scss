@@ -2,7 +2,16 @@
 	height: 100vh;
 	background-color: $blue-primary;
 	color: white;
-
+	p,
+	h1,
+	span,
+	small,
+	.bx--label {
+		font-family: Surt;
+	}
+	h3 {
+		font-family: Surt-lt;
+	}
 	.overview-container {
 		height: 100%;
 		display: flex;
@@ -14,12 +23,12 @@
 		justify-content: center;
 		align-items: center;
 		text {
-			fill: white;
+			fill: $oysteo-white;
 		}
 	}
 
 	.section-login {
-		flex-basis: 20%;
+		flex-basis: 18%;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -28,7 +37,7 @@
 		display: flex;
 		flex-direction: row;
 		justify-content: space-evenly;
-		border-bottom: 1px solid white;
+		border-bottom: 1px solid $oysteo-white;
 		padding: 1rem 0rem;
 		gap: 1rem;
 		width: 80%;
@@ -38,13 +47,14 @@
 	}
 
 	.section-title {
-		flex-basis: 27%;
+		flex-basis: 18%;
 		padding: 0rem 1rem;
 		h1 {
+			font-family: GTSupper-Ds-Trial-lt;
 			text-align: center;
 			font-weight: 500;
 			font-size: 3rem;
-			padding: 1rem 0;
+			padding: 0;
 			line-height: 3.875rem;
 		}
 	}
@@ -55,6 +65,8 @@
 		justify-content: center;
 		padding: 0rem 1rem;
 		p {
+			font-weight: 300;
+			padding: 10px 0;
 			font-size: 1.25rem;
 			text-align: center;
 			line-height: 1.6875rem;
@@ -64,7 +76,7 @@
 	.section-register {
 		flex-basis: 20%;
 		display: flex;
-		justify-content: center;
+		justify-content: stretch;
 		align-items: center;
 		flex-direction: column;
 		h3 {
@@ -79,49 +91,26 @@
 
 .register-wrapper {
 	height: 100vh;
-	background-color: $blue-secondary;
+	background-color: $white-secondary;
 	padding: 2.25rem 2.25rem;
-	color: $gray-primary;
+	color: $oysteo-gray-50;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-around;
+	p,
+	input,
+	span,
+	.btn-submit,
+	.bx--label,
+	a {
+		font-family: Surt;
+	}
 	.section-signup {
 		flex-basis: 75%;
 	}
 }
 
-.login-container {
-	background-color: $blue-secondary;
-}
-
-.login-wrapper {
-	height: 100vh;
-	background-color: $blue-secondary;
-	padding: 1.25rem 2.25rem 2.25rem 2.25rem;
-	color: $gray-primary;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	max-width: 35rem;
-	margin: 0 auto;
-	.section-logo {
-		text-align: center;
-		h1 {
-			color: black;
-			font-weight: 400;
-			font-size: 2.25rem;
-			line-height: 1.75rem;
-		}
-	}
-	.section-login {
-		flex-basis: 65%;
-	}
-}
-
-.section-redirect {
-	display: none;
-}
-
+.section-redirect,
 .section-radio {
 	display: none;
 }
@@ -141,11 +130,10 @@
 	}
 
 	.signup-login {
-		flex-basis: 55%;
+		flex-basis: 60%;
 		display: flex;
 		flex-direction: column;
 		justify-content: space-evenly;
-		margin-top: 1rem;
 		.bx--form-item {
 			flex: 0 0 auto;
 		}
@@ -160,31 +148,32 @@
 		background-color: $btn-primary-color;
 		min-height: 0rem;
 		display: inline-block;
-		margin: auto auto;
-		transform: translate(0, 1rem);
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 5px;
 		font-size: 1rem;
 	}
 
 	input {
+		padding: 0 1rem;
 		background-color: transparent;
 		font-size: 1rem;
-		padding-bottom: 0.875rem;
 		&:focus,
 		&:hover {
 			outline: none;
 		}
 		&::placeholder {
 			/* Chrome, Firefox, Opera, Safari 10.1+ */
-			color: $gray-primary;
+			color: $oysteo-gray-50;
 			opacity: 1; /* Firefox */
 		}
 		&:-ms-input-placeholder {
 			/* Internet Explorer 10-11 */
-			color: $gray-primary;
+			color: $oysteo-gray-50;
 		}
 		&::-ms-input-placeholder {
 			/* Microsoft Edge */
-			color: $gray-primary;
+			color: $oysteo-gray-50;
 		}
 	}
 	.bx--btn.bx--text-input--password__visibility__toggle.bx--tooltip__trigger {
@@ -194,11 +183,14 @@
 
 .login-wrapper {
 	.btn-submit {
-		transform: translate(0, -1rem);
+		// transform: translate(0, -1rem);
 	}
 }
 
 //Contact, ResetPw
+.section-contact {
+	margin-bottom: 20px;
+}
 .section-contact,
 .section-resetpw {
 	display: flex;
@@ -220,7 +212,7 @@
 			outline: none;
 			text-decoration: none;
 			padding-bottom: 2px;
-			border-bottom: 2px solid $blue;
+			border-bottom: 2px solid $oysteo-blue-60;
 		}
 	}
 }
@@ -236,8 +228,8 @@
 	.bx--label {
 		line-height: 0;
 		font-size: 1.25rem;
-		color: $gray-primary;
-		margin-bottom: 0.8125rem;
+		color: $oysteo-gray-50;
+		margin-bottom: 1.8125rem;
 	}
 }
 
@@ -247,9 +239,9 @@
 
 .bx--radio-button:checked + .bx--radio-button__label .bx--radio-button__appearance,
 .bx--radio-button__appearance {
-	border: 1px solid $gray-primary;
+	border: 1px solid $oysteo-gray-50;
 	&:before {
-		background-color: $gray-primary;
+		background-color: $oysteo-gray-50;
 	}
 }
 
@@ -274,7 +266,3 @@
 		align-items: center;
 	}
 }
-
-// .bx--text-input__field-wrapper[data-invalid] > .bx--text-input--invalid:not(:focus) {
-// 	outline: none;
-// }

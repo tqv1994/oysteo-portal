@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import { countryFieldsFragment } from '$lib/store/country';
 import { Address, addressFieldsFragment } from '$lib/store/address';
 /**
@@ -22,7 +22,7 @@ export const put: RequestHandler = async (event) => {
 		const client = createGraphClientFromRequest(event.request);
 		const type = event.params.type;
 		if (!type) {
-			return makeErrorResponse(404, 'NOT_FOUND', 'Error not found address');
+			return makeEmptyResponse(404);
 		}
 
 		let query = ``;
@@ -65,7 +65,7 @@ export const put: RequestHandler = async (event) => {
 		}
 
 		if (!event.params.id) {
-			return makeErrorResponse(404, 'NOT_FOUND', 'Error not found address');
+			return makeEmptyResponse(404);
 		}
 
 		const reqBody = await event.request.json();
@@ -85,5 +85,5 @@ export const put: RequestHandler = async (event) => {
 	} catch (error) {
 		console.error('Error update data for the address', error);
 	}
-	return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Error updating data for the address');
+	return makeEmptyResponse(500);
 };

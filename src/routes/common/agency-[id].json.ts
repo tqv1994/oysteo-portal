@@ -1,5 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import type { Agency } from '$lib/store/agency';
 import {
@@ -39,7 +39,7 @@ export const put: RequestHandler = async (event) => {
 		  ${affiliatteAgencyFieldsFragment}
 		  ${affiliatteBenefitProgramFieldsFragment}
 		`;
-    const reqBody = await event.request.json();
+		const reqBody = await event.request.json();
 		const res = await client
 			.mutation<Agency>(query, { id: event.params.id, updateData: reqBody })
 			.toPromise();
@@ -53,5 +53,5 @@ export const put: RequestHandler = async (event) => {
 		console.error('Error updating agency', error);
 	}
 
-	return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Error retrieving data for the agency');
+	return makeEmptyResponse(500);
 };

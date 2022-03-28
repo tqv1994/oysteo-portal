@@ -4,7 +4,7 @@
 		flex-direction: row;
 		justify-content: space-between;
 		padding: 0.6875rem 0.90625rem 0.7rem 1.125rem;
-		border-bottom: 1px solid #707070;
+		border-bottom: 1px solid $btn-primary-color;
 		margin: -2rem -1rem 0.8125rem -1rem;
 		p {
 			font-size: 0.9rem;
@@ -16,18 +16,18 @@
 		left: 0;
 		right: 0;
 		z-index: 7000;
-		background: #f3f3f3;
+		background: $oysteo-gray-10;
 		padding-right: 2rem;
 		padding-left: 2rem;
 		& ~ .content h1 {
-			margin-top: 1.8125rem;
+			// margin-top: 1.8125rem;
 		}
 	}
 
 	.bx--modal {
 		background-color: rgba(112, 111, 111, 0.4);
 		.bx--modal-container {
-			margin: 0rem 2rem;
+			margin: 0rem auto;
 			position: fixed;
 			top: auto;
 			width: 60vw;
@@ -38,15 +38,28 @@
 		}
 	}
 
+	.menu-mobile {
+		padding: 20px;
+		border: 1px solid $oysteo-gray-50;
+		ul {
+			box-shadow: rgb(141 141 141 / 45%) 0px 2px 10px 1px;
+			background-color: $oysteo-gray-10;
+			a {
+				color: $oysteo-black;
+				text-decoration: none;
+			}
+		}
+	}
+
 	.bx--modal-content {
 		margin: 0;
 		padding: 0;
 		li {
-			box-shadow: 0 1px 0 0 #e2e2e2;
+			box-shadow: 0 1px 0 0 $oysteo-gray-20;
 			padding: 0.6875rem 0rem 0.6875rem 1rem;
 			a {
 				text-decoration: none;
-				color: #525252;
+				color: $oysteo-gray-70;
 			}
 		}
 	}
@@ -54,15 +67,14 @@
 	.bx--body--with-modal-open {
 		overflow: visible;
 	}
+
+	#desktop-nav-section {
+		display: none;
+	}
 }
 
 @media (min-width: 42rem) {
 	.bx--modal-container .bx--modal-content {
 		padding-right: 0;
 	}
-}
-
-//desktop-nav
-#desktop-nav-section {
-	display: none;
 }

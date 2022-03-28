@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { Loading } from 'carbon-components-svelte';
 	import { onMount } from 'svelte';
-	export let activeLoading: boolean = false;
-	export let label: string = "";
+	export let activeLoading = false;
+	export let label = '';
 
-	export const openLoading = (open: boolean, labelLoad: string = "Saving...") => {
+	export const openLoading = (open: boolean, labelLoad = 'Saving...') => {
 		activeLoading = open;
 		label = labelLoad;
-	}
-	onMount(()=>{
-		window.openLoading = openLoading
+	};
+	onMount(() => {
+		window.openLoading = openLoading;
 	});
 </script>
 

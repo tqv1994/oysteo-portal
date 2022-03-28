@@ -4,17 +4,24 @@
 	import FormRow from '$lib/components/form/row.svelte';
 	import ListItemContainer from '$lib/components/form/listitemcontainer.svelte';
 	import { Column, Grid, Row, Select, SelectItem, TextInput } from 'carbon-components-svelte';
-	import { convertEmergencyToInput, Emergency, EmergencyInput, EmergencyTrip } from '$lib/store/emergency';
+	import {
+		convertEmergencyToInput,
+		Emergency,
+		EmergencyInput,
+		EmergencyTrip
+	} from '$lib/store/emergency';
 	import { beforeUpdate, onDestroy } from 'svelte';
 	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 	import { updateTripService } from '$lib/services/trip.services';
-	import { createEmergencyService, updateEmergencyService } from '$lib/services/emergency.service';
+	import { createEmergencyService, deleteEmergencyService, updateEmergencyService } from '$lib/services/emergency.service';
 	import { convert2InternationalPhone, isValidPhoneNumber } from '$lib/helpers/phone-number';
 	import type { Country } from '$lib/store/country';
 	export let countries: Country[];
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
+	import { notify } from '$lib/components/Toast.svelte';
+import { isFormSavingStore } from '$lib/store/isFormSaving';
 	export let trip: Trip | undefined;
-	export let addContactFormOpen: boolean = false;
+	export let addContactFormOpen = false;
 	let emergencyInput: EmergencyInput;
 	export let emergencies: EmergencyTrip[];
 	//export let isEditing: boolean = false;
@@ -26,7 +33,7 @@
 	const onResetPhonesInput = () => {
 		phonesInput = {
 			phone_number: '',
-			phone_number_code: '',
+			phone_number_code: ''
 		};
 	};
 	onResetPhonesInput();
@@ -35,11 +42,11 @@
 	});
 	let invalidPhoneNumber = {
 		status: {
-			phone_number: false,
+			phone_number: false
 		},
 		message: 'Invalid phone number'
 	};
-	
+
 	let activeSection = '';
 	const onEdit = (section: string) => {
 		activeSection = section;
@@ -48,11 +55,10 @@
 		if (trip && trip.emergencies[index]) {
 			emergencyInput = convertEmergencyToInput(trip.emergencies[index]);
 		}
-
 	};
 
 	const onAdd = (section: string) => {
-		if(activeSection !== 'add-emergency'){
+		if (activeSection !== 'add-emergency') {
 			emergencyInput = new EmergencyInput();
 			activeSection = section;
 		}
@@ -63,59 +69,82 @@
 		activeSection = '';
 	};
 
-	const onSubmit = async(id?: string|number) => {
-		window.openLoading(true, 'Saving');
+	const onSubmit = async (id?: string | number) => {
+		isFormSavingStore.set({saving: true});
 		const phoneField = 'phone_number';
 		let flag = false;
-			if (!isValidPhoneNumber(phonesInput[phoneField], phonesInput[phoneField + '_code'])) {
-				invalidPhoneNumber.status[phoneField] = true;
-				flag = true;
-			}
+		if (!isValidPhoneNumber(phonesInput[phoneField], phonesInput[phoneField + '_code'])) {
+			invalidPhoneNumber.status[phoneField] = true;
+			flag = true;
+		}
 		if (flag) {
 			setTimeout(() => {
 				invalidPhoneNumber.status[phoneField] = false;
 			}, INVALID_DELAY_TIME);
 			return;
 		}
-        if(id){
-            await updateEmergencyService(id, emergencyInput).then((output)=>{
-                trip.emergencies = trip.emergencies.reduce((acc: Emergency[] ,item: Emergency,index) => {
-					if(item.id === id){
+		if (id) {
+			try{
+				const output = await updateEmergencyService(id, {...emergencyInput, numberPhone: (emergencyInput.numberPhone || '').toString()});
+				trip.emergencies = trip.emergencies.reduce((acc: Emergency[], item: Emergency, index) => {
+					if (item.id === id) {
 						acc[index] = output;
-					}else{
+					} else {
 						acc[index] = item;
 					}
 					return acc;
-				},[]);
-            }).catch((error)=>{
-                window.openNotification({kind:'error',title: 'Error',subtitle: error.message});
-            });
-        }else{
-			if(!trip){
+				}, []);
+			}catch(error){
+				notify({ kind: 'error', title: 'Error', subtitle: error.message });
 			}
-            await createEmergencyService(emergencyInput).then(async(output)=>{
+		} else {
+			try{
+				const output = await createEmergencyService({...emergencyInput,numberPhone: (emergencyInput.numberPhone || '').toString()});
 				const tripInput = convertTripToInput(trip);
 				tripInput.emergencies.push(output.id);
-				
-				await updateTripService(trip.id,{...tripInput}).then((tripOutput)=>{
+				classGroup = 'group fix-height-trip';
+				await updateTripService(trip.id, { ...tripInput }).then((tripOutput) => {
 					trip = tripOutput;
 				});
-            }).catch((error)=>{
-                window.openNotification({kind:'error',title: 'Error',subtitle: error.message});
-            });
-        }
+			}catch(error){
+				notify({ kind: 'error', title: 'Error', subtitle: error.message });
+			}
+		}
 
-		window.openLoading(false);
+		isFormSavingStore.set({saving: false});
 		onCancel();
 		formChangeStatusStore.set({ changing: false });
 	};
+
+	const onDelete = async (id?: string | number) => {
+		isFormSavingStore.set({saving: true});
+		try{
+			await deleteEmergencyService(id);
+			const tripInput = convertTripToInput(trip);
+			
+			const index = (trip.emergencies || []).findIndex((item)=>item.id === id);
+			if (index > -1) {
+				trip.emergencies.splice(index, 1);
+			}
+			}catch(error){
+				notify({ kind: 'error', title: 'Error', subtitle: error.message });
+			}
+		isFormSavingStore.set({saving: false});
+		onCancel();
+	}
 
 	beforeUpdate(() => {
 		if (addContactFormOpen) {
 			onAdd('add-emergency');
 		}
 	});
-	
+
+	let classGroup = 'group';
+	if (trip && trip.emergencies.length == 0) {
+		classGroup = 'group fix-height';
+	} else {
+		classGroup = 'group fix-height-trip';
+	}
 </script>
 
 {#if addContactFormOpen}
@@ -124,55 +153,53 @@
 		isEditing={activeSection === 'add-emergency'}
 		on:edit={() => onAdd('add-emergency')}
 		on:cancel={onCancel}
-		on:submit={()=>onSubmit()}
+		on:submit={() => onSubmit()}
 	>
-	<FormRow label="Name" {isEditing}>
-		<div slot="fields">
-			<TextInput bind:value={emergencyInput.name} />
-		</div>
-	</FormRow>
-	<FormRow label="Role" {isEditing}>
-		<div slot="fields">
-			<TextInput bind:value={emergencyInput.Role} />
-		</div>
-	</FormRow>
+		<FormRow label="Name" {isEditing}>
+			<div slot="fields">
+				<TextInput autofocus bind:value={emergencyInput.name} />
+			</div>
+		</FormRow>
+		<FormRow label="Role" {isEditing}>
+			<div slot="fields">
+				<TextInput bind:value={emergencyInput.Role} />
+			</div>
+		</FormRow>
 
-	<FormRow label="Phone number" {isEditing}>
-		<div slot="fields" class="emergency-fields">
-			<Select
-				class="half-width"
-				selected={emergencyInput.phoneCode}
-				on:change={(e) => {
-					emergencyInput.phoneCode = e.detail;
-				}}
-			>
-				<SelectItem value="" text="Choose" />
-				{#each countries as country}
-					<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
-				{/each}
-			</Select>
-			<TextInput
-				class="custom-phone-number"
-				labelText=""
-				placeholder=""
-				bind:value={emergencyInput.numberPhone}
-				invalid={invalidPhoneNumber.status.phone_number}
-				invalidText={invalidPhoneNumber.message}
-			/>
-		</div>
-		<!-- <div slot="fields">
-			<TextInput bind:value={emergencyInput.numberPhone} />
-		</div> -->
-	</FormRow>
-	<FormRow label="Reference" {isEditing}>
-		<div slot="fields">
-			<TextInput bind:value={emergencyInput.reference} />
-		</div>
-	</FormRow>
+		<FormRow label="Phone number" {isEditing}>
+			<div slot="fields" class="emergency-fields">
+				<Select
+					class="half-width"
+					selected={emergencyInput.phoneCode}
+					on:change={(e) => {
+						emergencyInput.phoneCode = e.detail;
+					}}
+				>
+					<SelectItem value="" text="Choose" />
+					{#each countries as country}
+						<SelectItem value={country.code} text={`${country.name} + ${country.phone}`} />
+					{/each}
+				</Select>
+				<TextInput
+					type="text"
+					class="custom-phone-number"
+					labelText=""
+					placeholder=""
+					bind:value={emergencyInput.numberPhone}
+					invalid={invalidPhoneNumber.status.phone_number}
+					invalidText={invalidPhoneNumber.message}
+				/>
+			</div>
+		</FormRow>
+		<FormRow label="Reference" {isEditing}>
+			<div slot="fields">
+				<TextInput bind:value={emergencyInput.reference} />
+			</div>
+		</FormRow>
 	</FormGroup>
 {/if}
 
-<FormGroup hideEditButton={true} groupClass="group fix-height">
+<FormGroup hideEditButton={true} groupClass={classGroup}>
 	{#each trip?.emergencies || [] as emergency, index}
 		<ListItemContainer
 			let:isEditing
@@ -181,23 +208,25 @@
 			on:edit={() => onEdit('emergency--' + index)}
 			on:cancel={onCancel}
 			on:submit={() => onSubmit(emergency.id)}
+			hasDelete={true}
+			on:delete={() => onDelete(emergency.id)}
 		>
-			<FormRow label="Name" {isEditing}>
-				<div slot="value">{emergency?.name || ''}</div>
+			<FormRow label="Name" {isEditing} class="custom-emergency">
+				<div slot="value"><span>Name: </span>{emergency?.name || ''}</div>
 				<div slot="fields">
-					<TextInput bind:value={emergencyInput.name} />
+					<TextInput autofocus bind:value={emergencyInput.name} />
 				</div>
 			</FormRow>
-			<FormRow label="Role" {isEditing}>
-				<div slot="value">{emergency?.Role || ''}</div>
+			<FormRow label="Role" {isEditing} class="custom-emergency">
+				<div slot="value"><span>Role: </span>{emergency?.Role || ''}</div>
 				<div slot="fields">
 					<TextInput bind:value={emergencyInput.Role} />
 				</div>
 			</FormRow>
-			<FormRow label="Phone number" {isEditing}>
+			<FormRow label="Phone number" {isEditing} class="custom-emergency">
 				<!-- <div slot="value">{emergency?.numberPhone || ''}</div> -->
 				<div slot="value">
-					{emergency?.numberPhone == null || emergency?.numberPhone == ''
+					<span>Phone number: </span>{emergency?.numberPhone == null || emergency?.numberPhone == ''
 						? ''
 						: convert2InternationalPhone(emergency?.numberPhone, emergency?.phoneCode)}
 				</div>
@@ -215,6 +244,7 @@
 						{/each}
 					</Select>
 					<TextInput
+						type="text"
 						class="custom-phone-number"
 						bind:value={emergencyInput.numberPhone}
 						invalid={invalidPhoneNumber.status.phone_number}
@@ -222,8 +252,8 @@
 					/>
 				</div>
 			</FormRow>
-			<FormRow label="Reference" {isEditing}>
-				<div slot="value">{emergency?.reference || ''}</div>
+			<FormRow label="Reference" {isEditing} class="custom-emergency">
+				<div slot="value"><span>Reference: </span>{emergency?.reference || ''}</div>
 				<div slot="fields">
 					<TextInput bind:value={emergencyInput.reference} />
 				</div>

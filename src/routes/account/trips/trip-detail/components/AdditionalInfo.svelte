@@ -7,6 +7,8 @@
 	import type { Traveller } from '$lib/store/traveller';
 	import type { Insurance } from '$lib/store/insurance';
 	import { createTripService, updateTripService } from '$lib/services/trip.services';
+	import { notify } from '$lib/components/Toast.svelte';
+import { isFormSavingStore } from '$lib/store/isFormSaving';
 	export let trip: Trip | undefined;
 	let tripInput: TRipInput;
 	//export let isEditing: boolean = false;
@@ -19,39 +21,33 @@
 			tripInput = new TRipInput();
 		}
 		activeSection = section;
-	}
-	const onCancel = () =>{
+	};
+	const onCancel = () => {
 		tripInput = new TRipInput();
 		activeSection = '';
-	}
+	};
 
 	const onSubmit = async () => {
-		window.openLoading(true, 'Saving');
-		if (trip) {
-			await updateTripService(trip.id, tripInput)
-				.then((output) => {
-					trip = output;
-				})
-				.catch((error) => {
-					window.openNotification({ kind: 'error', title: 'Error', subtitle: error.message });
-				});
-		} else {
-			await createTripService(tripInput)
-				.then((output) => {
-					trip = output;
-				})
-				.catch((error) => {
-					window.openNotification({ kind: 'error', title: 'Error', subtitle: error.message });
-				});
+		isFormSavingStore.set({saving: true});
+		try{
+			if(trip){
+				const output = await updateTripService(trip.id, tripInput);
+				trip = output;
+			}else{
+				const output = await createTripService(tripInput);
+				trip = output;
+			}
+		}catch(error){
+			notify({ kind: 'error', title: 'Error', subtitle: error.message });
 		}
 		tripInput = new TRipInput();
-		window.openLoading(false);
+		isFormSavingStore.set({saving: false});
 		activeSection = '';
-	}
-	if(!trip){
+	};
+	if (!trip) {
 		activeSection = 'additional-info';
 		tripInput = new TRipInput();
-	}else{
+	} else {
 		tripInput = convertTripToInput(trip);
 	}
 </script>
@@ -68,7 +64,7 @@
 			{trip?.additionalInfo || ''}
 		</div>
 		<div slot="fields">
-			<TextArea bind:value={tripInput.additionalInfo} />
+			<TextArea autofocus bind:value={tripInput.additionalInfo} />
 		</div>
 	</FormRow>
 </FormGroup>

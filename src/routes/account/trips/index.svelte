@@ -1,8 +1,6 @@
 <script lang="ts" context="module">
-	import 'carbon-components-svelte/css/all.css';
 	import DesktopNavigationSection from '$lib/components/navigation/desktop_nav_section.svelte';
 	import NavigationSection from '$lib/components/navigation/modal.svelte';
-	import '$lib/utils/firebase';
 	import type { Load } from '@sveltejs/kit';
 	import { afterUpdate } from 'svelte';
 	import OverlayLoading from '$lib/components/form/loading.svelte';
@@ -26,7 +24,7 @@
 			if (res.ok) {
 				const data = await res.json();
 				let trips: Trip[] = data;
-				
+
 				return {
 					props: {
 						user: user,
@@ -42,7 +40,6 @@
 		}
 		return { props: {} };
 	};
-	
 </script>
 
 <script lang="ts">
@@ -112,7 +109,7 @@
 		{ id: 'confirmed', text: 'Confirmed' },
 		{ id: 'travelling', text: 'Travelling' },
 		{ id: 'returned', text: 'Returned' },
-		{ id: 'canceled', text: 'Canceled' },
+		{ id: 'canceled', text: 'Canceled' }
 		// { id: 'active', text: 'Active' },
 		// { id: 'past', text: 'Past' }
 	];
@@ -147,7 +144,7 @@
 			}}>Create New Trip</Button
 		>
 	</div>
-	<div class="section home" id="home"></div>
+	<div class="section home" id="home" />
 	<div class="section" id="planning">
 		<Accordion title="Planning" open={true} id="">
 			<TripsList trips={tripsPlanning} />

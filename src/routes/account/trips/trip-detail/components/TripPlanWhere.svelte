@@ -17,12 +17,25 @@
 	import { get } from 'svelte/store';
 	import { Country, countryStore } from '$lib/store/country';
 	import { createTripWhereService, deleteTripWhereService } from '$lib/services/trip-where.service';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	export let trip: Trip | undefined;
 	//export let isEditing: boolean = false;
 	let tripWhereInputs: TripWhereInput[];
 	let tripWheres: TripWhere[];
 	let activeSection = '';
 	let tripWhereDeleteIds: string[];
+	let maxInput: number = 0;
+	
+	const resetMaxInput = () => {
+		maxInput = 0;
+		if(trip?.tripWheres.length > 0){
+			maxInput = maxInput + trip?.tripWheres.length;
+		}
+	}
+
+	resetMaxInput();
+	console.log(maxInput);
+	
 	let countries: Country[] = Object.values(get(countryStore).items);
 	const onEdit = (section: string) => {
 		activeSection = section;
@@ -33,6 +46,7 @@
 	const onCancel = () => {
 		activeSection = '';
 		onReset();
+		resetMaxInput();
 	};
 
 	const onReset = () => {
@@ -41,8 +55,10 @@
 		tripWhereInputs = [];
 	};
 
+	
+
 	const onSubmit = async () => {
-		window.openLoading(true, 'Saving');
+		isFormSavingStore.set({saving: true});
 		for (let deleteId of tripWhereDeleteIds) {
 			await deleteTripWhereService(deleteId).then(() => {
 				trip.tripWheres = trip.tripWheres.filter((where) => where.id !== deleteId);
@@ -57,20 +73,29 @@
 			});
 		}
 		onReset();
-		window.openLoading(false);
+		resetMaxInput();
+		isFormSavingStore.set({saving: false});
 		activeSection = '';
 	};
+	console.log(trip?.tripWheres);
+	
 	const onAddWhere = () => {
 		if (!tripWhereInputs) {
 			tripWhereInputs = [];
 		}
+		maxInput++
 		const data = [...tripWhereInputs];
 		data.push(new TripWhereInput({ trip: trip.id + '' }));
+		console.log(maxInput);
+		
 		tripWhereInputs = data;
 	};
 
 	const handleRemoveInput = (index) => {
-		tripWhereInputs = tripWhereInputs.filter((where, whereIndex) => whereIndex !== index);
+		resetMaxInput();
+		tripWhereInputs = tripWhereInputs.filter((where, whereIndex) => {
+			whereIndex !== index
+		});
 	};
 </script>
 
@@ -88,29 +113,46 @@
 	<FormRow label="" {isEditing}>
 		<div slot="value">
 			<Grid narrow>
-				<Row>
-					<Column>
-						<p><label>Country</label></p>
-					</Column>
-					<Column>
-						<p><label>No. Nights</label></p>
-					</Column>
-					<Column>
-						<p><label>Description</label></p>
-					</Column>
-				</Row>
-				{#each trip?.tripWheres || [] as where}
+				<div class="desktop-trip-where">
 					<Row>
 						<Column>
-							{where.country?.name || ''}
+							<p><label>Country</label></p>
 						</Column>
 						<Column>
-							{where.noNights || ''}
+							<p><label>Description</label></p>
 						</Column>
 						<Column>
-							{where.description || ''}
+							<p><label>No. Nights</label></p>
 						</Column>
 					</Row>
+					{#each trip?.tripWheres || [] as where}
+						<Row>
+							<Column>
+								{where.country?.name || ''}
+							</Column>
+							<Column>
+								{where.description || ''}
+							</Column>
+							<Column>
+								{where.noNights || ''}
+							</Column>
+						</Row>
+					{/each}
+				</div>
+				{#each trip?.tripWheres || [] as where}
+					<div class="mobile-trip-where pb-15">
+						<Column>
+							<Row>
+								<p><label>Country: {where.country?.name || ''}</label></p>
+							</Row>
+							<Row>
+								<p><label>Description: {where.description || ''}</label></p>
+							</Row>
+							<Row>
+								<p><label>No. Nights: {where.noNights || ''}</label></p>
+							</Row>
+						</Column>
+					</div>
 				{/each}
 			</Grid>
 		</div>
@@ -121,10 +163,10 @@
 						<p><label>Country</label></p>
 					</Column>
 					<Column>
-						<p><label>No. Nights</label></p>
+						<p><label>Description</label></p>
 					</Column>
 					<Column>
-						<p><label>Description</label></p>
+						<p><label>No. Nights</label></p>
 					</Column>
 					<Column lg={1} />
 				</Row>
@@ -134,24 +176,22 @@
 							{where.country?.name || ''}
 						</Column>
 						<Column>
-							{where.noNights || ''}
+							{where.description || ''}
 						</Column>
 						<Column>
-							{where.description || ''}
+							{where.noNights || ''}
 						</Column>
 						<Column lg={1}>
 							<CloseOutline20
 								on:click={() => {
-									// console.log(index);
-									console.log(tripWheres);
 									tripWheres = tripWheres.filter((ele, key) => {
 										if (ele.id === where.id) {
 											tripWhereDeleteIds.push(ele.id);
 										}
-										console.log(ele, where);
+										resetMaxInput();
+										console.log(maxInput);
 										return ele.id !== where.id;
 									});
-									console.log(tripWheres);
 								}}
 							/>
 						</Column>
@@ -171,16 +211,16 @@
 							</Select>
 						</Row>
 						<Row>
+							<p><label>Description</label></p>
+						</Row>
+						<Row>
+							<TextArea autofocus bind:value={whereInput.description} />
+						</Row>
+						<Row>
 							<p><label>No. Nights</label></p>
 						</Row>
 						<Row>
 							<TextInput bind:value={whereInput.noNights} type="number" />
-						</Row>
-						<Row>
-							<p><label>Description</label></p>
-						</Row>
-						<Row>
-							<TextArea bind:value={whereInput.description} />
 						</Row>
 						<Row>
 							<CloseOutline20
@@ -193,12 +233,15 @@
 					</Column>
 				{/each}
 			</Grid>
-			<Link on:click={onAddWhere} id="bx--link-add">Add Where</Link>
+			{#if maxInput < 5 }
+				<Link on:click={onAddWhere} id="bx--link-add">Add Where</Link>
+			{/if}
 		</div>
 	</FormRow>
 </FormGroup>
+
 <style lang="scss">
-	.item-where{
+	.item-where {
 		padding-top: 16px;
 	}
 </style>

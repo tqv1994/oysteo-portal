@@ -1,8 +1,6 @@
 <script lang="ts" context="module">
-	import 'carbon-components-svelte/css/all.css';
 	import DesktopNavigationSection from '$lib/components/navigation/desktop_nav_section.svelte';
 	import NavigationSection from '$lib/components/navigation/modal.svelte';
-	import '$lib/utils/firebase';
 	import type { Load } from '@sveltejs/kit';
 	import { afterUpdate } from 'svelte';
 	import OverlayLoading from '$lib/components/form/loading.svelte';
@@ -25,7 +23,7 @@
 					'Content-Type': 'application/json'
 				}
 			});
-			
+
 			if (res.ok) {
 				travellers = await res.json();
 			}
@@ -91,7 +89,7 @@
 	let navFixed = '';
 	let activeLoading = false;
 	let activeSection = '';
-	let addContactFormOpen: boolean = false;
+	let addContactFormOpen = false;
 
 	const tripSections = [
 		{ id: '', text: 'Home', link: '/account' },
@@ -102,7 +100,7 @@
 		{ id: 'emergency', text: 'Emergency' },
 		{ id: 'additional-info', text: 'Additional Info' }
 	];
-	
+
 	afterUpdate(() => {
 		navFixed = prevY > y ? 'nav-fixed' : '';
 		prevY = y;
@@ -111,7 +109,6 @@
 	const setEditing = (sectionName: string) => () => {
 		activeSection = sectionName;
 	};
-	
 </script>
 
 <svelte:window bind:scrollY={y} />
@@ -123,7 +120,7 @@
 		<h1>{trip ? 'Trip Detail' : 'New Trip'}</h1>
 		<DesktopNavigationSection items={tripSections} className={'trip-screen'} />
 	</div>
-	<div class="section" id="home"></div>
+	<div class="section" id="home" />
 	<div class="section" id="status">
 		<Accordion title="Status" open={true} id="">
 			<Status bind:trip />
@@ -158,7 +155,7 @@
 		title="Emergency"
 		id="emergency"
 		titleRightIcon={'Add Contact'}
-		rightIcon={trip ? true : false }
+		rightIcon={trip ? true : false}
 		on:add={() => {
 			addContactFormOpen = true;
 		}}

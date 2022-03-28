@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Agency } from '$lib/store/agency';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
 
 	import { TextInput } from 'carbon-components-svelte';
 	import { onDestroy } from 'svelte';
@@ -9,8 +10,7 @@
 
 	export let type: string;
 	export let agency: Agency;
-	export let activeSection: string = '';
-	export let activeLoading: boolean = false;
+	export let activeSection = '';
 
 	type BusinessInsuranceInput = {
 		insurance_company: string;
@@ -43,7 +43,7 @@
 
 	const updateBusinessInsurance = async () => {
 		try {
-			activeLoading = true;
+			isFormSavingStore.set({ saving: true });
 
 			const res = await fetch(`/common/${type}-${agency.id}.json`, {
 				method: 'PUT',
@@ -60,7 +60,7 @@
 				onCancel();
 			}
 		} catch (error) {}
-		activeLoading = false;
+		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
@@ -77,6 +77,7 @@
 		</div>
 		<div slot="fields">
 			<TextInput
+				autofocus
 				labelText={agency.insurance_company || ''}
 				hideLabel
 				placeholder="Enter your business insurance company"

@@ -1,18 +1,24 @@
 <script lang="ts">
+	import { focusInput } from '$lib/helpers/scripts';
 	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
-
 	import { Link } from 'carbon-components-svelte';
 	import { RequestQuote16 } from 'carbon-icons-svelte';
+	import { openWarningSaveForm } from '../form/PopupWarningSaveForm.svelte';
 	function onEdit() {
+		setTimeout(() => {
+			const form = document.querySelector('form');
+			focusInput(form);
+		}, 0);
 		if ($formChangeStatusStore.changing === false) {
 			setTimeout(() => {
 				const form = document.querySelector('form');
+				focusInput(form);
 				form.addEventListener('input', function () {
 					formChangeStatusStore.set({ changing: true });
 				});
 			}, 0);
 		} else {
-			window.openWarningSaveForm({ handleConfirm: onEdit });
+			openWarningSaveForm({ handleConfirm: onEdit });
 		}
 	}
 </script>

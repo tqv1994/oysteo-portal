@@ -1,22 +1,36 @@
 <script lang="ts">
 	import type { Destination } from '$lib/store/destination';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
-	import { TextArea, TextInput } from 'carbon-components-svelte';
-	import DestinationImage from '$lib/components/section/destination/Image.svelte';
+	import {
+		Checkbox,
+		Select,
+		SelectItem,
+		TextArea,
+		TextInput,
+		Toggle
+	} from 'carbon-components-svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
+	import { countryStore } from '$lib/store/country';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
+	import { sortByName, sortByOrder } from '$lib/utils/sort';
 
 	export let advisorId: string;
 	export let destinations: Destination[];
-	export let activeSection: string = '';
-	export let activeLoading: boolean = false;
-	export let loadingLabel: string;
+	export let activeSection = '';
+	export let userId: string;
+	export let type1: string;
+	const countries = sortByOrder(sortByName(Object.values($countryStore.items)));
 
 	type CreateDestinationInput = {
 		name: string;
 		location: string;
 		description: string;
+		author: string;
+		visible: boolean;
+		type1: string;
+		country: string;
 	};
 
 	const onCancel = () => {
@@ -29,7 +43,11 @@
 		createDestinationData = {
 			name: '',
 			location: '',
-			description: ''
+			description: '',
+			author: userId,
+			visible: true,
+			type1: type1,
+			country: ''
 		};
 	};
 
@@ -39,16 +57,20 @@
 		status: false,
 		message: 'Location is required'
 	};
+
+	let invalidCountry = {
+		status: false,
+		message: 'Country is required'
+	};
 	const createDestination = async () => {
-		if (createDestinationData.location == '') {
-			invalidLocation.status = true;
+		if (createDestinationData.country == '') {
+			invalidCountry.status = true;
 			setTimeout(() => {
-				invalidLocation.status = false;
+				invalidCountry.status = false;
 			}, INVALID_DELAY_TIME);
 			return;
 		}
-		activeLoading = true;
-		loadingLabel = 'Creating ...';
+		isFormSavingStore.set({ saving: true });
 		try {
 			const res = await fetch('/destination/create.json', {
 				method: 'POST',
@@ -57,7 +79,7 @@
 				},
 				body: JSON.stringify({ ...createDestinationData })
 			});
-			
+
 			if (res.ok) {
 				const data = await res.json();
 				const destinationInserted = data.createDestination.destination;
@@ -74,15 +96,15 @@
 					},
 					body: JSON.stringify({ destinationIds })
 				});
-				
+
 				if (res_assign.ok) {
 					destinations = [...destinations, destinationInserted];
+					resetCreateDestination();
 					activeSection = '';
 				}
 			}
 		} catch (error) {}
-		activeLoading = false;
-		loadingLabel = 'Saving ...';
+		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
@@ -95,14 +117,29 @@
 >
 	<FormRow label="Create Destination" {isEditing} class={'create-destination'}>
 		<div slot="fields">
-			<TextInput
+			<!-- <TextInput
 				labelText="Add name"
-				placeholder="Enter destination name"
+				placeholder="Enter destination"
 				bind:value={createDestinationData.name}
-			/>
+			/> -->
+			<Select
+				invalid={invalidCountry.status}
+				invalidText={invalidCountry.message}
+				labelText="Add Country"
+				bind:selected={createDestinationData.country}
+				on:change={(e) => {
+					createDestinationData.country = e.detail;
+				}}
+			>
+				<SelectItem value="" text="Choose" />
+				{#each countries as country}
+					<SelectItem value={country.id} text={`${country.name}`} />
+				{/each}
+			</Select>
 			<TextInput
-				labelText="Add location"
-				placeholder="Enter destination location"
+				autofocus
+				labelText="Add Cities/Regions"
+				placeholder="Enter Cities/Regions"
 				bind:value={createDestinationData.location}
 				invalid={invalidLocation.status}
 				invalidText={invalidLocation.message}
@@ -112,6 +149,7 @@
 				placeholder="Enter insight"
 				bind:value={createDestinationData.description}
 			/>
+			<Checkbox labelText="Visible" bind:checked={createDestinationData.visible} />
 		</div>
 	</FormRow>
 </FormGroup>

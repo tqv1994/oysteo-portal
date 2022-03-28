@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Agency } from '$lib/store/agency';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
 
 	import { TextInput } from 'carbon-components-svelte';
 	import { onDestroy } from 'svelte';
@@ -9,8 +10,8 @@
 
 	export let type: string;
 	export let agency: Agency;
-	export let activeSection: string = '';
-	export let activeLoading: boolean = false;
+	export let activeSection = '';
+	export let activeLoading = false;
 
 	type BusinessAssociationInput = {
 		iata: string;
@@ -54,8 +55,7 @@
 
 	const updateBusinessAssociation = async () => {
 		try {
-			activeLoading = true;
-
+			isFormSavingStore.set({ saving: true });
 			const res = await fetch(`/common/${type}-${agency.id}.json`, {
 				method: 'PUT',
 				headers: {
@@ -70,7 +70,7 @@
 				onCancel();
 			}
 		} catch (error) {}
-		activeLoading = false;
+		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
@@ -84,7 +84,7 @@
 	<FormRow label="IATA" {isEditing} contentClass={'mtop-4-5'}>
 		<div slot="value">{agency.iata === null ? '' : agency.iata}</div>
 		<div slot="fields">
-			<TextInput placeholder="Enter IATA" bind:value={businessAssociationInput.iata} />
+			<TextInput autofocus placeholder="Enter IATA" bind:value={businessAssociationInput.iata} />
 		</div>
 	</FormRow>
 	<FormRow label="ABTA" {isEditing} contentClass={'mtop-4-5'} class={'mtop-17-5'}>

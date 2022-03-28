@@ -6,7 +6,7 @@
 			width: 50%;
 		}
 
-		.bx--text-input-wrapper{
+		.bx--text-input-wrapper {
 			width: 50%;
 		}
 	}
@@ -16,109 +16,219 @@
 		width: 50%;
 	}
 
-	.title-right-icon {
-		display: none;
-	}
-
-	.content-actions{
+	.content-actions {
 		transform: translateY(-65px);
 	}
 
-	.home{
+	.home {
 		padding-top: 1px !important;
 	}
-	
-	.table-custom{
-		display: none;
-	}
 
-	.mobile-table{
-		.data-trip{
+	.mobile-table {
+		.data-trip {
 			padding-bottom: 40px;
 		}
-		.bx--link{
+		.bx--link {
 			width: 100%;
 		}
-		.custom-button-table{
+		.custom-button-table {
 			float: right;
 		}
 	}
 
-	.custom-status{
-		.half-width{
+	.custom-status {
+		.half-width {
 			width: 100%;
 			display: inline-flex;
 		}
-		.custom-button-edit{
-			span{
+		.custom-button-edit {
+			span {
 				float: right;
 			}
 		}
 	}
 
-	.bx--form-item{
+	.emergency-fields {
+		.half-width {
+			.bx--select-input__wrapper {
+				width: 100%;
+			}
+		}
+	}
+
+	.bx--form-item {
 		margin-top: 0rem !important;
 	}
 
-	.mess-mobile{
-		display: none;
-	}
-
-	.custom-mess{
+	.custom-mess {
 		background: none !important;
 		border: none;
 	}
 
-	.contents{
-		.bx--text-input{
-			background-color: #fff;
-        }
+	.contents {
+		.bx--text-input {
+			background-color: $oysteo-white;
+		}
 	}
 
-	.desktop-profile{
-		display: none;
-	}
-
-	.mobile-profile{
-		.bx--row{
+	.mobile-profile {
+		.bx--row {
 			margin-bottom: 8px !important;
 		}
-		.custom-col{
+		.custom-col {
 			margin-left: 15px;
 		}
 	}
-	
-	.mobile-icon{
-		svg{
+
+	.mobile-icon {
+		svg {
 			margin-left: 10px;
-			background-color: #707070;
-			fill: #fff;
+			background-color: $btn-primary-color;
+			fill: $oysteo-white;
 		}
 	}
-	.desktop-message{
+
+	.title-right-icon,
+	.table-custom,
+	.mess-mobile,
+	.desktop-profile,
+	.desktop-trip-where,
+	.desktop-message {
 		display: none;
 	}
-	.mobile-message{
-		.bx--link{
-			color: black;
+
+	.mobile-message {
+		.bx--link {
+			color: $oysteo-black;
 		}
-		span{
+		span {
 			transform: translateX(38px) translateY(18px);
 			padding: 5px;
-			background: white;
+			background: $oysteo-white;
 			border-radius: 20px;
 			height: 50%;
 			font-size: 10px;
 		}
 	}
-	.list-advisors{
+
+	.list-advisors {
 		margin-left: 0 !important;
 	}
 
-	// #main-content > .content {
-	// 	max-width: 58%;
-	// 	margin: 0 auto;
-	// 	margin-top: 1rem;
-	// }
-}
+	.data-message {
+		margin-bottom: 3px;
+		background-color: var(--cds-field-01, $oysteo-gray-10);
+		border-bottom: 1px solid $btn-primary-color;
+		.bx--row {
+			margin-top: 10px;
+			margin-left: -5px;
+		}
+		.bx--overflow-menu {
+			float: right;
+		}
+		.col-button {
+			width: 15%;
+		}
+	}
+	.group-where {
+		margin-bottom: 0 !important;
+	}
 
+	.business-fields {
+		.flatpickr-calendar {
+			top: 63px !important;
+			left: auto !important;
+		}
+	}
+
+	.section-logo {
+		h1 {
+			padding-bottom: 0;
+			padding-top: 56px;
+			font-family: GTSupper-Ds-Trial-lt !important;
+		}
+		svg {
+			margin-top: 23px;
+			height: 2rem;
+			width: 17rem;
+		}
+	}
+
+	.section-resetpw {
+		margin-top: 75px;
+	}
+
+	.signup-login {
+		margin-top: 56px;
+		display: flex;
+		flex-direction: column;
+		.bx--form-item {
+			margin-bottom: 47px;
+			flex: 0 0 auto;
+		}
+	}
+
+	.btn-logout.btn-logout:hover {
+		color: black !important;
+	}
+	#documents {
+		.document-desktop {
+			display: none;
+		}
+		.document-mobile {
+			margin-bottom: -20px;
+			.bx--col {
+				margin-bottom: 20px;
+			}
+		}
+	}
+	.custom-emergency {
+		margin-top: 0 !important;
+		.label {
+			display: none;
+		}
+	}
+
+	.member-desktop {
+		display: none;
+	}
+
+	.section-description {
+		p {
+			padding: 10px 55px !important;
+		}
+	}
+
+	.tab-mobile {
+		margin-top: 1.8125rem;
+		padding: 0 10px;
+		border-left: 4px solid $oysteo-blue-60;
+		background-color: $oysteo-gray-10-hover;
+	}
+
+	.custom-modal-mobile {
+		.bx--modal-content {
+			margin: 0 auto;
+		}
+		.bx--modal-container {
+			border: 1px solid $oysteo-gray-50;
+			padding: 15px;
+			width: auto;
+		}
+		.bx--modal-footer {
+			gap: 10px;
+			height: auto;
+			.bx--btn {
+				height: 2rem;
+			}
+		}
+	}
+}
+@media screen and (min-width: 390px) {
+	.signup-login {
+		margin-top: 25px !important;
+	}
+	.bx--form {
+		padding-top: 0 !important;
+	}
+}

@@ -1,9 +1,10 @@
 <script lang="ts">
-import { formChangeStatusStore } from '$lib/store/formChangeStatus';
+	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 
 	import { Tile } from 'carbon-components-svelte';
 	import { Add20 } from 'carbon-icons-svelte';
 	import { createEventDispatcher } from 'svelte';
+	import { openWarningSaveForm } from './PopupWarningSaveForm.svelte';
 	const dispatch = createEventDispatcher();
 
 	export let title: string;
@@ -22,7 +23,7 @@ import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 				});
 			}, 0);
 		} else {
-			window.openWarningSaveForm({handleConfirm: handleClick});
+			openWarningSaveForm({ handleConfirm: handleClick });
 		}
 	};
 </script>

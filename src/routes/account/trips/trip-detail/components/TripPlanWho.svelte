@@ -9,46 +9,53 @@
 	import { CloseOutline20 } from 'carbon-icons-svelte';
 	import { createTripService, updateTripService } from '$lib/services/trip.services';
 	import type { Destination } from '$lib/store/destination';
+	import { notify } from '$lib/components/Toast.svelte';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	export let trip: Trip | undefined;
 	//export let isEditing: boolean = false;
 	let activeSection = '';
 	let relatives: Traveller[];
 	let tripInput: TRipInput;
 	export let travellers: Traveller[];
-	
+
 	const onEdit = (section: string) => {
 		activeSection = section;
-		if(trip){
+		if (trip) {
 			tripInput = convertTripToInput(trip);
-		}else{
+		} else {
 			tripInput = new TRipInput();
 		}
 	};
 	const onCancel = () => {
-		activeSection = "";
+		activeSection = '';
 	};
 
-
 	const onSubmit = async () => {
-        window.openLoading(true, 'Saving');
-		if(trip){
+		isFormSavingStore.set({saving: true});
+		if (trip) {
 			await updateTripService(trip.id, {
-				...tripInput}).then(output=>{
-				trip = output;
-			}).catch((error)=>{
-				window.openNotification({kind:'error',title: 'Error',subtitle: error.message});
-			});
-		}else{
+				...tripInput
+			})
+				.then((output) => {
+					trip = output;
+				})
+				.catch((error) => {
+					notify({ kind: 'error', title: 'Error', subtitle: error.message });
+				});
+		} else {
 			await createTripService({
-				...tripInput}).then(output=>{
-				trip = output;
-			}).catch((error)=>{
-				window.openNotification({kind:'error',title: 'Error',subtitle: error.message});
-			});
+				...tripInput
+			})
+				.then((output) => {
+					trip = output;
+				})
+				.catch((error) => {
+					notify({ kind: 'error', title: 'Error', subtitle: error.message });
+				});
 		}
-        window.openLoading(false);
-        activeSection = '';
-	}
+		isFormSavingStore.set({saving: false});
+		activeSection = '';
+	};
 
 	onMount(() => {
 		if (trip?.lead_traveller) {
@@ -56,7 +63,7 @@
 		}
 	});
 
-	const getRelativesByLeader = (leader: Traveller) :Traveller[] =>{
+	const getRelativesByLeader = (leader: Traveller): Traveller[] => {
 		let result: Traveller[] = [];
 		for (let key in RELATIVES) {
 			if (key == 'children' && leader.children) {
@@ -69,22 +76,21 @@
 				}
 			}
 		}
-		console.log(result);
 
 		return result;
 	};
 
 	const onChangeLeaderOption = (event: CustomEvent) => {
-		const selected = travellers.reduce((acc: Traveller,item: Traveller)=>{
-			if(!acc && event.detail === item.id){
+		const selected = travellers.reduce((acc: Traveller, item: Traveller) => {
+			if (!acc && event.detail === item.id) {
 				acc = item;
 			}
 			return acc;
-		},undefined);
-		if(selected){
+		}, undefined);
+		if (selected) {
 			relatives = getRelativesByLeader(selected);
 		}
-	}
+	};
 
 	const getFullName = (traveller?: Traveller) => {
 		let result = '';
@@ -97,14 +103,13 @@
 
 	const onAddTraveller = () => {
 		const data: string[] = tripInput.travellers ? [...tripInput.travellers] : [];
-		data.push("0");
+		data.push('0');
 		tripInput.travellers = data;
-	}
+	};
 
-	if(!trip){
-		activeSection = 'trip-plan';
+	if (!trip) {
 		tripInput = new TRipInput();
-	}else{
+	} else {
 		tripInput = convertTripToInput(trip);
 	}
 </script>
@@ -129,14 +134,20 @@
 					</Column>
 					<Column lg={6} md={6}>
 						<label>DOB</label>
-						<p>{trip?.lead_traveller?.birthday ? formatDate(trip?.lead_traveller?.birthday) : ''}</p>
+						<p>
+							{trip?.lead_traveller?.birthday ? formatDate(trip?.lead_traveller?.birthday) : ''}
+						</p>
 					</Column>
 				</Row>
 			</Grid>
 		</div>
 		<div slot="fields">
 			{#if trip?.lead_traveller}
-				<TextInput value={`${trip.lead_traveller.forename || ''} ${trip.lead_traveller.surname}`} disabled></TextInput>
+				<TextInput
+					autofocus
+					value={`${trip.lead_traveller.forename || ''} ${trip.lead_traveller.surname}`}
+					disabled
+				/>
 			{:else}
 				<Select
 					labelText=""
@@ -148,7 +159,7 @@
 					{#each travellers || [] as item}
 						<SelectItem value={item.id.toString()} text={`${item.forename} ${item.surname}`} />
 					{/each}
-			</Select>
+				</Select>
 			{/if}
 		</div>
 	</FormRow>
@@ -193,10 +204,7 @@
 				</div>
 			{/each}
 			{#if relatives}
-				<Link
-					on:click={onAddTraveller}
-					id="bx--link-add">Add Member</Link
-				>
+				<Link on:click={onAddTraveller} id="bx--link-add">Add Member</Link>
 			{/if}
 		</div>
 	</FormRow>

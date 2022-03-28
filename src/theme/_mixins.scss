@@ -1,13 +1,13 @@
 @use 'sizes';
 
 @mixin mobile {
-    @media (max-width: #{sizes.$break_point - 1px}) {
-        @content;
-    }
+	@media (max-width: #{sizes.$break_point - 1px}) {
+		@content;
+	}
 }
 
 @mixin desktop {
-    @media (min-width: #{sizes.$break_point}) {
-        @content;
-    }
+	@media (min-width: #{sizes.$break_point}) {
+		@content;
+	}
 }

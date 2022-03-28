@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import { Destination, destinationFieldsFragment } from '$lib/store/destination';
 import { uploadFileFieldsFragment } from '$lib/store/upload-file';
 import { countryFieldsFragment } from '$lib/store/country';
@@ -29,8 +29,7 @@ export const post: RequestHandler = async (event) => {
 	  ${uploadFileFieldsFragment}
 	  ${countryFieldsFragment}
     `;
-	console.log(query);
-	
+
 		const reqBody = await event.request.json();
 		const res = await client
 			.mutation<createDestinationData>(query, { destination: reqBody })
@@ -44,5 +43,5 @@ export const post: RequestHandler = async (event) => {
 	} catch (error) {
 		console.error('Error create data for the destination', error);
 	}
-	return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Error creating data for the destination');
+	return makeEmptyResponse(500);
 };

@@ -35,24 +35,24 @@ export type User = Publishable & {
 	myAdvisors: Advisor[];
 	advisorMe?: Advisor;
 	agencyMe?: Agency;
-  travellerMe?: Traveller;
-  productLikes?: Product[];
-  experienceLikes?: Experience[];
-  destinationLikes?: Destination[];
+	travellerMe?: Traveller;
+	productLikes?: Product[];
+	experienceLikes?: Experience[];
+	destinationLikes?: Destination[];
 };
 
 export class UserInput {
-  myAdvisors: string[]; // ID[]
-  constructor(values: Object = {}){
-    Object.assign(this, values);
-  }
+	myAdvisors: string[]; // ID[]
+	constructor(values: Object = {}) {
+		Object.assign(this, values);
+	}
 }
 
-export const convertUserToInput = (user: User) =>{
-  let data: UserInput = new UserInput();
-  data.myAdvisors = (user.myAdvisors || []).map(item=>item.id+"");
-  return data;
-}
+export const convertUserToInput = (user: User) => {
+	const data: UserInput = new UserInput();
+	data.myAdvisors = (user.myAdvisors || []).map((item) => item.id + '');
+	return data;
+};
 
 export const userFieldsFragment = `
 fragment userFields on UsersPermissionsUser  {
@@ -76,18 +76,6 @@ fragment userFields on UsersPermissionsUser  {
     agencyMe {
       id
       name
-    }
-}
-`;
-
-export const subUserFieldsFragment = `
-fragment subUserFields on UsersPermissionsUser  {
-    id
-    name
-    username
-    email
-    avatar {
-      ...uploadFileFields
     }
 }
 `;

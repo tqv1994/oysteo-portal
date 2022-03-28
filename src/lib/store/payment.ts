@@ -1,14 +1,6 @@
+import type { PaymentMethod } from './paymentMethod';
 import type { SalutationType } from './salutationType';
-import type { Identifiable, Nameable } from './types';
-
-export type PaymentMethod = Identifiable & Nameable;
-
-export const paymentMethodFieldsFragment = `
-fragment paymentMethodFields on PaymentMethod{
-    id
-    name
-}
-`;
+import type { Identifiable } from './types';
 
 export type Payment = Identifiable & {
 	firstName: string;

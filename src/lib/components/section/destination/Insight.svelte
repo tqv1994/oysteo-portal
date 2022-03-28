@@ -9,7 +9,7 @@
 
 	export let index: number;
 	export let destinations: Destination[];
-	export let activeSection: string = '';
+	export let activeSection = '';
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
 	};
@@ -39,6 +39,7 @@
 		</div>
 		<div slot="fields">
 			<TextInput
+				autofocus
 				labelText="Edit Insight"
 				placeholder="Enter insight"
 				bind:value={destinations[index].description}

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { Agency } from '$lib/store/agency';
+	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	import { cmsUrlPrefix, imageUrlPrefix } from '$lib/utils/_env';
 	import {
 		Column,
@@ -13,10 +15,8 @@
 	import FormRow from '../form/row.svelte';
 
 	export let agency: Agency;
-	export let activeSection: string = '';
-	export let activeLoading: boolean = false;
-	export let loadingLabel: string;
-	let disabledRemoveLogo: boolean = false;
+	export let activeSection = '';
+	let disabledRemoveLogo = false;
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
 		disabledRemoveLogo = agency.logo == null ? true : false;
@@ -32,8 +32,7 @@
 		formData.append('ref', 'agency');
 		formData.append('refId', agency.id.toString());
 		formData.append('field', 'logo');
-		activeLoading = true;
-		loadingLabel = 'Uploading ...';
+		isFormSavingStore.set({ saving: true });
 		const res = await fetch(cmsUrlPrefix + '/upload', {
 			method: 'POST',
 			body: formData
@@ -46,8 +45,9 @@
 				agency.logo = content[0];
 			}
 		}
-		activeLoading = false;
-		loadingLabel = 'Saving ...';
+		onCancel();
+		formChangeStatusStore.set({ changing: false });
+		isFormSavingStore.set({ saving: false });
 	};
 	const removeLogo = async (isOldLogo = false) => {
 		if (agency.logo == null) {
@@ -59,8 +59,7 @@
 				return;
 			}
 		}
-		activeLoading = true;
-		loadingLabel = 'Removing ...';
+		isFormSavingStore.set({ saving: true });
 
 		const res = await fetch('/file.json', {
 			method: 'DELETE',
@@ -76,8 +75,7 @@
 				onCancel();
 			}
 		}
-		activeLoading = false;
-		loadingLabel = 'Saving ...';
+		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
@@ -100,7 +98,7 @@
 				<Grid fullWidth>
 					<Row>
 						<Column>
-							<ImageLoader src={imageUrlPrefix + agency.logo?.url} class="custom-logo-image"/>
+							<ImageLoader src={imageUrlPrefix + agency.logo?.url} />
 						</Column>
 					</Row>
 				</Grid>
@@ -110,7 +108,7 @@
 			<Grid fullWidth class="d-pleft-16 pright-8">
 				<Row>
 					<Column>
-						<ImageLoader src={imageUrlPrefix + agency.logo?.url} class="mbottom-8"/>
+						<ImageLoader src={imageUrlPrefix + agency.logo?.url} class="mbottom-8" />
 					</Column>
 				</Row>
 			</Grid>

@@ -1,8 +1,6 @@
 <script lang="ts" context="module">
-	import 'carbon-components-svelte/css/all.css';
 	import DesktopNavigationSection from '$lib/components/navigation/desktop_nav_section.svelte';
 	import NavigationSection from '$lib/components/navigation/modal.svelte';
-	import '$lib/utils/firebase';
 	import type { Load } from '@sveltejs/kit';
 	import { afterUpdate } from 'svelte';
 	import OverlayLoading from '$lib/components/form/loading.svelte';
@@ -15,16 +13,15 @@
 	import FormSection from '$lib/components/form/section.svelte';
 
 	export const load: Load = async ({ fetch, session, params }) => {
-		
 		try {
 			let user: User | undefined = session.user;
 			let metadata: Metadata = session.metadata;
-			
+
 			let trip: Trip;
 			let userTraveller: User;
 			// const res = await fetch(`/trip/${params.id}.json`);
 			const res = await fetch(`/trip/${params.id}.json`);
-			
+
 			if (res.ok) {
 				const data: Trip = await res.json();
 				trip = data;
@@ -32,8 +29,8 @@
 				const error = await res.json();
 				console.error(error);
 			}
-			
-			if(trip.lead_traveller){
+
+			if (trip.lead_traveller) {
 				const resUser = await fetch(`/traveller/${trip.lead_traveller.id}.json`);
 				if (resUser.ok) {
 					const data: User = await resUser.json();
@@ -77,6 +74,7 @@
 	let y, prevY;
 	let navFixed = '';
 	let activeLoading = false;
+	let classHome = false;
 
 	const setEditing = (sectionName: string) => () => {
 		activeSection = sectionName;
@@ -101,30 +99,39 @@
 		prevY = y;
 	});
 
-	const handleMakeTrip = async() => {
+	const handleMakeTrip = async () => {
 		window.openLoading(true);
-		await updateTripService(trip.id,new TRipInput({advisor: user.advisorMe.id,state: ENUM_TRIP_STATE.planning})).then((tripOutput)=>{
-			trip.advisor = tripOutput.advisor;
-			trip.state = tripOutput.state;
-		}).catch((error)=>{
-			console.error(error);
-		});
+		await updateTripService(
+			trip.id,
+			new TRipInput({ advisor: user.advisorMe.id, state: ENUM_TRIP_STATE.planning })
+		)
+			.then((tripOutput) => {
+				trip.advisor = tripOutput.advisor;
+				trip.state = tripOutput.state;
+			})
+			.catch((error) => {
+				console.error(error);
+			});
 		goto('/account/trips');
 		window.openLoading(false);
-	}
-	
-	const handleReject = async() => {
+	};
+
+	const handleReject = async () => {
 		window.openLoading(true);
-		await updateTripService(trip.id,new TRipInput({advisor: user.advisorMe.id,state: ENUM_TRIP_STATE.enquired})).then((tripOutput)=>{
-			trip.advisor = tripOutput.advisor;
-			trip.state = tripOutput.state;
-		}).catch((error)=>{
-			console.error(error);
-		});
+		await updateTripService(
+			trip.id,
+			new TRipInput({ advisor: user.advisorMe.id, state: ENUM_TRIP_STATE.enquired })
+		)
+			.then((tripOutput) => {
+				trip.advisor = tripOutput.advisor;
+				trip.state = tripOutput.state;
+			})
+			.catch((error) => {
+				console.error(error);
+			});
 		goto('/account/trips/enquiries');
 		window.openLoading(false);
-	}
-	
+	};
 </script>
 
 <svelte:window bind:scrollY={y} />
@@ -135,24 +142,33 @@
 		<h1>Enquiries</h1>
 		<DesktopNavigationSection items={enquiriesSections} className={'enquiries-screen'} />
 	</div>
-	{#if (typeof(trip.advisor?.id) === 'undefined') || trip.advisor?.id !== user.advisorMe.id}
-	<div class="content-actions text-right mb-15">
-		<Button
-			kind="secondary"
-			size="field"
-			class="pr-30 pl-30"
-			on:click={() => {handleMakeTrip()}}>Accept</Button
-		>
-		<Button
-			kind="secondary"
-			size="field"
-			class="pr-30 pl-30"
-			on:click={() => {handleReject()}}>Reject</Button
-		>
-	</div>
+	{#if typeof trip.advisor?.id === 'undefined' || trip.advisor?.id !== user.advisorMe.id}
+		<div class="hide">{(classHome = true)}</div>
+		<div class="content-actions text-right mb-15">
+			<Button
+				kind="secondary"
+				size="field"
+				class="pr-30 pl-30"
+				on:click={() => {
+					handleMakeTrip();
+				}}>Accept</Button
+			>
+			<Button
+				kind="secondary"
+				size="field"
+				class="pr-30 pl-30"
+				on:click={() => {
+					handleReject();
+				}}>Reject</Button
+			>
+		</div>
 	{/if}
 	{#if trip}
-		<div class="section home" id="home"></div>
+		{#if classHome}
+			<div class="section home" id="home" />
+		{:else}
+			<div class="section" id="home" />
+		{/if}
 		<div class="section" id="status">
 			<Accordion title="Status" open={true} id="">
 				<Status bind:trip />

@@ -2,18 +2,18 @@
 	import { range } from '$lib/helpers/utils';
 	import { Close16 } from 'carbon-icons-svelte';
 	import { cmsUrlPrefix, imageUrlPrefix } from '$lib/utils/_env';
-	import { Column, FileUploader, Grid, ImageLoader, Row } from 'carbon-components-svelte';
+	import { Column, FileUploader, FileUploaderDropContainer, Grid, ImageLoader, Row } from 'carbon-components-svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
 	import type { Agency } from '$lib/store/agency';
+	import type { Media } from '$lib/store/media';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
 
 	export let agency: Agency;
-	export let activeSection: string = '';
-	export let activeLoading: boolean;
-	export let loadingLabel: string;
+	export let activeSection = '';
 
-	let disabledRemove: boolean = true;
+	let disabledRemove = true;
 	let photoSelected: number;
 
 	const onEdit = (groupName: string) => {
@@ -24,13 +24,22 @@
 		photoSelected = 0;
 		activeSection = '';
 	};
+	let images: Media[] = [];
+	$: if (Array.isArray(agency.images) && agency.images.length > 0) {
+		images = agency.images;
+	} else {
+		images = [];
+	}
 
 	const uploadFile = async (e: Event) => {
-		activeLoading = true;
-		loadingLabel = 'Uploading ...';
+		isFormSavingStore.set({ saving: true });
 		try {
 			const formData: FormData = new FormData();
-			let file = e.target.files[0];
+			let file = e.target?.files[0];
+			if (!file) {
+				file = e.detail[0];
+			}
+
 			formData.append('files', file);
 			formData.append('ref', 'agency');
 			formData.append('refId', agency.id.toString());
@@ -49,21 +58,18 @@
 		} catch (error) {
 			console.log(error);
 		}
-		activeLoading = false;
-		loadingLabel = 'Saving ...';
+		isFormSavingStore.set({ saving: false });
 	};
 
 	const removePhoto = async () => {
 		if (photoSelected == 0) {
 			return;
 		}
-		console.log(photoSelected);
 		const confirmDelete = confirm('Are you sure you want to remove this item?');
 		if (!confirmDelete) {
 			return;
 		}
-		activeLoading = true;
-		loadingLabel = 'Removing ...';
+		isFormSavingStore.set({ saving: true });
 
 		const res = await fetch('/file.json', {
 			method: 'DELETE',
@@ -75,10 +81,10 @@
 
 		if (res.ok) {
 			agency.images = agency.images.filter((item) => item.id != photoSelected);
+			console.log(agency.images);
 			onCancel();
 		}
-		activeLoading = false;
-		loadingLabel = 'Saving ...';
+		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
@@ -95,18 +101,18 @@
 >
 	<FormRow label="Images" {isEditing}>
 		<div slot="value">
-			{#if agency.images.length == 0}
+			{#if !Array.isArray(images) || images.length == 0}
 				no image selected
 			{:else}
 				<Grid fullWidth>
-					{#each range(0, agency.images.length, 2) as i}
+					{#each range(0, (images || []).length, 2) as i}
 						<Row>
 							<Column>
-								<ImageLoader src={imageUrlPrefix + agency.images[i].url} />
+								<ImageLoader src={imageUrlPrefix + images[i].url} />
 							</Column>
-							{#if i + 1 < agency.images.length}
+							{#if i + 1 < images.length}
 								<Column>
-									<ImageLoader src={ imageUrlPrefix + agency.images[i + 1].url} />
+									<ImageLoader src={imageUrlPrefix + images[i + 1].url} />
 								</Column>
 							{:else}
 								<Column>
@@ -179,11 +185,9 @@
 			</Grid>
 
 			<div id="button-uploadfile">
-				<FileUploader
-					style="text-align: center;"
-					buttonLabel="Add photo"
+				<FileUploaderDropContainer
+					labelText="Add photo"
 					accept={['image/*']}
-					status="complete"
 					on:change={(e) => uploadFile(e)}
 				/>
 			</div>

@@ -1,8 +1,6 @@
 <script lang="ts" context="module">
-	import 'carbon-components-svelte/css/all.css';
 	import DesktopNavigationSection from '$lib/components/navigation/desktop_nav_section.svelte';
 	import NavigationSection from '$lib/components/navigation/modal.svelte';
-	import '$lib/utils/firebase';
 	import type { Load } from '@sveltejs/kit';
 	import { afterUpdate } from 'svelte';
 	import OverlayLoading from '$lib/components/form/loading.svelte';
@@ -40,7 +38,7 @@
 					ENUM_TRIP_STATE.rejected,
 					ENUM_TRIP_STATE.confirmed,
 					ENUM_TRIP_STATE.travelling,
-					ENUM_TRIP_STATE.returned,
+					ENUM_TRIP_STATE.returned
 				]
 			});
 			const resAdvisor = await fetch(`/trip.json?${queryStringAdvisor}`, {
@@ -93,18 +91,6 @@
 		}
 		return acc;
 	}, []);
-	let tripsActive: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
-		if (item.state === 'progressing') {
-			acc.push(item);
-		}
-		return acc;
-	}, []);
-	let tripsRegistered: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
-		if (item.state === 'enquired') {
-			acc.push(item);
-		}
-		return acc;
-	}, []);
 	let tripsPast: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
 		if (item.state === 'completed') {
 			acc.push(item);
@@ -113,12 +99,6 @@
 	}, []);
 	let tripsNew: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
 		if (item.state === 'new_enquiry') {
-			acc.push(item);
-		}
-		return acc;
-	}, []);
-	let tripsReject: Trip[] = trips.reduce((acc: Trip[], item: Trip) => {
-		if (item.state === 'rejected') {
 			acc.push(item);
 		}
 		return acc;
@@ -141,7 +121,6 @@
 		}
 		return acc;
 	}, []);
-	
 
 	let activeSection = '';
 	let loadingLabel = 'Saving ...';
@@ -160,10 +139,8 @@
 		{ id: 'planning', text: 'Planning' },
 		{ id: 'confirmed', text: 'Confirmed' },
 		{ id: 'travelling', text: 'Travelling' },
-		// { id: 'active', text: 'Active' },
 		{ id: 'registered', text: 'Registered' },
-		{ id: 'past', text: 'Past' },
-		// { id: 'rejected', text: 'Rejected' },
+		{ id: 'past', text: 'Past' }
 	];
 
 	let invalidDateVisited = {
@@ -175,7 +152,6 @@
 		navFixed = prevY > y ? 'nav-fixed' : '';
 		prevY = y;
 	});
-	
 </script>
 
 <svelte:window bind:scrollY={y} />
@@ -187,17 +163,17 @@
 		<h1>Travelers</h1>
 		<DesktopNavigationSection items={travelersSections} className={'travelers-screen'} />
 	</div>
-	<div class="section" id="home"></div>
+	<div class="section" id="home" />
 	<div class="section" id="new-enquiry">
 		<Accordion title="New Enquiry" open={true} id="">
 			{#if tripsNew}
-				<EnquiriesList 
+				<EnquiriesList
 					let:noCTA
-					let:typeTraveler 
+					let:typeTraveler
 					noCTA={true}
-					typeTraveler={true} 
-					trips={tripsNew} 
-					/>
+					typeTraveler={true}
+					trips={tripsNew}
+				/>
 			{/if}
 		</Accordion>
 	</div>
@@ -223,29 +199,9 @@
 	</div>
 	<div class="section" id="past">
 		<Accordion title="Past" open={true} id="">
-			<TravelersList bind:trips={tripsPast} />
+			<TravelersList noCTA={true} bind:trips={tripsPast} />
 		</Accordion>
 	</div>
-	<!-- <div class="section" id="active">
-		<Accordion title="Active" id="">
-			<TravelersList bind:trips={tripsActive} />
-		</Accordion>
-	</div>
-	<div class="section" id="registered">
-		<Accordion title="Registered" id="">
-			<TravelersList bind:trips={tripsRegistered} />
-		</Accordion>
-	</div>
-	<div class="section" id="past">
-		<Accordion title="Past" id="">
-			<TravelersList bind:trips={tripsPast} />
-		</Accordion>
-	</div>
-	<div class="section" id="rejected">
-		<Accordion title="Rejected" id="">
-			<TravelersList bind:trips={tripsReject} />
-		</Accordion>
-	</div> -->
 
 	<div id="fake-height" />
 </div>

@@ -9,7 +9,7 @@ export interface FetchError {
 	code?: number;
 	status?: string;
 	message?: string;
-	fields?: Rec<string>;
+	fields?: Record<string, string>;
 }
 
 export type AsyncStore = {
@@ -22,7 +22,7 @@ export type AsyncStore = {
 export type CollectionStore<T> = AsyncStore & {
 	hasMore?: boolean;
 	last?: T;
-	items: Rec<T>;
+	items: Record<string, T>;
 };
 
 export type Identifiable = {

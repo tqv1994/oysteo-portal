@@ -1,6 +1,5 @@
 export const INVALID_DELAY_TIME = 9000; // ms
 export const TIME_RESEND_EMAIL_FORGOT_PW = 10; // s
-export const FIREBASE_EMAIL_EXIST_CODE = 'auth/email-already-in-use';
 export const TIME_ZONES = [
 	{ locale: 'America/Havana', gmt: 'GMT-05:00', zone: 'Cuba' },
 	{ locale: 'America/Bogota', gmt: 'GMT-05:00', zone: 'Bogota, Lima, Quito, Rio Branco' },

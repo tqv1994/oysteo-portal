@@ -5,7 +5,7 @@ import type { CollectionStore, Identifiable, Nameable } from './types';
 export type ExperienceType = Identifiable & Nameable;
 
 export const experienceTypeStore = writable<CollectionStore<Category>>({
-  items: {},
+	items: {}
 });
 
 export const experienceTypeFieldsFragment = `

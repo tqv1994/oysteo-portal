@@ -1,6 +1,8 @@
 <script lang="ts">
-	import type { Address, AddressInput } from '$lib/store/address';
-	import type { Country, Country } from '$lib/store/country';
+	import type { Address } from '$lib/store/address';
+	import { countryStore } from '$lib/store/country';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
+import { sortByName, sortByOrder } from '$lib/utils/sort';
 	import { Select, SelectItem, TextInput } from 'carbon-components-svelte';
 	import { onDestroy } from 'svelte';
 
@@ -9,11 +11,11 @@
 	export let userId: string;
 	export let objectId: string;
 	export let type: string;
-	export let activeSection: string = '';
-	export let activeLoading: boolean = false;
+	export let activeSection = '';
 	export let address: Address[];
-	export let countries: Country[];
 
+	const countries = sortByOrder(sortByName(Object.values($countryStore.items)));
+	
 	let haveAddress: boolean;
 	type AddressInput = {
 		line1: string;
@@ -75,7 +77,7 @@
 	};
 
 	const createAddress = async () => {
-		activeLoading = true;
+		addressInput.zipcode = addressInput.zipcode.toString();
 		try {
 			const res = await fetch(`/address/create.json`, {
 				method: 'POST',
@@ -93,14 +95,14 @@
 
 	const updateAddress = async () => {
 		try {
+			isFormSavingStore.set({ saving: true });
 			let data: string | AddressInput;
-			let url: string = ``;
-
+			let url = ``;
+			addressInput.zipcode = addressInput.zipcode.toString();
 			if (haveAddress) {
 				// true when address created
 				url = `/address/update-${address[0].id}.json`;
 				data = { ...addressInput };
-				activeLoading = true;
 			} else {
 				data = await createAddress();
 				url = `/address/assign-${type}-${objectId}.json`;
@@ -128,7 +130,7 @@
 				onCancel();
 			}
 		} catch (error) {}
-		activeLoading = false;
+		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
@@ -184,6 +186,7 @@
 				</Select>
 
 				<TextInput
+					autofocus
 					labelText="Province / State"
 					placeholder="Your province or state"
 					bind:value={addressInput.province}
@@ -191,8 +194,8 @@
 			</div>
 
 			<TextInput
-				labelText="Street address #1"
-				placeholder="Your street #1"
+				labelText="Street address"
+				placeholder="Your street"
 				bind:value={addressInput.line1}
 			/>
 			<TextInput
@@ -201,11 +204,7 @@
 				bind:value={addressInput.line2}
 			/>
 			<div class="select-container">
-				<TextInput
-					labelText="City"
-					placeholder="Your city"
-					bind:value={addressInput.city}
-				/>
+				<TextInput labelText="City" placeholder="Your city" bind:value={addressInput.city} />
 				<TextInput
 					labelText="Zip code / Postal code"
 					placeholder="Your zip code"

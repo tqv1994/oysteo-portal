@@ -19,18 +19,18 @@
 		justify-content: center;
 		transform: translate(-0.4rem, 0);
 		svg {
-			width: 7rem;
-			height: 3rem;
+			width: 120px;
+			height: auto;
 		}
 	}
 
 	.bx--header__nav {
 		padding-left: 0.5rem;
 		&:before {
-			background-color: #696969;
+			background-color: $oysteo-gray-60;
 		}
 		.bx--header__menu-item {
-			color: black;
+			color: $oysteo-black;
 		}
 
 		ul.bx--header__menu-bar {
@@ -38,14 +38,15 @@
 		}
 
 		a.bx--header__menu-item {
+			cursor: pointer;
 			padding: 0 0.5rem;
 			&:hover,
 			&:focus,
 			&:active {
-				background-color: white;
+				background-color: $oysteo-white;
 				outline: none;
-				border-bottom: 3px solid $blue;
-				color: black;
+				border-bottom: 3px solid $oysteo-blue-60;
+				color: $oysteo-black;
 			}
 		}
 	}
@@ -54,7 +55,7 @@
 		position: relative;
 		.bx--header-panel--expanded {
 			position: absolute;
-			right: -18%;
+			right: -14%;
 			height: 4.5rem;
 		}
 		li.bx--switcher__item {
@@ -71,10 +72,10 @@
 	}
 
 	li.bx--switcher__item {
-		background: $press-button-color;
+		background: $oysteo-gray-100;
 		margin-top: 0.5rem;
 		a {
-			color: white;
+			color: $oysteo-white;
 			padding: 0.5rem 3.5rem;
 		}
 	}

@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import { User, userFieldsFragment } from '$lib/store/auth';
 import { uploadFileFieldsFragment } from '$lib/store/upload-file';
 /**
@@ -41,5 +41,5 @@ export const put: RequestHandler = async (event) => {
 	} catch (error) {
 		console.error('Error updating me', error);
 	}
-	return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Error retrieving data for the me');
+	return makeEmptyResponse(500);
 };

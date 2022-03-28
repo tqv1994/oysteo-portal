@@ -26,8 +26,8 @@ export function formatMonthAndYear(date: string) {
 	if (date == '' || date == null) {
 		return '';
 	}
-	var myDate = new Date(date);
-	var months = [
+	const myDate = new Date(date);
+	const months = [
 		'January',
 		'February',
 		'March',
@@ -52,7 +52,7 @@ export function validateMMDDYYYY(date: string) {
 }
 
 function formatDateMonth(dateMonth: string): string {
-	let number = parseInt(dateMonth);
+	const number = parseInt(dateMonth);
 	if (number <= 9) {
 		return '0' + number.toString();
 	}
@@ -69,13 +69,13 @@ export function handleDisplayTimeZone(locale: string) {
 
 export const formatDate = (date) => {
 	const dateData = new Date(date);
-	const month = dateData.toLocaleString('en', { month: 'long'});
+	const month = dateData.toLocaleString('en', { month: 'long' });
 	return `${month} ${dateData.getDate()}, ${dateData.getFullYear()}`;
-}
+};
 
 export const dateDiffInDays = (d1, d2) => {
 	const t2 = new Date(d2).getTime();
 	const t1 = new Date(d1).getTime();
 
-	return Math.floor((t2 - t1)/ (24 * 3600 * 1000));
-}
+	return Math.floor((t2 - t1) / (24 * 3600 * 1000));
+};

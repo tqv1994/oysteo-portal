@@ -2,15 +2,16 @@ import { writable } from 'svelte/store';
 import type { CollectionStore, Exhibitable, Identifiable } from './types';
 
 export const productStore = writable<CollectionStore<Product>>({
-  items: {},
+	items: {}
 });
 
-export type Product = Identifiable & Exhibitable & {
-  brand: string;
-  price: string;
-  intro: string;
-  available: boolean;
-}
+export type Product = Identifiable &
+	Exhibitable & {
+		brand: string;
+		price: string;
+		intro: string;
+		available: boolean;
+	};
 
 export const productFieldsFragment = `
 fragment productFields on Product {

@@ -2,21 +2,25 @@
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
 	import { Select, SelectItem, TextInput } from 'carbon-components-svelte';
-	import type { SalutationType } from '$lib/store/salutationType';
-	import type { Payment, PaymentMethod } from '$lib/store/payment';
-	import type { Country } from '$lib/store/country';
+	import { salutationTypeStore } from '$lib/store/salutationType';
+	import type { Payment } from '$lib/store/payment';
+	import { countryStore } from '$lib/store/country';
 	import { convert2InternationalPhone, isValidPhoneNumber } from '$lib/helpers/phone-number';
-	import { mergeName, validateEmail } from '$lib/helpers/utils';
+	import { isValidEmail } from '$lib/helpers/utils';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import { onDestroy } from 'svelte';
+	import { paymentMethodStore } from '$lib/store/paymentMethod';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
+	import { sortByName, sortByOrder } from '$lib/utils/sort';
 
 	export let agencyId: string;
 	export let payments: Payment[];
-	export let salutationTypes: SalutationType[];
-	export let paymentMethods: PaymentMethod[];
-	export let countries: Country[];
-	export let activeSection: string = '';
-	export let activeLoading: boolean;
+
+	const salutationTypes = Object.values($salutationTypeStore.items);
+	const paymentMethods = Object.values($paymentMethodStore.items);
+	const countries = sortByOrder(sortByName(Object.values($countryStore.items)));
+
+	export let activeSection = '';
 
 	let havePayment: boolean;
 	type PaymentInput = {
@@ -47,6 +51,22 @@
 	onDestroy(() => {
 		resetBillPaymentInput();
 	});
+
+	type FormError = {
+		email?: string;
+		paymentMethod?: string;
+		phone?: string;
+	};
+
+	let formErrors: FormError;
+
+	function showErrors(errors: FormError) {
+		formErrors = errors;
+		setTimeout(() => {
+			formErrors = undefined;
+		}, INVALID_DELAY_TIME);
+	}
+
 	const invalidEmail = {
 		status: false,
 		message: 'Invalid email'
@@ -62,7 +82,7 @@
 
 	const onEdit = (groupName: string) => {
 		activeSection = groupName;
-		if (payments.length == 0) {
+		if ((payments || []).length == 0) {
 			havePayment = false;
 			resetBillPaymentInput();
 		} else {
@@ -100,7 +120,7 @@
 			return false;
 		}
 
-		if (!validateEmail(data.email)) {
+		if (!isValidEmail(data.email)) {
 			invalidEmail.status = true;
 			setTimeout(() => {
 				invalidEmail.status = false;
@@ -111,18 +131,27 @@
 	};
 
 	const createPayment = async () => {
+		const errors: FormError = {};
+		if (!paymentInput.paymentMethod) {
+			errors.paymentMethod = 'Payment method is required';
+		}
+		if (!isValidEmail(paymentInput.email)) {
+			errors.email = 'Email address is invalid';
+		}
+		if (!isValidPhoneNumber(paymentInput.phone, paymentInput.countryCode)) {
+			errors.phone = 'Phone number is invalid';
+		}
+		if (Object.keys(errors).length) {
+			showErrors(errors);
+			return false;
+		}
 		try {
-			activeLoading = true;
-			if (!handleValidate(paymentInput)) {
-				activeLoading = false;
-				return;
-			}
-			const res = await fetch(`/agency/payments/create.json`, {
+			const res = await fetch(`/account/agency/payments/create.json`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ ...paymentInput })
+				body: JSON.stringify({ ...paymentInput, phone: (paymentInput.phone || '').toString() })
 			});
 			if (res.ok) {
 				const data = await res.json();
@@ -134,19 +163,24 @@
 	};
 	const updatePayment = async () => {
 		try {
-			let url: string = ``;
+			let url = ``;
 			let data: PaymentInput | string;
 
 			if (havePayment) {
-				data = { ...paymentInput };
-				url = `/agency/payments/update-${payments[0].id}.json`;
+				data = { ...paymentInput, phone: (paymentInput.phone || '').toString() };
+				url = `/account/agency/payments/update-${payments[0].id}.json`;
 				if (!handleValidate(paymentInput)) {
 					return;
 				}
-				activeLoading = true;
+				isFormSavingStore.set({ saving: true });
 			} else {
+				isFormSavingStore.set({ saving: true });
 				data = await createPayment();
-				url = `/agency/payments/assign-${agencyId}.json`;
+				if (!data) {
+					isFormSavingStore.set({ saving: false });
+					return;
+				}
+				url = `/account/agency/payments/assign-${agencyId}.json`;
 			}
 
 			const res = await fetch(url, {
@@ -169,7 +203,7 @@
 		} catch (error) {
 			console.log('update payment', error);
 		}
-		activeLoading = false;
+		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
@@ -182,7 +216,11 @@
 >
 	<FormRow label="Payment method" {isEditing}>
 		<div slot="value">
-			{payments.length == 0 ? '' : !payments[0].paymentMethod ? '' : payments[0].paymentMethod.name}
+			{(payments || []).length == 0
+				? ''
+				: !payments[0].paymentMethod
+				? ''
+				: payments[0].paymentMethod.name}
 		</div>
 		<div slot="fields">
 			<Select
@@ -203,11 +241,11 @@
 					: payments[0].paymentMethod == null
 					? ''
 					: payments[0].paymentMethod.id.toString()}
-				invalid={requirePaymentMethod.status}
-				invalidText={requirePaymentMethod.message}
+				invalid={!!formErrors?.paymentMethod}
+				invalidText={formErrors?.paymentMethod}
 			>
 				<SelectItem value="" text="Choose" />
-				{#each paymentMethods as method}
+				{#each paymentMethods || [] as method}
 					<SelectItem text={method.name} value={method.id} />
 				{/each}
 			</Select>
@@ -215,8 +253,9 @@
 	</FormRow>
 	<FormRow label="Billing Contact Name" {isEditing}>
 		<div slot="value">
-			{payments.length != 0
+			{(payments || []).length != 0
 				? (payments[0].salutationType?.name || '') +
+				  '.' +
 				  payments[0].firstName +
 				  ' ' +
 				  payments[0].lastName
@@ -246,8 +285,9 @@
 				{/each}
 			</Select>
 			<TextInput
+				autofocus
 				labelText="First name"
-				placeholder="Enter billing contact firstname"
+				placeholder="Enter billing contact first name"
 				bind:value={paymentInput.firstName}
 			/>
 			<TextInput
@@ -258,14 +298,14 @@
 			/>
 			<TextInput
 				labelText="Last name"
-				placeholder="Enter billing contact lastname"
+				placeholder="Enter billing contact last name"
 				bind:value={paymentInput.lastName}
 			/>
 		</div>
 	</FormRow>
 	<FormRow label="Phone" {isEditing}>
 		<div slot="value">
-			{payments.length != 0
+			{(payments || []).length != 0
 				? convert2InternationalPhone(payments[0].phone, payments[0].countryCode)
 				: ''}
 		</div>
@@ -281,26 +321,27 @@
 				<SelectItem value="" text="Choose" />
 
 				{#each countries as country}
-					<SelectItem value={country.code} text={country.name + " +" + country.phone} />
+					<SelectItem value={country.code} text={country.name + ' +' + country.phone} />
 				{/each}
 			</Select>
 			<TextInput
+				type="text"
 				labelText="Number"
 				placeholder="Enter phone number"
 				bind:value={paymentInput.phone}
-				invalid={invalidPhoneNumber.status}
-				invalidText={invalidPhoneNumber.message}
+				invalid={!!formErrors?.phone}
+				invalidText={formErrors?.phone}
 			/>
 		</div>
 	</FormRow>
 	<FormRow label="Email" {isEditing}>
-		<div slot="value">{payments[0] ? payments[0].email : ''}</div>
+		<div slot="value">{Array.isArray(payments) && payments[0] ? payments[0].email : ''}</div>
 		<div slot="fields">
 			<TextInput
 				placeholder="Enter billing email"
 				bind:value={paymentInput.email}
-				invalid={invalidEmail.status}
-				invalidText={invalidEmail.message}
+				invalid={!!formErrors?.email}
+				invalidText={formErrors?.email}
 			/>
 		</div>
 	</FormRow>
