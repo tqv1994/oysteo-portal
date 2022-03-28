@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
-import { makeErrorResponse } from '$lib/utils/fetch';
+import { makeEmptyResponse } from '$lib/utils/fetch';
 import type { Emergency } from '$lib/store/emergency';
 
 export type deleteEmergencyData = {
@@ -34,5 +34,5 @@ export const del: RequestHandler = async (event) => {
 	} catch (error) {
 		console.error('Error delete data for the emergency', error);
 	}
-	return makeErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Error deleting data for the emergency');
+	return makeEmptyResponse(500);
 };

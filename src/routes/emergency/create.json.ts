@@ -2,7 +2,6 @@ import type { RequestHandler } from '@sveltejs/kit';
 import { createGraphClientFromRequest } from '$lib/utils/graph';
 import { makeEmptyResponse } from '$lib/utils/fetch';
 import { uploadFileFieldsFragment } from '$lib/store/upload-file';
-import { Insurance, insuranceFieldsFragment } from '$lib/store/insurance';
 import { Emergency, emergencyFieldsFragments } from '$lib/store/emergency';
 import { countryFieldsFragment } from '$lib/store/country';
 
