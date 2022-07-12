@@ -1,7 +1,4 @@
-import { sortByPublishedAt } from '$lib/utils/sort';
-
-import type { Writable } from 'svelte/store';
-import type { Category } from './category';
+import type { Kind } from './category';
 import type { Country } from './country';
 import type { UploadFile } from './upload-file';
 
@@ -12,19 +9,6 @@ export interface FetchError {
 	fields?: Record<string, string>;
 }
 
-export type AsyncStore = {
-	hasData?: boolean;
-	hasError?: boolean;
-	updatedAt?: number;
-	error?: FetchError;
-};
-
-export type CollectionStore<T> = AsyncStore & {
-	hasMore?: boolean;
-	last?: T;
-	items: Record<string, T>;
-};
-
 export type Identifiable = {
 	id: string;
 };
@@ -33,16 +17,16 @@ export type Nameable = {
 	name: string;
 };
 
-export type Linkable = Identifiable & Nameable;
+export type Linkable = Kind;
 
 export type Nationalizable = {
 	country: Country;
 };
 
 export type Categorizable = {
-	type1: Category;
-	type2: Category;
-	type3: Category;
+	type1: Kind;
+	type2: Kind;
+	type3: Kind;
 };
 
 export type Recordable = {
@@ -60,7 +44,7 @@ export type Likeable = {
 	liked?: boolean;
 };
 
-export type Listable = Identifiable & Nameable & Categorizable;
+export type Listable = Kind & Categorizable;
 
 export type Exhibitable = Publishable &
 	Nameable &
@@ -72,24 +56,19 @@ export type Exhibitable = Publishable &
 
 export type Searchable = Exhibitable & Nationalizable & Categorizable;
 
-export const insertToStore = <T extends Base>(
-	store: Writable<CollectionStore<T>>,
-	items?: T[],
-	replaceExisting = true
-) => {
-	if (!items || !items.length) {
-		return;
-	}
-	store.update((s) => {
-		for (let i = 0; i < items.length; i++) {
-			const item = items[i];
-			if (replaceExisting || !s.items[item.id]) {
-				s.items[item.id] = item;
-			}
-		}
-		return s;
-	});
+export type DatePickerDate = {
+	selectedDates: [dateFrom: Date, dateTo?: Date];
+	dateStr:
+		| string
+		| {
+				from: string;
+				to: string;
+		  };
 };
 
-export const getItems = <T extends Publishable>(store: CollectionStore<T>, limit = 5): T[] =>
-	sortByPublishedAt(Object.values(store.items)).slice(0, limit);
+export type DatePickerEvent = CustomEvent<string | DatePickerDate>;
+
+export type SideNavItem = {
+	id: string;
+	text: string;
+};

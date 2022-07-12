@@ -1,76 +1,75 @@
 <script lang="ts">
-	import { focusInput } from '$lib/helpers/scripts';
-
-	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
-	import { isFormSavingStore } from '$lib/store/isFormSaving';
-
-	import { Button, Form, FormGroup, InlineLoading, Link } from 'carbon-components-svelte';
-	import { RequestQuote16 } from 'carbon-icons-svelte';
 	import { createEventDispatcher } from 'svelte';
-	import { openWarningSaveForm } from '$lib/components/form/PopupWarningSaveForm.svelte';
+	import { Button, Form, FormGroup, InlineLoading, Link } from 'carbon-components-svelte';
+	import { RequestQuote } from 'carbon-icons-svelte';
+	import { saving } from '$lib/store/saving';
+	import { getFormValues } from '$lib/helpers/utils';
+	import { activateOrHighlight, clear, subscribe } from '$lib/store/activeForm';
 
-	export let isEditing = false;
 	export let groupName = '';
 	export let editLabel = 'Edit';
 	export let groupClass = 'group';
 	export let isPhotoGroup = false;
 	export let hideEditButton = false;
-	export let disabledRemoveButton = true;
+	export let disabledRemoveButton: boolean = true;
 	export let hideEditIcon = false;
+	export let data:
+		| Record<string, string | number | boolean>
+		| Record<string, string | number | boolean>[] = undefined;
+	export let subdata:
+		| Record<string, string | number | boolean>
+		| Record<string, string | number | boolean>[] = undefined;
+	export let form: HTMLFormElement | undefined = undefined;
 
-	const dispatch = createEventDispatcher();
+	export let isEditing = false;
 
-	function onEdit() {
-		if ($formChangeStatusStore.changing === false) {
-			dispatch('edit');
-			setTimeout(() => {
-				const form = document.querySelector('form');
-				focusInput(form);
-				form.addEventListener('input', function () {
-					formChangeStatusStore.set({ changing: true });
-				});
-			}, 0);
+	export function activate() {
+		if (Array.isArray(data)) {
+			if (data.length === 0) {
+				activateOrHighlight(id, undefined);
+			} else {
+				for (const item of data) {
+					activateOrHighlight(id, item);
+				}
+			}
 		} else {
-			openWarningSaveForm({ handleConfirm: onEdit });
+			activateOrHighlight(id, data);
 		}
 	}
 
-	function onSubmit() {
-		dispatch('submit');
-		formChangeStatusStore.update((s) => {
-			s.changing = false;
-			return s;
-		});
-	}
-
-	function onCancel() {
+	export function cancel() {
+		clear();
 		dispatch('cancel');
-		formChangeStatusStore.update((s) => {
-			s.changing = false;
-			return s;
-		});
 	}
 
-	// function openWarningSaveForm(arg0: { handleConfirm: () => void }) {
-	// 	throw new Error('Function not implemented.');
-	// }
+	const id = new Date().getTime().toString(36) + Math.random().toString(36).substring(2);
+	const dispatch = createEventDispatcher();
+
+	subscribe((s) => {
+		isEditing = s && s.id === id;
+	});
+
+	function onSubmit(event: SubmitEvent) {
+		event.preventDefault();
+		dispatch('submit', getFormValues(form));
+	}
 </script>
 
 <div class={groupClass + (isEditing ? ' group-border' : '')}>
 	{#if isEditing}
 		<div class="form {groupClass.includes('group-add') ? 'mtop-16 mbottom-32' : ''}">
-			<Form on:submit={onSubmit}>
+			<Form on:submit={onSubmit} bind:ref={form} {id}>
 				<FormGroup>
 					<slot {isEditing} />
-					{#if $isFormSavingStore.saving}
+					{#if $saving}
 						<div class="saving-modal" />
 					{/if}
 				</FormGroup>
 				<div class="group-buttons">
-					{#if $isFormSavingStore.saving}
+					{#if $saving}
 						<InlineLoading status="active" description="Saving..." />
 					{:else}
-						<Button class="btn-cancel" on:click={onCancel}>Cancel</Button>
+						<Button class="btn-cancel" on:click={cancel}>Cancel</Button>
 						{#if isPhotoGroup}
 							<Button class="btn-remove" type="submit" disabled={disabledRemoveButton}
 								>Remove</Button
@@ -91,8 +90,8 @@
 
 		{#if groupName === '' && !hideEditButton}
 			<div class="actions">
-				<Link on:click={onEdit} class="btn-edit"
-					>{editLabel}&nbsp;{#if !hideEditIcon}<RequestQuote16 />{/if}</Link
+				<Link on:click={activate} class="btn-edit"
+					>{editLabel}&nbsp;{#if !hideEditIcon}<RequestQuote size={16} />{/if}</Link
 				>
 			</div>
 		{:else}
@@ -112,16 +111,16 @@
 		display: flex;
 		padding: 2em 0;
 		margin-bottom: 2em;
-		border-top: 1px solid #707070;
+		border-bottom: 1px solid #707070;
 		:global(.group-buttons .bx--btn) {
 			width: 100%;
 			max-width: none;
 			margin-bottom: 1em;
 		}
 	}
-
 	.group-add {
 		padding: 0;
+		border-bottom: none;
 		&.group-border {
 			border-bottom: 1px solid #707070;
 			padding-bottom: 2rem;
@@ -142,7 +141,6 @@
 		margin-top: -1rem;
 	}
 	.actions {
-		flex: 0 0 4rem;
 		text-align: right;
 		cursor: pointer;
 	}

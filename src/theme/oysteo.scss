@@ -26,6 +26,7 @@ html {
 	overflow-x: hidden;
 	background-color: $oysteo-gray-10;
 }
+
 // @media (max-width: 671.99px) {
 h1 {
 	font-size: 2rem;
@@ -41,6 +42,7 @@ h1 {
 		padding-left: 1rem;
 	}
 }
+
 @media (min-width: 42rem) {
 	.bx--grid {
 		padding-right: 1rem;
@@ -68,6 +70,7 @@ h1 {
 	.bx--tile {
 		background: $oysteo-white;
 		padding-top: 0;
+		padding-bottom: 40px;
 	}
 }
 
@@ -84,6 +87,7 @@ h1 {
 .bx--form-item {
 	margin-top: 0.5rem;
 	margin-bottom: 0.1875rem;
+
 	.bx--label {
 		margin-bottom: 0.25rem;
 	}
@@ -101,6 +105,7 @@ label[for='agency-active-status'] {
 		width: 1.75rem;
 		height: 1.75rem;
 	}
+
 	&:after {
 		width: 0.984375rem;
 		height: 0.546875rem;
@@ -117,12 +122,15 @@ label[for='agency-active-status'] {
 label.bx--btn--primary {
 	background-color: transparent;
 	color: $oysteo-blue-60;
+
 	&:hover {
 		background-color: transparent;
+
 		span {
 			color: $oysteo-blue-60;
 		}
 	}
+
 	&:focus {
 		box-shadow: none;
 		border: none;
@@ -132,11 +140,13 @@ label.bx--btn--primary {
 // Photo grid
 .bx--row {
 	margin-bottom: 0.6rem;
+
 	.bx--col {
 		padding-left: 0;
 		padding-right: 0.6875rem;
 		position: relative;
 	}
+
 	.media-destination {
 		border: 1px solid transparent;
 	}
@@ -145,6 +155,7 @@ label.bx--btn--primary {
 		border: 1px solid $oysteo-blue-60;
 		opacity: 0.9;
 	}
+
 	.remove-media-icon {
 		cursor: pointer;
 		position: absolute;
@@ -153,9 +164,11 @@ label.bx--btn--primary {
 		right: 0.9375rem;
 		visibility: hidden;
 	}
+
 	.remove-media-icon.active {
 		visibility: visible;
 	}
+
 	.remove-media-layout {
 		position: absolute;
 		top: 0;
@@ -163,6 +176,7 @@ label.bx--btn--primary {
 		width: 100%;
 		height: 100%;
 	}
+
 	p {
 		font-size: 14px;
 	}
@@ -211,11 +225,12 @@ label.bx--btn--primary {
 .experiences-container {
 	position: relative;
 	margin-bottom: 1rem;
+
 	.remove-aff-item,
 	.remove-experiences,
 	.remove-traveller {
-		position: absolute;
-		top: 0.5rem;
+		position: absolute !important;
+		top: 0rem;
 		right: -1.5rem;
 		cursor: pointer;
 	}
@@ -227,13 +242,17 @@ form {
 		padding: 0;
 	}
 }
+
 .bx--btn {
 	justify-content: center;
+
 	&.bx--btn--primary {
 		--cds-interactive-01: #0f61fd;
+
 		&:hover {
 			--cds-interactive-01: #0353e9;
 		}
+
 		&:focus,
 		&:active {
 			--cds-interactive-01: #0353e9;
@@ -241,13 +260,16 @@ form {
 			--cds-focus: #0353e9;
 		}
 	}
+
 	&.btn-cancel {
 		background: #383838;
 		color: $oysteo-white;
+
 		&:hover {
 			background: $oysteo-gray-100;
 			color: $oysteo-white;
 		}
+
 		&:focus,
 		&:active {
 			background: $oysteo-gray-100;
@@ -289,9 +311,11 @@ form {
 
 .bx--date-picker {
 	width: 100%;
+
 	.bx--date-picker-container {
 		width: 100%;
 	}
+
 	&.bx--date-picker--simple .bx--date-picker__input {
 		width: 100% !important;
 	}
@@ -319,6 +343,7 @@ video {
 
 .bx--date-picker-input__wrapper {
 	width: 100%;
+
 	input {
 		width: 100% !important;
 	}
@@ -356,8 +381,13 @@ video {
 	padding-bottom: 20px;
 }
 
+.btn-edit.bx--link {
+	overflow-wrap: normal;
+}
+
 .bx--link {
 	cursor: pointer;
+	overflow-wrap: anywhere;
 }
 
 .hide-border {
@@ -372,6 +402,7 @@ video {
 	pointer-events: none !important;
 	transition: none !important;
 	cursor: context-menu;
+
 	span {
 		color: $oysteo-gray-10;
 	}
@@ -411,6 +442,40 @@ header .btn-logout.btn-logout:hover {
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.icon-right {
+	float: right;
+}
+
+.flatpickr-wrapper {
+	width: 100%;
+}
+
+.note-not-found {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 25px;
+	font-weight: 900;
+}
+
+.ml-2 {
+	margin-left: 1rem;
+}
+
+.label-12 {
+	font-size: 12px;
+}
+
+.w-100 {
+	width: 100%;
+}
+
+.bx--modal-container{
+	width: 60%;
+	height: 70%;
 }

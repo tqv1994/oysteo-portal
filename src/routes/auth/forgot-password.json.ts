@@ -1,7 +1,7 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { makeEmptyResponse } from '$lib/utils/fetch';
 import type { Advisor } from '$lib/store/advisor';
-import { cmsUrlPrefix } from '$lib/utils/_env';
+import { cmsUrlPrefix } from '$lib/env';
 import { getSessionCookie } from '$lib/utils/session';
 /**
  * @type {import('@sveltejs/kit').Post}
@@ -22,7 +22,7 @@ export const post: RequestHandler = async (event) => {
 			return new Response(body);
 		} else {
 			const error = await res.json();
-			console.log(error);
+			console.error(error);
 			return makeEmptyResponse(500);
 		}
 	} catch (error) {

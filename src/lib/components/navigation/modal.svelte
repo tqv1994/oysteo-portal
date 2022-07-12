@@ -1,32 +1,35 @@
-<script>
-	import { Modal } from 'carbon-components-svelte';
+<script lang="ts">
+	import { Button, Modal } from 'carbon-components-svelte';
 	import '../../../theme/oysteo.scss';
-	import { TableOfContents20 } from 'carbon-icons-svelte';
-	import { goto } from '$app/navigation';
-	let open = false;
-	export let items;
-	export let selectedItem = 'ID and Password';
-	let additionalClasses = '';
+	import { TableOfContents as TableOfContentsIcon } from 'carbon-icons-svelte';
+	import type { SideNavItem } from '$lib/store/types';
+
 	export { additionalClasses as class };
+	export let items: SideNavItem[];
+	export let activeIndex: number = 0;
+
+	let open = false;
+	let additionalClasses = '';
+
+	$: activeSection = items[activeIndex];
 </script>
 
 <div class="nav-section {additionalClasses}">
-	<p>{selectedItem}</p>
-	<TableOfContents20 on:click={() => (open = true)} />
+	<p>{activeSection?.text}</p>
+	<Button kind="ghost" on:click={() => (open = true)}>
+		<TableOfContentsIcon size={20} />
+	</Button>
 </div>
 
 <Modal passiveModal bind:open on:open>
 	<div class="menu-mobile">
 		<ul>
-			{#each items as item (item.id)}
+			<a href="/profile"><li>Home</li></a>
+			{#each items as item, i (item.id)}
 				<a
-					href={item.link || `#${item.id}`}
+					href="#{item.id}"
 					on:click={() => {
-						if (item.link) {
-							goto(item.link);
-							return;
-						}
-						selectedItem = item.text;
+						activeIndex = i;
 						open = false;
 					}}><li>{item.text}</li></a
 				>

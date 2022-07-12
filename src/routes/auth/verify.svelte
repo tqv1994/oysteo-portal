@@ -2,12 +2,9 @@
 	import '$lib/utils/firebase';
 	import type { Load } from '@sveltejs/kit';
 	import { browser } from '$app/env';
-	import { get } from 'svelte/store';
-	import { authStore } from '$lib/store/auth';
 	import { goto } from '$app/navigation';
 
-	export const load: Load = async ({ url }) => {
-		const { user } = get(authStore);
+	export const load: Load = async ({ url, session: { user } }) => {
 		if (user) {
 			const redirect = '/';
 			if (browser) {
@@ -34,41 +31,71 @@
 	import 'carbon-components-svelte/css/all.css';
 	import '../../theme/oysteo.scss';
 	import { Button, Link } from 'carbon-components-svelte';
-	import { TIME_RESEND_EMAIL_FORGOT_PW } from '$lib/utils/constants';
-	import OysteoLogo from '$lib/components/icons/OysteoLogo.svelte';
-	import { sendLoginEmail, sendEmailVerificationLink } from '$lib/services/user.service';
 	import ODeviceDetector from '$lib/components/ODeviceDetector.svelte';
+	import { notify } from '$lib/components/Toast.svelte';
+	import { isValidEmail } from '$lib/helpers/utils';
 	export let email: string;
 
-	let count = TIME_RESEND_EMAIL_FORGOT_PW;
-	let countDownStart = true;
-	const countDown = () => {
-		if (count > 0 && countDownStart) {
-			count--;
-			setTimeout(countDown, 1000);
-		} else {
-			countDownStart = false;
-			count = TIME_RESEND_EMAIL_FORGOT_PW;
-		}
-	};
-	countDown();
+	let sentTs: number;
 
 	const reSendAccountVerifyLink = async () => {
-		try {
-			await sendEmailVerificationLink(email);
-			countDownStart = true;
-			countDown();
-		} catch (error) {
-			console.error(error);
+		if (!email || !isValidEmail(email)) {
+			notify({
+				kind: 'error',
+				title: 'Oops',
+				subtitle:
+					"The email address is invalid... you're probably in the wrong place. Redirecting you to the home page"
+			});
+			// goto('/');
+			return;
 		}
-	};
-	const reSendAccountLoginLink = async () => {
+		const nowTs = new Date().getTime();
+		if (sentTs && sentTs < nowTs + 60 * 1000) {
+			notify({
+				kind: 'warning',
+				title: 'Slow down',
+				subtitle:
+					'Please wait a minute before trying again - even email takes time to be delivered.'
+			});
+			return;
+		}
 		try {
-			await sendLoginEmail(email);
-			countDownStart = true;
-			countDown();
+			const res = await fetch(`/p/auth/send-agency-email-verification-link`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ email })
+			});
+			if (res.ok) {
+				sentTs = nowTs;
+				notify({
+					kind: 'success',
+					title: 'Done',
+					subtitle:
+						"The email has been sent successfully. If you still don't receive it, please check your spam folder or check with your email provider/administator that oysteo.com is whitelisted."
+				});
+			} else {
+				console.log(res);
+			}
 		} catch (error) {
-			console.error(error);
+			if (error.errorInfo) {
+				switch (error.errorInfo) {
+					case 'auth/user-not-found':
+						notify({
+							kind: 'error',
+							title: 'Oops',
+							subtitle:
+								"This is strange - we couldn't find your email address... please register again"
+						});
+						goto('/auth/register');
+						break;
+					default:
+						console.error(error.errorInfo);
+				}
+			} else {
+				console.error(error);
+			}
 		}
 	};
 </script>
@@ -88,13 +115,9 @@
 		<p>If you haven’t received our email, please click <b>RESEND</b>.</p>
 	</div>
 	<div>
-		{#if !countDownStart}
+		{#if email}
 			<Button kind="secondary" type="button" on:click={reSendAccountVerifyLink} class="btn-submit"
 				>RESEND</Button
-			>
-		{:else}
-			<Button kind="secondary" type="button" disabled class="btn-submit btn-count-down"
-				>{count}</Button
 			>
 		{/if}
 	</div>

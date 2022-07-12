@@ -28,16 +28,3 @@ export const convertInsuranceToInput = (insurance: Insurance): InsuranceInput =>
 	delete data.__typename;
 	return new InsuranceInput(data);
 };
-
-export const insuranceFieldsFragment = `
-fragment insuranceFields on Insurance{
-    id
-    policyId
-    website
-    contact
-    published_at
-    documents{
-        ...uploadFileFields
-    }
-}
-`;

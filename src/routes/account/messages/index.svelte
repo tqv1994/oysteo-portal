@@ -22,7 +22,7 @@
 	let activeLoading = false;
 
 	const messagesSections = [
-		{ id: '', text: 'Home', link: '/account' },
+		{ id: '', text: 'Home', link: '/' },
 		{ id: 'current-messages', text: 'Current Messages' },
 		{ id: 'archived', text: 'Archived' }
 	];
@@ -35,12 +35,12 @@
 
 <svelte:window bind:scrollY={y} />
 <OverlayLoading bind:activeLoading bind:label={loadingLabel} />
-<NavigationSection selectedItem={'Current Messages'} items={messagesSections} class={navFixed} />
+<NavigationSection activeIndex={'Current Messages'} items={messagesSections} class={navFixed} />
 
 <div class="content">
 	<div class="title-content">
 		<h1>Messages</h1>
-		<DesktopNavigationSection items={messagesSections} className={'messages-screen'} />
+		<DesktopNavigationSection items={messagesSections} class="messages-screen" />
 	</div>
 	<div class="section" id="home" />
 	<div class="section" id="current-messages">

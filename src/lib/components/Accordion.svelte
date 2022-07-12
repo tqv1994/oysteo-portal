@@ -2,7 +2,7 @@
 	import { Accordion, AccordionItem } from 'carbon-components-svelte';
 	export let title = '';
 	export let open = false;
-	export let id: string;
+	export let id: string = '';
 </script>
 
 <div class="accordion" {id}>

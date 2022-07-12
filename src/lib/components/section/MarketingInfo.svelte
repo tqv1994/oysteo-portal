@@ -1,30 +1,19 @@
 <script lang="ts">
-	import { validateWebsite } from '$lib/helpers/utils';
-
 	import type { Agency } from '$lib/store/agency';
+	import { session } from '$app/stores';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
-
+	import { ppatch } from '$lib/utils/fetch';
 	import { TextArea, TextInput } from 'carbon-components-svelte';
-	import { onDestroy } from 'svelte';
-
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
+	import { notify } from '../Toast.svelte';
+	import { clear } from '$lib/store/activeForm';
 
-	export let type: string;
+	export let target: string;
 	export let agency: Agency;
 	export let activeSection = '';
-	const onEdit = (groupName: string) => {
-		activeSection = groupName;
-		marketingInfoInput = {
-			description: agency.description,
-			profile: agency.profile,
-			website: agency.website
-		};
-	};
-	const onCancel = () => {
-		activeSection = '';
-	};
 
 	type MarketingInfoInput = {
 		description: string;
@@ -32,23 +21,23 @@
 		website: string;
 	};
 
-	let marketingInfoInput: MarketingInfoInput;
-	const onResetMarketingInfoInput = () => {
-		marketingInfoInput = {
-			description: '',
-			profile: '',
-			website: ''
+	let formData: MarketingInfoInput;
+	const reset = () => {
+		formData = {
+			description: agency.description,
+			profile: agency.profile,
+			website: agency.website
 		};
 	};
 
-	onResetMarketingInfoInput();
-	onDestroy(() => {
-		onResetMarketingInfoInput();
-	});
+	onMount(reset);
+	onDestroy(reset);
 
 	type FormError = {
 		website?: string;
 	};
+
+	const dispatch = createEventDispatcher();
 
 	let formErrors: FormError;
 
@@ -59,51 +48,55 @@
 		}, INVALID_DELAY_TIME);
 	}
 
-	let invalidMarketingWebsite = {
-		status: false,
-		message: 'Invalid website'
-	};
-	const updateMarketingInformation = async () => {
+	const updateMarketingInformation = async (website = false) => {
 		const errors: FormError = {};
-		try {
-			if (!validateWebsite(marketingInfoInput.website)) {
-				errors.website = 'Website address is invalid';
-			}
+		if (website == true) {
 			if (Object.keys(errors).length) {
 				showErrors(errors);
 				return;
 			}
-			isFormSavingStore.set({ saving: true });
-			const res = await fetch(`/common/${type}-${agency.id}.json`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ ...marketingInfoInput })
-			});
+		}
+
+		isFormSavingStore.set({ saving: true });
+		try {
+			const res = await ppatch(target, formData);
 			if (res.ok) {
-				for (const key in marketingInfoInput) {
-					agency[key] = marketingInfoInput[key];
-				}
-				onCancel();
-				onResetMarketingInfoInput();
+				dispatch('change', await res.json());
+				activeSection = '';
+				session.update((s) => {
+					s.agencyMe.description = formData.description;
+					s.agencyMe.profile = formData.profile;
+					s.agencyMe.website = formData.website;
+					return s;
+				});
+				clear();
+			} else {
+				notify({
+					title: 'Update failed',
+					subtitle: 'Failed to update information, please try again later.'
+				});
 			}
-		} catch (error) {}
+		} catch (error) {
+			notify({
+				title: 'Update failed',
+				subtitle: 'Failed to update information, please try again later.'
+			});
+			console.error('Failed to update phone numbers', error);
+		}
 		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
 <FormGroup
-	let:isEditing
-	isEditing={activeSection === 'marketing-information'}
-	on:edit={() => onEdit('marketing-information')}
-	on:cancel={onCancel}
-	on:submit={updateMarketingInformation}
+	let:isEditing={isEditingInfo}
+	on:submit={() => updateMarketingInformation()}
+	on:cancel={reset}
+	data={{ ...formData }}
 >
-	<FormRow label="Agency Description" {isEditing} contentClass={'mtop-6'}>
+	<FormRow label="Agency Description" isEditing={isEditingInfo} contentClass={'mtop-6'}>
 		<div slot="value">
 			<p class="marketing-info">
-				{agency.description == null ? '' : agency.description}
+				{agency.description || ''}
 			</p>
 		</div>
 		<div slot="fields">
@@ -114,14 +107,15 @@
 				placeholder="Enter agency description"
 				rows={4}
 				maxlength={100}
-				bind:value={marketingInfoInput.description}
+				bind:value={formData.description}
+				name="description"
 			/>
 		</div>
 	</FormRow>
-	<FormRow label="Agency Profile" {isEditing} contentClass={'mtop-6'}>
+	<FormRow label="Agency Profile" isEditing={isEditingInfo} contentClass={'mtop-6'}>
 		<div slot="value">
 			<p class="marketing-info">
-				{agency.profile == null ? '' : agency.profile}
+				{agency.profile || ''}
 			</p>
 		</div>
 		<div slot="fields">
@@ -131,7 +125,8 @@
 				placeholder="Enter agency profile"
 				rows={5}
 				maxlength={750}
-				bind:value={marketingInfoInput.profile}
+				bind:value={formData.profile}
+				name="profile"
 			/>
 		</div>
 	</FormRow>
@@ -140,19 +135,18 @@
 <slot />
 
 <FormGroup
-	let:isEditing
-	isEditing={activeSection === 'marketing-website'}
-	on:edit={() => onEdit('marketing-website')}
-	on:cancel={onCancel}
-	on:submit={updateMarketingInformation}
+	let:isEditing={isEditingWebsite}
+	on:submit={() => updateMarketingInformation(true)}
+	data={{ website: agency.website }}
 >
-	<FormRow label="Website" {isEditing}>
-		<div slot="value">{agency.website == null ? '' : agency.website}</div>
+	<FormRow label="Website" isEditing={isEditingWebsite}>
+		<div slot="value">{agency.website || ''}</div>
 		<div slot="fields">
 			<TextInput
 				autofocus
+				name="website"
 				placeholder="Enter your website"
-				bind:value={marketingInfoInput.website}
+				bind:value={formData.website}
 				invalid={!!formErrors?.website}
 				invalidText={formErrors?.website}
 			/>

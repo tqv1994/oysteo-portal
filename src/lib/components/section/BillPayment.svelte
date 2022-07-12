@@ -2,63 +2,66 @@
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
 	import { Select, SelectItem, TextInput } from 'carbon-components-svelte';
-	import { salutationTypeStore } from '$lib/store/salutationType';
-	import type { Payment } from '$lib/store/payment';
-	import { countryStore } from '$lib/store/country';
 	import { convert2InternationalPhone, isValidPhoneNumber } from '$lib/helpers/phone-number';
 	import { isValidEmail } from '$lib/helpers/utils';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
-	import { onDestroy } from 'svelte';
-	import { paymentMethodStore } from '$lib/store/paymentMethod';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
-	import { sortByName, sortByOrder } from '$lib/utils/sort';
+	import type { Agency } from '$lib/store/agency';
+	import { ppatch } from '$lib/utils/fetch';
+	import { notify } from '../Toast.svelte';
+	import { session } from '$app/stores';
+	import type { Kind } from '$lib/store/category';
+	import { clear } from '$lib/store/activeForm';
 
-	export let agencyId: string;
-	export let payments: Payment[];
-
-	const salutationTypes = Object.values($salutationTypeStore.items);
-	const paymentMethods = Object.values($paymentMethodStore.items);
-	const countries = sortByOrder(sortByName(Object.values($countryStore.items)));
-
+	export let target: string;
+	export let agency: Agency;
 	export let activeSection = '';
+	export let paymentMethods: Kind[];
+	export let salutationTypes: Kind[];
+	export let countries;
 
-	let havePayment: boolean;
-	type PaymentInput = {
-		firstName: string;
-		lastName: string;
-		phone: string;
-		countryCode: string;
-		email: string;
-		initials: string;
-		paymentMethod: string | null;
-		salutationType: string | null;
+	type FormData = {
+		billingPhone?: string;
+		billingEmail?: string;
+		billingInitials?: string;
+		billingFirstName?: string;
+		billingLastName?: string;
+		billingPaymentMethod?: string;
+		billingCountryCode?: string;
+		billingSalutationType?: string;
 	};
 
-	let paymentInput: PaymentInput;
-	const resetBillPaymentInput = () => {
-		paymentInput = {
-			firstName: '',
-			lastName: '',
-			phone: '',
-			countryCode: '',
-			email: '',
-			initials: '',
-			paymentMethod: null,
-			salutationType: null
+	let formData: FormData;
+	let formErrors: FormError;
+	const dispatch = createEventDispatcher();
+
+	function reset() {
+		formData = {
+			billingPhone: agency.billingPhone || '',
+			billingEmail: agency.billingEmail || '',
+			billingInitials: agency.billingInitials || '',
+			billingFirstName: agency.billingFirstName || '',
+			billingLastName: agency.billingLastName || '',
+			billingPaymentMethod: agency.billingPaymentMethod?.toString(),
+			billingCountryCode: agency.billingCountryCode || '',
+			billingSalutationType: agency.billingSalutationType?.toString()
 		};
-	};
-	resetBillPaymentInput();
-	onDestroy(() => {
-		resetBillPaymentInput();
-	});
+	}
+
+	onMount(reset);
+	onDestroy(reset);
 
 	type FormError = {
-		email?: string;
-		paymentMethod?: string;
-		phone?: string;
+		billingPhone?: string;
+		billingEmail?: string;
+		billingInitials?: string;
+		billingFirstName?: string;
+		billingLastName?: string;
+		billingPaymentMethod?: string;
+		billingCountryCode?: string;
+		billingSalutationType?: string;
 	};
-
-	let formErrors: FormError;
 
 	function showErrors(errors: FormError) {
 		formErrors = errors;
@@ -67,182 +70,91 @@
 		}, INVALID_DELAY_TIME);
 	}
 
-	const invalidEmail = {
-		status: false,
-		message: 'Invalid email'
-	};
-	const invalidPhoneNumber = {
-		status: false,
-		message: 'Invalid phone number'
-	};
-	const requirePaymentMethod = {
-		status: false,
-		message: 'Payment method is required'
-	};
-
-	const onEdit = (groupName: string) => {
-		activeSection = groupName;
-		if ((payments || []).length == 0) {
-			havePayment = false;
-			resetBillPaymentInput();
-		} else {
-			havePayment = true;
-			paymentInput = {
-				firstName: payments[0].firstName || '',
-				lastName: payments[0].lastName || '',
-				phone: payments[0].phone || '',
-				countryCode: payments[0].countryCode || '',
-				email: payments[0].email || '',
-				initials: payments[0].initials || '',
-				paymentMethod: payments[0].paymentMethod?.id || null,
-				salutationType: payments[0].salutationType?.id || null
-			};
-		}
-	};
-	const onCancel = () => {
-		activeSection = '';
-	};
-
-	const handleValidate = (data: PaymentInput) => {
-		if (!data.paymentMethod) {
-			requirePaymentMethod.status = true;
-			setTimeout(() => {
-				requirePaymentMethod.status = false;
-			}, INVALID_DELAY_TIME);
-			return false;
-		}
-
-		if (!isValidPhoneNumber(data.phone, data.countryCode)) {
-			invalidPhoneNumber.status = true;
-			setTimeout(() => {
-				invalidPhoneNumber.status = false;
-			}, INVALID_DELAY_TIME);
-			return false;
-		}
-
-		if (!isValidEmail(data.email)) {
-			invalidEmail.status = true;
-			setTimeout(() => {
-				invalidEmail.status = false;
-			}, INVALID_DELAY_TIME);
-			return false;
-		}
-		return true;
-	};
-
-	const createPayment = async () => {
+	const onSubmit = async () => {
 		const errors: FormError = {};
-		if (!paymentInput.paymentMethod) {
-			errors.paymentMethod = 'Payment method is required';
+		if (!formData.billingFirstName) {
+			errors.billingFirstName = "Billing contact's first name is required";
 		}
-		if (!isValidEmail(paymentInput.email)) {
-			errors.email = 'Email address is invalid';
+		if (!formData.billingLastName) {
+			errors.billingLastName = "Billing contact's last name is required";
 		}
-		if (!isValidPhoneNumber(paymentInput.phone, paymentInput.countryCode)) {
-			errors.phone = 'Phone number is invalid';
+		if (!isValidPhoneNumber(formData.billingPhone, formData.billingCountryCode)) {
+			errors.billingPhone = 'Phone number is invalid';
+			errors.billingCountryCode = 'Phone number is invalid';
 		}
+		if (!formData.billingEmail) {
+			errors.billingEmail = 'Email address is required';
+		} else if (!isValidEmail(formData.billingEmail)) {
+			errors.billingEmail = 'Email address is invalid';
+		}
+
 		if (Object.keys(errors).length) {
 			showErrors(errors);
-			return false;
+			return;
 		}
-		try {
-			const res = await fetch(`/account/agency/payments/create.json`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ ...paymentInput, phone: (paymentInput.phone || '').toString() })
-			});
-			if (res.ok) {
-				const data = await res.json();
-				return data.createBillPayment.billPayment.id;
-			}
-		} catch (error) {
-			console.log('create payment', error);
-		}
-	};
-	const updatePayment = async () => {
-		try {
-			let url = ``;
-			let data: PaymentInput | string;
 
-			if (havePayment) {
-				data = { ...paymentInput, phone: (paymentInput.phone || '').toString() };
-				url = `/account/agency/payments/update-${payments[0].id}.json`;
-				if (!handleValidate(paymentInput)) {
-					return;
-				}
-				isFormSavingStore.set({ saving: true });
+		isFormSavingStore.set({ saving: true });
+		try {
+			const res = await ppatch(target, formData);
+			if (res.ok) {
+				dispatch('change', await res.json());
+				session.update((s) => {
+					s.agencyMe.billingPhone = formData.billingPhone;
+					s.agencyMe.billingEmail = formData.billingEmail;
+					s.agencyMe.billingInitials = formData.billingInitials;
+					s.agencyMe.billingFirstName = formData.billingFirstName;
+					s.agencyMe.billingLastName = formData.billingLastName;
+					// s.agencyMe.billingPaymentMethod = formData.billingPaymentMethod;
+					s.agencyMe.billingCountryCode = formData.billingCountryCode;
+					// s.agencyMe.billingSalutationType = parseInt(formData.billingSalutationType);
+					return s;
+				});
+				clear();
 			} else {
-				isFormSavingStore.set({ saving: true });
-				data = await createPayment();
-				if (!data) {
-					isFormSavingStore.set({ saving: false });
-					return;
-				}
-				url = `/account/agency/payments/assign-${agencyId}.json`;
-			}
-
-			const res = await fetch(url, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ data })
-			});
-			if (res.ok) {
-				const data = await res.json();
-				if (havePayment) {
-					payments[0] = data.updateBillPayment.billPayment;
-				} else {
-					payments = data.updateAgency.agency.payments;
-				}
-				resetBillPaymentInput();
-				onCancel();
+				notify({
+					title: 'Update failed',
+					subtitle: 'Failed to update information, please try again later.'
+				});
 			}
 		} catch (error) {
-			console.log('update payment', error);
+			notify({
+				title: 'Update failed',
+				subtitle: 'Failed to update information, please try again later.'
+			});
+			console.error('Failed to update business info', error);
 		}
+		activeSection = '';
 		isFormSavingStore.set({ saving: false });
 	};
+
+	function convertBillingPaymentMethod(id) {
+		if (id == null) {
+			return '';
+		}
+		let method;
+		method = paymentMethods.find((method) => method.id == id);
+		return method.name;
+	}
 </script>
 
-<FormGroup
-	let:isEditing
-	isEditing={activeSection === 'billing'}
-	on:edit={() => onEdit('billing')}
-	on:cancel={onCancel}
-	on:submit={updatePayment}
->
+<FormGroup let:isEditing on:submit={onSubmit} on:cancel={reset} data={{...formData}}>
 	<FormRow label="Payment method" {isEditing}>
 		<div slot="value">
-			{(payments || []).length == 0
-				? ''
-				: !payments[0].paymentMethod
-				? ''
-				: payments[0].paymentMethod.name}
+			{#if typeof agency.billingPaymentMethod == 'number'}
+				{convertBillingPaymentMethod(agency.billingPaymentMethod)}
+			{:else}
+				{agency.billingPaymentMethod?.name || ''}
+			{/if}
 		</div>
 		<div slot="fields">
 			<Select
 				labelText="Payment Method"
 				hideLabel
 				on:change={(e) => {
-					const paymentMethodSelected = paymentMethods.filter(
-						(ele) => ele.id.toString() == e.detail
-					);
-					if (paymentMethodSelected.length > 0) {
-						paymentInput.paymentMethod = paymentMethodSelected[0].id;
-					} else {
-						paymentInput.paymentMethod = null;
-					}
+					formData.billingPaymentMethod = e.detail;
 				}}
-				selected={payments == null || payments.length == 0
-					? ''
-					: payments[0].paymentMethod == null
-					? ''
-					: payments[0].paymentMethod.id.toString()}
-				invalid={!!formErrors?.paymentMethod}
-				invalidText={formErrors?.paymentMethod}
+				selected={formData.billingPaymentMethod}
+				name="billingPaymentMethod"
 			>
 				<SelectItem value="" text="Choose" />
 				{#each paymentMethods || [] as method}
@@ -253,31 +165,19 @@
 	</FormRow>
 	<FormRow label="Billing Contact Name" {isEditing}>
 		<div slot="value">
-			{(payments || []).length != 0
-				? (payments[0].salutationType?.name || '') +
-				  '.' +
-				  payments[0].firstName +
-				  ' ' +
-				  payments[0].lastName
-				: ''}
+			{agency.billingFirstName || ''}
+			{agency.billingInitials || ''}
+			{agency.billingLastName || ''}
 		</div>
 		<div slot="fields">
 			<Select
 				labelText="Salutation"
 				class="half-width"
 				on:change={(e) => {
-					const salutationSelected = salutationTypes.filter((ele) => ele.id.toString() == e.detail);
-					if (salutationSelected.length > 0) {
-						paymentInput.salutationType = salutationSelected[0].id;
-					} else {
-						paymentInput.salutationType = null;
-					}
+					formData.billingSalutationType = e.detail;
 				}}
-				selected={payments == null || payments.length == 0
-					? ''
-					: payments[0].salutationType == null
-					? ''
-					: payments[0].salutationType.id.toString()}
+				selected={formData.billingSalutationType}
+				name="billingSalutationType"
 			>
 				<SelectItem value="" text="Choose" />
 				{#each salutationTypes as salutation}
@@ -288,35 +188,45 @@
 				autofocus
 				labelText="First name"
 				placeholder="Enter billing contact first name"
-				bind:value={paymentInput.firstName}
+				bind:value={formData.billingFirstName}
+				invalid={!!formErrors?.billingFirstName}
+				invalidText={formErrors?.billingFirstName}
+				name="billingFirstName"
 			/>
 			<TextInput
 				labelText="Initials (optional)"
 				placeholder=""
 				id="agency-billing-initials"
-				bind:value={paymentInput.initials}
+				bind:value={formData.billingInitials}
+				invalid={!!formErrors?.billingInitials}
+				invalidText={formErrors?.billingInitials}
+				name="billingInitials"
 			/>
 			<TextInput
 				labelText="Last name"
 				placeholder="Enter billing contact last name"
-				bind:value={paymentInput.lastName}
+				bind:value={formData.billingLastName}
+				invalid={!!formErrors?.billingLastName}
+				invalidText={formErrors?.billingLastName}
+				name="billingLastName"
 			/>
 		</div>
 	</FormRow>
 	<FormRow label="Phone" {isEditing}>
 		<div slot="value">
-			{(payments || []).length != 0
-				? convert2InternationalPhone(payments[0].phone, payments[0].countryCode)
+			{agency.billingPhone
+				? convert2InternationalPhone(agency.billingPhone, agency.billingCountryCode)
 				: ''}
 		</div>
 		<div slot="fields" class="phone-billing">
 			<Select
 				labelText="Country Code"
 				class="half-width"
-				selected={payments.length != 0 ? payments[0].countryCode : ''}
+				selected={formData.billingCountryCode}
 				on:change={(e) => {
-					paymentInput.countryCode = e.detail;
+					formData.billingCountryCode = e.detail;
 				}}
+				name="billingCountryCode"
 			>
 				<SelectItem value="" text="Choose" />
 
@@ -328,20 +238,22 @@
 				type="text"
 				labelText="Number"
 				placeholder="Enter phone number"
-				bind:value={paymentInput.phone}
-				invalid={!!formErrors?.phone}
-				invalidText={formErrors?.phone}
+				bind:value={formData.billingPhone}
+				invalid={!!formErrors?.billingPhone}
+				invalidText={formErrors?.billingPhone}
+				name="billingPhone"
 			/>
 		</div>
 	</FormRow>
 	<FormRow label="Email" {isEditing}>
-		<div slot="value">{Array.isArray(payments) && payments[0] ? payments[0].email : ''}</div>
+		<div slot="value">{agency.billingEmail || ''}</div>
 		<div slot="fields">
 			<TextInput
 				placeholder="Enter billing email"
-				bind:value={paymentInput.email}
-				invalid={!!formErrors?.email}
-				invalidText={formErrors?.email}
+				bind:value={formData.billingEmail}
+				invalid={!!formErrors?.billingEmail}
+				invalidText={formErrors?.billingEmail}
+				name="billingEmail"
 			/>
 		</div>
 	</FormRow>

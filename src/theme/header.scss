@@ -34,7 +34,7 @@ a.bx--side-nav__link > .bx--side-nav__link-text {
 }
 
 .bx--side-nav ~ .bx--content {
-	padding: 5rem 10px;
+	padding: 3.5rem 10px;
 	margin-top: 0;
 	margin-left: 0 !important;
 }
@@ -102,7 +102,7 @@ header {
 .bx--header-panel {
 	bottom: auto;
 	width: auto;
-	background-color: $oysteo-gray-10;
+	background-color: $oysteo-gray-10 !important;
 	.bx--switcher__item {
 		margin-top: 0;
 	}

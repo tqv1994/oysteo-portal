@@ -1,6 +1,4 @@
 <script lang="ts">
-	import type { Agency } from '$lib/store/agency';
-	import { cmsUrlPrefix, imageUrlPrefix } from '$lib/utils/_env';
 	import {
 		Column,
 		FileUploaderDropContainer,
@@ -9,11 +7,14 @@
 		Row
 	} from 'carbon-components-svelte';
 	import type { Advisor } from '$lib/store/advisor';
-
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
 	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
+	import { pdelete, pupload } from '$lib/utils/fetch';
+	import { notify } from '../Toast.svelte';
+	import { session } from '$app/stores';
+	import { clear } from '$lib/store/activeForm';
 
 	export let advisor: Advisor;
 	export let activeSection = '';
@@ -22,72 +23,85 @@
 		activeSection = groupName;
 		disabledRemoveLogo = advisor.avatar == null ? true : false;
 	};
-	const onCancel = () => {
+	function onCancel() {
 		activeSection = '';
-	};
+	}
 
 	const uploadFile = async (e: CustomEvent) => {
 		const formData: FormData = new FormData();
 		let file = e.detail[0];
 		formData.append('files', file);
-		formData.append('ref', 'advisor');
-		formData.append('refId', advisor.id.toString());
-		formData.append('field', 'avatar');
-		
+
 		isFormSavingStore.set({ saving: true });
-		const res = await fetch(cmsUrlPrefix + '/upload', {
-			method: 'POST',
-			body: formData
-		});
+		try {
+			const res = await pupload('advisors/me/avatar', formData);
 
-		if (res.ok) {
-			const content = await res.json();
-
-			if (content.length > 0) {
-				await removeLogo(true);
-				advisor.avatar = content[0];
+			if (res.ok) {
+				const avatar = await res.json();
+				console.debug('Avatar uploaded', avatar);
+				session.update((s) => {
+					s.advisorMe.avatar = avatar;
+					return s;
+				});
+			} else {
+				notify({
+					title: 'Update failed',
+					subtitle: 'Failed to update information, please try again later.'
+				});
 			}
+		} catch (error) {
+			notify({
+				title: 'Update failed',
+				subtitle: 'Failed to update information, please try again later.'
+			});
+			console.error('Failed to update phone numbers', error);
 		}
 		isFormSavingStore.set({ saving: false });
 		activeSection = '';
 		formChangeStatusStore.set({ changing: false });
 	};
-	const removeLogo = async (isOldLogo = false) => {
+
+	const removeAvatar = async (isOldAvatar = false) => {
 		if (advisor.avatar == null) {
 			return;
 		}
-		if (!isOldLogo) {
+		if (!isOldAvatar) {
 			const confirmDelete = confirm('Are you sure you want to remove this item?');
 			if (!confirmDelete) {
 				return;
 			}
 		}
 		isFormSavingStore.set({ saving: true });
-
-		const res = await fetch('/file.json', {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ data: advisor.avatar.id })
-		});
-
-		if (res.ok) {
-			advisor.avatar = null;
-			if (!isOldLogo) {
-				onCancel();
+		try {
+			const res = await pdelete('advisors/me/avatar');
+			if (res.ok) {
+				session.update((s) => {
+					s.advisorMe.avatar = undefined;
+					return s;
+				});
+				clear();
+			} else {
+				notify({
+					title: 'Update failed',
+					subtitle: 'Failed to update information, please try again later.'
+				});
 			}
+		} catch (error) {
+			notify({
+				title: 'Update failed',
+				subtitle: 'Failed to update information, please try again later.'
+			});
+			console.error('Failed to delete avatar', error);
 		}
 		isFormSavingStore.set({ saving: false });
+		activeSection = '';
 	};
 </script>
 
 <FormGroup
 	let:isEditing
-	isEditing={activeSection === 'advisor-avatar'}
-	on:edit={() => onEdit('advisor-avatar')}
+	on:submit={() => removeAvatar()}
 	on:cancel={onCancel}
-	on:submit={() => removeLogo()}
 	editLabel="Add/Remove"
 	disabledRemoveButton={disabledRemoveLogo}
 	groupClass="group image-group group-destinations"
@@ -95,13 +109,13 @@
 >
 	<FormRow label="Profile Photo" {isEditing}>
 		<div slot="value">
-			{#if advisor.avatar == null}
+			{#if !advisor.avatar}
 				no image selected
 			{:else}
 				<Grid fullWidth>
 					<Row>
 						<Column>
-							<ImageLoader src={imageUrlPrefix + advisor.avatar?.url} />
+							<ImageLoader src={advisor.avatar.url} />
 						</Column>
 					</Row>
 				</Grid>
@@ -111,7 +125,7 @@
 			<Grid fullWidth class="d-pleft-16 pright-8">
 				<Row>
 					<Column>
-						<ImageLoader src={imageUrlPrefix + advisor.avatar?.url} class="mbottom-8" />
+						<ImageLoader src={advisor.avatar?.url} class="mbottom-8" />
 					</Column>
 				</Row>
 			</Grid>

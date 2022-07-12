@@ -1,144 +1,146 @@
 <script lang="ts">
+	import { clear } from '$lib/store/activeForm';
+
 	import type { Advisor } from '$lib/store/advisor';
-	import type { Experience } from '$lib/store/experience';
-	import { ExperienceType, experienceTypeStore } from '$lib/store/experienceType';
+	import { getCollection } from '$lib/store/collection';
+
+	import { experienceTypeStore } from '$lib/store/experienceType';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
-import { sortByName } from '$lib/utils/sort';
-	import { Link, Select, SelectItem, UnorderedList } from 'carbon-components-svelte';
-	import { CloseOutline20 } from 'carbon-icons-svelte';
-	import { onDestroy } from 'svelte';
+	import { ppatch } from '$lib/utils/fetch';
+	import { sortByName, sortByOrder } from '$lib/utils/sort';
+	import { Select, SelectItem } from 'carbon-components-svelte';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
+	import { notify } from '../Toast.svelte';
 
-	export let type: string;
-	export let advisorId: string;
-	// export let experiences: Experience[];
+	export let target: string;
+	export let advisor: Advisor;
+	export let experienceType;
 	export let activeSection = '';
-	export let experienceTypes1: ExperienceType;
-	export let experienceTypes2: ExperienceType;
-	export let experienceTypes3: ExperienceType;
-	export let experienceTypes4: ExperienceType;
-	export let experienceTypes5: ExperienceType;
 
-	const experienceTypeList = sortByName(Object.values($experienceTypeStore.items));
-	// let experienceInput: Expeience[]
-	let experienceType1Input: ExperienceType;
-	let experienceType2Input: ExperienceType;
-	let experienceType3Input: ExperienceType;
-	let experienceType4Input: ExperienceType;
-	let experienceType5Input: ExperienceType;
-
-	const resetExperienceInput = () => {
-		// experienceTypeInput = '';
+	type FormData = {
+		experienceType1?: string;
+		experienceType2?: string;
+		experienceType3?: string;
+		experienceType4?: string;
+		experienceType5?: string;
 	};
 
-	resetExperienceInput();
+	let formData: FormData = resetExperienceInput();
+	const dispatch = createEventDispatcher();
+
+	function resetExperienceInput() {
+		return {
+			experienceType1: advisor.experienceType1?.id?.toString(),
+			experienceType2: advisor.experienceType2?.id?.toString(),
+			experienceType3: advisor.experienceType3?.id?.toString(),
+			experienceType4: advisor.experienceType4?.id?.toString(),
+			experienceType5: advisor.experienceType5?.id?.toString()
+		};
+	}
+
 	onDestroy(() => {
 		resetExperienceInput();
 	});
 
-	const onEdit = (groupName: string) => {
-		activeSection = groupName;
-
-		experienceType1Input = experienceTypes1;
-		experienceType2Input = experienceTypes2;
-		experienceType3Input = experienceTypes3;
-		experienceType4Input = experienceTypes4;
-		experienceType5Input = experienceTypes5;
-		// experienceInput = [...experiences];
-	};
-	const onCancel = () => {
-		activeSection = '';
-	};
-	const updateExperienceType = async () => {
+	async function onSubmit() {
+		isFormSavingStore.set({ saving: true });
 		try {
-			let experienceType1IdSelected: string;
-			let experienceType2IdSelected: string;
-			let experienceType3IdSelected: string;
-			let experienceType4IdSelected: string;
-			let experienceType5IdSelected: string;
-
-			experienceType1IdSelected = experienceType1Input?.id || null;
-			experienceType2IdSelected = experienceType2Input?.id || null;
-			experienceType3IdSelected = experienceType3Input?.id || null;
-			experienceType4IdSelected = experienceType4Input?.id || null;
-			experienceType5IdSelected = experienceType5Input?.id || null;
-
-			const data = {
-				experienceTypes1: experienceType1IdSelected,
-				experienceTypes2: experienceType2IdSelected,
-				experienceTypes3: experienceType3IdSelected,
-				experienceTypes4: experienceType4IdSelected,
-				experienceTypes5: experienceType5IdSelected
-			};
-
-			isFormSavingStore.set({ saving: true });
-
-			const res = await fetch(`/common/${type}-${advisorId}.json`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ ...data })
-			});
-
+			const res = await ppatch(target, formData);
 			if (res.ok) {
-				const data = await res.json();
-				experienceTypes1 = data.updateAdvisor.advisor.experienceTypes1;
-				experienceTypes2 = data.updateAdvisor.advisor.experienceTypes2;
-				experienceTypes3 = data.updateAdvisor.advisor.experienceTypes3;
-				experienceTypes4 = data.updateAdvisor.advisor.experienceTypes4;
-				experienceTypes5 = data.updateAdvisor.advisor.experienceTypes5;
-				resetExperienceInput();
-				onCancel();
+				dispatch('change', await res.json());
+				clear();
+				activeSection = '';
+			} else {
+				notify({
+					title: 'An error has occured',
+					subtitle:
+						'Something unexpected has happened. Please refresh the browser and sign-in again.'
+				});
+				console.error(await res.text());
 			}
-		} catch (error) {}
+		} catch (err) {
+			notify({
+				title: 'An error has occured',
+				subtitle: 'Something unexpected has happened. Please try again later.'
+			});
+			console.error(err);
+		}
 		isFormSavingStore.set({ saving: false });
-	};
+	}
+
+	function getExperienceName(experienceId) {
+		if (!experienceId) {
+			return '';
+		}
+		let experienceName;
+		experienceType.forEach((element) => {
+			if (element.id == experienceId) {
+				experienceName = element.name;
+			}
+		});
+		return experienceName;
+	}
 </script>
 
 <FormGroup
 	let:isEditing
-	isEditing={activeSection === 'experienceType'}
-	on:edit={() => onEdit('experienceType')}
-	on:cancel={onCancel}
-	on:submit={updateExperienceType}
+	on:submit={onSubmit}
+	on:cancel={resetExperienceInput}
+	data={{
+		experienceType1:
+			advisor?.experienceType1?.id?.toString() ?? advisor?.experienceType1?.toString(),
+		experienceType2:
+			advisor?.experienceType2?.id?.toString() ?? advisor?.experienceType2?.toString(),
+		experienceType3:
+			advisor?.experienceType3?.id?.toString() ?? advisor?.experienceType3?.toString(),
+		experienceType4:
+			advisor?.experienceType4?.id?.toString() ?? advisor?.experienceType4?.toString(),
+		experienceType5:
+			advisor?.experienceType5?.id?.toString() ?? advisor?.experienceType5?.toString()
+	}}
 >
 	<FormRow label="" {isEditing} contentClass={'mtop-0'}>
 		<div slot="value">
-			{#if experienceTypes1 != null}
-				<p class="advisor-experiences">{experienceTypes1.name}</p>
+			{#if advisor.experienceType1}
+				<p class="advisor-experiences">
+					{advisor.experienceType1?.name ?? getExperienceName(advisor.experienceType1)}
+				</p>
 			{/if}
-			{#if experienceTypes2 != null}
-				<p class="advisor-experiences">{experienceTypes2.name}</p>
+			{#if advisor.experienceType2}
+				<p class="advisor-experiences">
+					{advisor.experienceType2?.name ?? getExperienceName(advisor.experienceType2)}
+				</p>
 			{/if}
-			{#if experienceTypes3 != null}
-				<p class="advisor-experiences">{experienceTypes3.name}</p>
+			{#if advisor.experienceType3}
+				<p class="advisor-experiences">
+					{advisor.experienceType3?.name ?? getExperienceName(advisor.experienceType3)}
+				</p>
 			{/if}
-			{#if experienceTypes4 != null}
-				<p class="advisor-experiences">{experienceTypes4.name}</p>
+			{#if advisor?.experienceType4}
+				<p class="advisor-experiences">
+					{advisor?.experienceType4?.name ?? getExperienceName(advisor.experienceType4)}
+				</p>
 			{/if}
-			{#if experienceTypes5 != null}
-				<p class="advisor-experiences">{experienceTypes5.name}</p>
+			{#if advisor?.experienceType5}
+				<p class="advisor-experiences">
+					{advisor?.experienceType5?.name ?? getExperienceName(advisor.experienceType5)}
+				</p>
 			{/if}
 		</div>
 		<div slot="fields">
 			<Select
 				labelText="Experience type"
 				hideLabel
-				name="experiences-{experienceTypes1 != null ? experienceTypes1.id : ''}"
-				selected={experienceTypes1 != null ? experienceTypes1.id.toString() : ''}
+				name="experienceType1"
+				selected={advisor?.experienceType1?.id?.toString() ?? advisor?.experienceType1?.toString()}
 				on:change={(e) => {
-					const expSelected = experienceTypeList.filter((ele) => ele.id.toString() == e.detail);
-					if (expSelected.length > 0) {
-						experienceType1Input = expSelected[0];
-					} else {
-						experienceType1Input = null;
-					}
+					formData.experienceType1 = e.detail;
 				}}
 			>
 				<SelectItem text="Choose" value="0" />
-				{#each experienceTypeList as item}
+				{#each experienceType as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
 			</Select>
@@ -146,76 +148,56 @@ import { sortByName } from '$lib/utils/sort';
 			<Select
 				labelText="Experience type"
 				hideLabel
-				name="experiences-{experienceTypes2 != null ? experienceTypes2.id : ''}"
-				selected={experienceTypes2 != null ? experienceTypes2.id.toString() : ''}
+				name="experienceType2"
+				selected={advisor?.experienceType2?.id?.toString() ?? advisor?.experienceType2?.toString()}
 				on:change={(e) => {
-					const expSelected = experienceTypeList.filter((ele) => ele.id.toString() == e.detail);
-					if (expSelected.length > 0) {
-						experienceType2Input = expSelected[0];
-					} else {
-						experienceType2Input = null;
-					}
+					formData.experienceType2 = e.detail;
 				}}
 			>
 				<SelectItem text="Choose" value="0" />
-				{#each experienceTypeList as item}
+				{#each experienceType as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
 			</Select>
 			<Select
 				labelText="Experience type"
 				hideLabel
-				name="experiences-{experienceTypes3 != null ? experienceTypes3.id : ''}"
-				selected={experienceTypes3 != null ? experienceTypes3.id.toString() : ''}
+				name="experienceType3"
+				selected={advisor?.experienceType3?.id?.toString() ?? advisor?.experienceType3?.toString()}
 				on:change={(e) => {
-					const expSelected = experienceTypeList.filter((ele) => ele.id.toString() == e.detail);
-					if (expSelected.length > 0) {
-						experienceType3Input = expSelected[0];
-					} else {
-						experienceType3Input = null;
-					}
+					formData.experienceType3 = e.detail;
 				}}
 			>
 				<SelectItem text="Choose" value="0" />
-				{#each experienceTypeList as item}
+				{#each experienceType as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
 			</Select>
 			<Select
 				labelText="Experience type"
 				hideLabel
-				name="experiences-{experienceTypes4 != null ? experienceTypes4.id : ''}"
-				selected={experienceTypes4 != null ? experienceTypes4.id.toString() : ''}
+				name="experienceType4"
+				selected={advisor?.experienceType4?.id?.toString() ?? advisor?.experienceType4?.toString()}
 				on:change={(e) => {
-					const expSelected = experienceTypeList.filter((ele) => ele.id.toString() == e.detail);
-					if (expSelected.length > 0) {
-						experienceType4Input = expSelected[0];
-					} else {
-						experienceType4Input = null;
-					}
+					formData.experienceType4 = e.detail;
 				}}
 			>
 				<SelectItem text="Choose" value="0" />
-				{#each experienceTypeList as item}
+				{#each experienceType as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
 			</Select>
 			<Select
 				labelText="Experience type"
 				hideLabel
-				name="experiences-{experienceTypes5 != null ? experienceTypes5.id : ''}"
-				selected={experienceTypes5 != null ? experienceTypes5.id.toString() : ''}
+				name="experienceType5"
+				selected={advisor?.experienceType5?.id?.toString() ?? advisor?.experienceType5?.toString()}
 				on:change={(e) => {
-					const expSelected = experienceTypeList.filter((ele) => ele.id.toString() == e.detail);
-					if (expSelected.length > 0) {
-						experienceType5Input = expSelected[0];
-					} else {
-						experienceType5Input = null;
-					}
+					formData.experienceType5 = e.detail;
 				}}
 			>
 				<SelectItem text="Choose" value="0" />
-				{#each experienceTypeList as item}
+				{#each experienceType as item}
 					<SelectItem value={item.id.toString()} text={item.name} />
 				{/each}
 			</Select>

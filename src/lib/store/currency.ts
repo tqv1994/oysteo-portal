@@ -7,14 +7,3 @@ export type Currency = Base & {
 	locale: string;
 	code: string;
 };
-
-export const currencyFieldsFragment = `
-fragment currencyFields on Currencies {
-  id
-  name
-  prefix
-  suffix
-  locale
-  code
-}
-`;

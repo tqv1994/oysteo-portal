@@ -8,7 +8,7 @@
 		InlineLoading
 	} from 'carbon-components-svelte';
 	import { getAuth, confirmPasswordReset, browserSessionPersistence } from 'firebase/auth';
-	import { checkPasswordRule } from '$lib/helpers/utils';
+	import { checkPasswordRule, isPasswordComplex } from '$lib/helpers/utils';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import type { Load } from '@sveltejs/kit';
 	import '$lib/utils/firebase';
@@ -36,46 +36,61 @@
 	import { notify } from '$lib/components/Toast.svelte';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	import ODeviceDetector from '$lib/components/ODeviceDetector.svelte';
+	import { redirect } from '$lib/helpers/redirect.svelte';
 	export let resetPasswordToken: string;
-	let resetPasswordData = {
-		newPassword: '',
-		confirmPassword: ''
+
+	type FormError = {
+		password?: string;
+		confirm?: string;
 	};
 
-	let invalidNewPassword = {
-		status: false,
-		message: ''
+	let formErrors: FormError;
+	let formData = {
+		password: '',
+		confirm: ''
 	};
 
-	let invalidConfirmPassword = {
-		status: false,
-		message: ''
-	};
+	function showErrors(errors: FormError) {
+		formErrors = errors;
+		setTimeout(() => {
+			formErrors = undefined;
+		}, INVALID_DELAY_TIME);
+	}
 
-	async function handleSubmit() {
-		invalidNewPassword = checkPasswordRule(resetPasswordData.newPassword);
-		if (invalidNewPassword.status) {
-			setTimeout(() => {
-				invalidNewPassword.status = false;
-			}, INVALID_DELAY_TIME);
+	async function onSubmit(event: SubmitEvent) {
+		event.preventDefault();
+		const errors: FormError = {};
+
+		if (!formData.password) {
+			errors.password = 'A password is required';
+		} else if (!isPasswordComplex(formData.password)) {
+			errors.password =
+				'Password must be at least 8 characters (including 1 uppercase letter, 1 number and 1 lowercase letter)';
+		}
+
+		if (!formData.confirm) {
+			errors.confirm = 'Please confirm your password';
+		} else if (!errors.password && formData.password !== formData.confirm) {
+			errors.password = 'Passwords do not match';
+			errors.confirm = 'Passwords do not match';
+		}
+
+		if (Object.keys(errors).length) {
+			showErrors(errors);
 			return;
 		}
-		if (resetPasswordData.newPassword !== resetPasswordData.confirmPassword) {
-			invalidConfirmPassword = {
-				status: true,
-				message: 'Confirmation password is incorrect'
-			};
-			setTimeout(() => {
-				invalidConfirmPassword.status = false;
-			}, INVALID_DELAY_TIME);
-			return;
-		}
+
 		isFormSavingStore.set({ saving: true });
-		const auth = getAuth();
 
 		try {
+			const auth = getAuth();
 			await auth.setPersistence(browserSessionPersistence); // To save user after logging into the browser session
-			await confirmPasswordReset(auth, resetPasswordToken, resetPasswordData.newPassword);
+			await confirmPasswordReset(auth, resetPasswordToken, formData.password);
+			notify({
+				kind: 'success',
+				title: 'Password updated',
+				subtitle: 'Your password has been updated successfully. Please sign-in again.'
+			});
 			goto('/auth/sign-in');
 		} catch (error) {
 			if (
@@ -96,7 +111,7 @@
 <ODeviceDetector showInMobile={true}>
 	<h1>Reset Password</h1>
 </ODeviceDetector>
-<Form on:submit={handleSubmit}>
+<Form on:submit={onSubmit}>
 	<ODeviceDetector showInDesktop={true}>
 		<FormGroup>
 			<h1>Reset Password</h1>
@@ -106,20 +121,18 @@
 		<PasswordInput
 			labelText=""
 			placeholder="NEW PASSWORD *"
-			bind:value={resetPasswordData.newPassword}
-			required
-			invalid={invalidNewPassword.status}
-			invalidText={invalidNewPassword.message}
+			bind:value={formData.password}
+			invalid={!!formErrors?.password}
+			invalidText={formErrors?.password}
 		/>
 	</FormGroup>
 	<FormGroup>
 		<PasswordInput
 			labelText=""
 			placeholder="CONFIRM PASSWORD *"
-			bind:value={resetPasswordData.confirmPassword}
-			required
-			invalid={invalidConfirmPassword.status}
-			invalidText={invalidConfirmPassword.message}
+			bind:value={formData.confirm}
+			invalid={!!formErrors?.confirm}
+			invalidText={formErrors?.confirm}
 		/>
 	</FormGroup>
 	<FormGroup>

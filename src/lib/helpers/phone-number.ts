@@ -1,9 +1,15 @@
 import pkg from 'google-libphonenumber';
-const { PhoneNumberUtil } = pkg;
+const { PhoneNumberUtil, PhoneNumberFormat } = pkg;
 const phoneUtil = PhoneNumberUtil.getInstance();
 
 export function convert2InternationalPhone(phoneNumber: string, countryCode: string) {
-	if (phoneNumber == 'null' || phoneNumber == null || phoneNumber == '' || countryCode == null || countryCode == '') {
+	if (
+		phoneNumber == 'null' ||
+		phoneNumber == null ||
+		phoneNumber == '' ||
+		countryCode == null ||
+		countryCode == ''
+	) {
 		return '';
 	}
 	phoneNumber = convert2NationalPhone(phoneNumber, countryCode);
@@ -12,7 +18,13 @@ export function convert2InternationalPhone(phoneNumber: string, countryCode: str
 }
 
 export function convert2NationalPhone(phoneNumber: string, countryCode: string) {
-	if (phoneNumber == 'null' || phoneNumber == null || phoneNumber == '' || countryCode == null || countryCode == '') {
+	if (
+		phoneNumber == 'null' ||
+		phoneNumber == null ||
+		phoneNumber == '' ||
+		countryCode == null ||
+		countryCode == ''
+	) {
 		return '';
 	}
 	const number = phoneUtil.parse(phoneNumber.toString(), countryCode);
@@ -20,12 +32,26 @@ export function convert2NationalPhone(phoneNumber: string, countryCode: string) 
 }
 
 export function isValidPhoneNumber(phoneNumber: string, countryCode: string) {
-	if (phoneNumber == 'null' || phoneNumber == null || phoneNumber == '' || countryCode == null || countryCode == '') {
+	if (
+		phoneNumber == 'null' ||
+		phoneNumber == null ||
+		phoneNumber == '' ||
+		countryCode == null ||
+		countryCode == ''
+	) {
 		return true;
 	}
-	const number = phoneUtil.parseAndKeepRawInput(phoneNumber.toString(), countryCode);
-	if (countryCode == null || countryCode == '') {
-		return phoneUtil.isValidNumber(number);
+	try {
+		const number = phoneUtil.parseAndKeepRawInput(phoneNumber.toString(), countryCode);
+		if (countryCode == null || countryCode == '') {
+			return phoneUtil.isValidNumber(number);
+		}
+		return phoneUtil.isValidNumberForRegion(number, countryCode);
+	} catch (err) {
+		return false;
 	}
-	return phoneUtil.isValidNumberForRegion(number, countryCode);
+}
+
+export function encodehoneNumber(phoneNumber: string, countryCode: string): string {
+  return phoneUtil.format(phoneUtil.parse(phoneNumber + '', countryCode),PhoneNumberFormat.E164 )
 }

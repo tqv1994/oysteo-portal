@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { makeEmptyResponse } from '$lib/utils/fetch';
-import { cmsUrlPrefix } from '$lib/utils/_env';
+import { cmsUrlPrefix } from '$lib/env';
 import { getSessionCookie } from '$lib/utils/session';
 /**
  * @type {import('@sveltejs/kit').Post}
@@ -31,9 +31,5 @@ export const post: RequestHandler = async (event) => {
 		console.error('Error reSend Invitation advisor of agency', error.error);
 	}
 
-	return makeEmptyResponse(
-		500,
-		'INTERNAL_SERVER_ERROR',
-		'Error retrieving data for the advisor of agency'
-	);
+	return makeEmptyResponse(500);
 };

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import type { Agency } from '$lib/store/agency';
+	import { session } from '$app/stores';
 	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
-	import { cmsUrlPrefix, imageUrlPrefix } from '$lib/utils/_env';
+	import { pdelete, pupload } from '$lib/utils/fetch';
 	import {
 		Column,
 		FileUploaderDropContainer,
@@ -10,45 +11,49 @@
 		ImageLoader,
 		Row
 	} from 'carbon-components-svelte';
-
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
+	import { notify } from '../Toast.svelte';
+	import { clear } from '$lib/store/activeForm';
 
 	export let agency: Agency;
 	export let activeSection = '';
-	let disabledRemoveLogo = false;
-	const onEdit = (groupName: string) => {
-		activeSection = groupName;
-		disabledRemoveLogo = agency.logo == null ? true : false;
-	};
-	const onCancel = () => {
-		activeSection = '';
-	};
+
+	let disabledRemoveLogo: boolean = false;
 
 	const uploadFile = async (e: CustomEvent) => {
 		const formData: FormData = new FormData();
 		let file = e.detail[0];
 		formData.append('files', file);
-		formData.append('ref', 'agency');
-		formData.append('refId', agency.id.toString());
-		formData.append('field', 'logo');
-		isFormSavingStore.set({ saving: true });
-		const res = await fetch(cmsUrlPrefix + '/upload', {
-			method: 'POST',
-			body: formData
-		});
 
-		if (res.ok) {
-			const content = await res.json();
-			if (content.length > 0) {
-				await removeLogo(true);
-				agency.logo = content[0];
+		isFormSavingStore.set({ saving: true });
+		try {
+			const res = await pupload('agencies/me/logo', formData);
+			if (res.ok) {
+				const image = await res.json();
+				session.update((s) => {
+					s.agencyMe.logo = image;
+					return s;
+				});
+				agency.logo = agency.logo[0];
+			} else {
+				notify({
+					title: 'Update failed',
+					subtitle: 'Failed to update information, please try again later.'
+				});
 			}
+		} catch (error) {
+			notify({
+				title: 'Update failed',
+				subtitle: 'Failed to update information, please try again later.'
+			});
+			console.error('Failed to update phone numbers', error);
 		}
-		onCancel();
-		formChangeStatusStore.set({ changing: false });
 		isFormSavingStore.set({ saving: false });
+		activeSection = '';
+		formChangeStatusStore.set({ changing: false });
 	};
+
 	const removeLogo = async (isOldLogo = false) => {
 		if (agency.logo == null) {
 			return;
@@ -61,29 +66,37 @@
 		}
 		isFormSavingStore.set({ saving: true });
 
-		const res = await fetch('/file.json', {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ data: agency.logo.id })
-		});
-
-		if (res.ok) {
-			agency.logo = null;
-			if (!isOldLogo) {
-				onCancel();
+		try {
+			const res = await pdelete(`agencies/me/images/${agency.logo.id}`);
+			agency.logo = undefined;
+			if (res.ok) {
+				await res.json();
+				session.update((s) => {
+					s.agencyMe.logo = undefined;
+					return s;
+				});
+				clear();
+			} else {
+				notify({
+					title: 'Update failed',
+					subtitle: 'Failed to update information, please try again later.'
+				});
 			}
+		} catch (error) {
+			// notify({
+			// 	title: 'Update failed',
+			// 	subtitle: 'Failed to update information, please try again later.'
+			// });
+			// console.error('Failed to delete logo', error);
 		}
+		isFormSavingStore.set({ saving: false });
+		activeSection = '';
 		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
 <FormGroup
 	let:isEditing
-	isEditing={activeSection === 'agency-logo'}
-	on:edit={() => onEdit('agency-logo')}
-	on:cancel={onCancel}
 	on:submit={() => removeLogo()}
 	editLabel="Add/Remove"
 	disabledRemoveButton={disabledRemoveLogo}
@@ -92,13 +105,13 @@
 >
 	<FormRow label="Logo" {isEditing}>
 		<div slot="value">
-			{#if agency.logo == null}
+			{#if !agency.logo}
 				no image selected
 			{:else}
 				<Grid fullWidth>
 					<Row>
 						<Column>
-							<ImageLoader src={imageUrlPrefix + agency.logo?.url} />
+							<ImageLoader src={agency.logo.url} />
 						</Column>
 					</Row>
 				</Grid>
@@ -108,11 +121,10 @@
 			<Grid fullWidth class="d-pleft-16 pright-8">
 				<Row>
 					<Column>
-						<ImageLoader src={imageUrlPrefix + agency.logo?.url} class="mbottom-8" />
+						<ImageLoader src={agency.logo?.url} class="mbottom-8" />
 					</Column>
 				</Row>
 			</Grid>
-
 			<FileUploaderDropContainer
 				labelText="Upload logo"
 				accept={['image/*']}

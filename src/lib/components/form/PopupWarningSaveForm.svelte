@@ -27,7 +27,6 @@
 			// handleCallBackConfirm;
 			handleCallBackCancel = config.handleClose;
 		}
-		// console.log(typeof config.handleConfirm);
 		if (typeof config.handleConfirm == 'function') {
 			handleCallBackConfirm = config.handleConfirm;
 			setTimeout(() => {

@@ -31,7 +31,7 @@
 			toasts.push({
 				...toast,
 				lowContrast: toast.lowContrast === false ? false : true, // Low Contrast is true by default
-				timeout: toast.timeout >= 0 ? toast.timeout : 3000 // 3s default timeout
+				timeout: toast.timeout >= 0 ? toast.timeout : 5000 // 3s default timeout
 			});
 			return toasts;
 		});
@@ -54,6 +54,7 @@
 		});
 	}
 </script>
+
 <div class="toasts">
 	{#each $toasts as toast}
 		<ToastNotification {...toast} on:close={() => removeToast(toast)} />
@@ -66,8 +67,8 @@
 		position: fixed;
 		top: 3rem;
 		right: 0;
+		z-index: 99;
 		@include mixins.mobile {
-			position: absolute;
 			top: 4rem;
 			right: auto;
 			left: 50%;
@@ -79,7 +80,7 @@
 				width: 100%;
 			}
 		}
-		&:empty{
+		&:empty {
 			display: none;
 		}
 	}

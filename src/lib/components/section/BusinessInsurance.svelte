@@ -1,14 +1,16 @@
 <script lang="ts">
 	import type { Agency } from '$lib/store/agency';
+	import { session } from '$app/stores';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
-
+	import { ppatch } from '$lib/utils/fetch';
 	import { TextInput } from 'carbon-components-svelte';
-	import { onDestroy } from 'svelte';
-
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
+	import { notify } from '../Toast.svelte';
+	import { clear } from '$lib/store/activeForm';
 
-	export let type: string;
+	export let target: string;
 	export let agency: Agency;
 	export let activeSection = '';
 
@@ -17,61 +19,71 @@
 		insurance_policy: string;
 	};
 
-	let businessInsuranceInput: BusinessInsuranceInput;
+	const dispatch = createEventDispatcher();
 
-	const resetBusinessInsuranceInput = () => {
-		businessInsuranceInput = {
-			insurance_company: '',
-			insurance_policy: ''
-		};
-	};
+	let formData: BusinessInsuranceInput;
 
-	resetBusinessInsuranceInput();
-	onDestroy(() => {
-		resetBusinessInsuranceInput();
-	});
-	const onEdit = (groupName: string) => {
-		activeSection = groupName;
-		businessInsuranceInput = {
+	const reset = () => {
+		formData = {
 			insurance_company: agency.insurance_company || '',
 			insurance_policy: agency.insurance_policy || ''
 		};
 	};
-	const onCancel = () => {
-		activeSection = '';
+
+	onMount(reset);
+	onDestroy(reset);
+
+	const onEdit = (groupName: string = '') => {
+		activeSection = groupName;
+		formData = {
+			insurance_company: agency.insurance_company || '',
+			insurance_policy: agency.insurance_policy || ''
+		};
 	};
 
-	const updateBusinessInsurance = async () => {
-		try {
-			isFormSavingStore.set({ saving: true });
+	function onCancel() {
+		activeSection = '';
+	}
 
-			const res = await fetch(`/common/${type}-${agency.id}.json`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ ...businessInsuranceInput })
-			});
+	const onSubmit = async () => {
+		isFormSavingStore.set({ saving: true });
+		try {
+			const res = await ppatch(target, formData);
 			if (res.ok) {
-				for (const key in businessInsuranceInput) {
-					agency[key] = businessInsuranceInput[key];
-				}
-				resetBusinessInsuranceInput();
-				onCancel();
+				dispatch('change', await res.json());
+				activeSection = '';
+				session.update((s) => {
+					s.agencyMe.insurance_company = formData.insurance_company;
+					s.agencyMe.insurance_policy = formData.insurance_policy;
+					return s;
+				});
+				clear();
+			} else {
+				notify({
+					title: 'Update failed',
+					subtitle: 'Failed to update information, please try again later.'
+				});
 			}
-		} catch (error) {}
+		} catch (error) {
+			notify({
+				title: 'Update failed',
+				subtitle: 'Failed to update information, please try again later.'
+			});
+			console.error('Failed to update business insurance', error);
+		}
 		isFormSavingStore.set({ saving: false });
 	};
+	
 </script>
 
 <FormGroup
 	let:isEditing
-	isEditing={activeSection === 'business-insurance'}
-	on:edit={() => onEdit('business-insurance')}
-	on:cancel={onCancel}
-	on:submit={updateBusinessInsurance}
+	on:edit={() => onEdit('insurance')}
+	on:submit={onSubmit}
+	on:cancel={reset}
+	data={{ ...formData }}
 >
-	<FormRow label="Insurance Company" {isEditing} contentClass="d-mtop-0">
+<FormRow label="Insurance Company" {isEditing} contentClass="d-mtop-0">
 		<div slot="value">
 			{agency.insurance_company || ''}
 		</div>
@@ -81,7 +93,8 @@
 				labelText={agency.insurance_company || ''}
 				hideLabel
 				placeholder="Enter your business insurance company"
-				bind:value={businessInsuranceInput.insurance_company}
+				bind:value={formData.insurance_company}
+				name="insurance_company"
 			/>
 		</div>
 	</FormRow>
@@ -92,7 +105,8 @@
 				labelText={agency.insurance_policy || ''}
 				hideLabel
 				placeholder="Enter your business insurance policy"
-				bind:value={businessInsuranceInput.insurance_policy}
+				bind:value={formData.insurance_policy}
+				name="insurance_policy"
 			/>
 		</div>
 	</FormRow>

@@ -1,7 +1,9 @@
 @media (max-width: $break_point - 0.01px) {
+
 	// Global half width (select)
 	.half-width {
 		gap: 20px;
+
 		.bx--select-input__wrapper {
 			width: 50%;
 		}
@@ -28,9 +30,11 @@
 		.data-trip {
 			padding-bottom: 40px;
 		}
+
 		.bx--link {
 			width: 100%;
 		}
+
 		.custom-button-table {
 			float: right;
 		}
@@ -41,6 +45,7 @@
 			width: 100%;
 			display: inline-flex;
 		}
+
 		.custom-button-edit {
 			span {
 				float: right;
@@ -75,6 +80,7 @@
 		.bx--row {
 			margin-bottom: 8px !important;
 		}
+
 		.custom-col {
 			margin-left: 15px;
 		}
@@ -101,6 +107,7 @@
 		.bx--link {
 			color: $oysteo-black;
 		}
+
 		span {
 			transform: translateX(38px) translateY(18px);
 			padding: 5px;
@@ -119,24 +126,28 @@
 		margin-bottom: 3px;
 		background-color: var(--cds-field-01, $oysteo-gray-10);
 		border-bottom: 1px solid $btn-primary-color;
+
 		.bx--row {
 			margin-top: 10px;
 			margin-left: -5px;
 		}
+
 		.bx--overflow-menu {
 			float: right;
 		}
+
 		.col-button {
 			width: 15%;
 		}
 	}
+
 	.group-where {
 		margin-bottom: 0 !important;
 	}
 
 	.business-fields {
 		.flatpickr-calendar {
-			top: 63px !important;
+			top: 344px !important;
 			left: auto !important;
 		}
 	}
@@ -147,6 +158,7 @@
 			padding-top: 56px;
 			font-family: GTSupper-Ds-Trial-lt !important;
 		}
+
 		svg {
 			margin-top: 23px;
 			height: 2rem;
@@ -162,6 +174,7 @@
 		margin-top: 56px;
 		display: flex;
 		flex-direction: column;
+
 		.bx--form-item {
 			margin-bottom: 47px;
 			flex: 0 0 auto;
@@ -171,19 +184,24 @@
 	.btn-logout.btn-logout:hover {
 		color: black !important;
 	}
+
 	#documents {
 		.document-desktop {
 			display: none;
 		}
+
 		.document-mobile {
 			margin-bottom: -20px;
+
 			.bx--col {
 				margin-bottom: 20px;
 			}
 		}
 	}
+
 	.custom-emergency {
 		margin-top: 0 !important;
+
 		.label {
 			display: none;
 		}
@@ -210,24 +228,51 @@
 		.bx--modal-content {
 			margin: 0 auto;
 		}
+
 		.bx--modal-container {
 			border: 1px solid $oysteo-gray-50;
 			padding: 15px;
 			width: auto;
 		}
+
 		.bx--modal-footer {
 			gap: 10px;
 			height: auto;
+
 			.bx--btn {
 				height: 2rem;
 			}
 		}
 	}
+
+	.icon-right {
+		margin-top: 15px;
+	}
+
+	.custom-flex-collumn {
+		.bx--date-picker-container {
+			.bx--form-requirement {
+				left: 0;
+			}
+		}
+	}
+
+	.nav-section {
+		p {
+			margin-top: 1.5rem;
+		}
+
+		.bx--btn {
+			padding-bottom: 0;
+		}
+	}
 }
+
 @media screen and (min-width: 390px) {
 	.signup-login {
 		margin-top: 25px !important;
 	}
+
 	.bx--form {
 		padding-top: 0 !important;
 	}

@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { makeEmptyResponse } from '$lib/utils/fetch';
-import { cmsUrlPrefix } from '$lib/utils/_env';
+import { cmsUrlPrefix } from '$lib/env';
 import { extractSetCookieHeader, getSessionCookie } from '$lib/utils/session';
 /**
  * @type {import('@sveltejs/kit').Post}

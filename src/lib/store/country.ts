@@ -1,23 +1,24 @@
-import { writable } from 'svelte/store';
-import type { Base, CollectionStore, Identifiable, Nameable } from './types';
+import { get, writable } from 'svelte/store';
+import type { Kind } from './category';
 
-export type Country = Identifiable &
-	Nameable & {
+export type Country = Kind & {
 		code?: string;
 		phone?: number;
 		order?: number;
 	};
 
-export const countryStore = writable<CollectionStore<Country>>({
-	items: {}
-});
+export const countryStore = writable<Country[]>([]);
 
-export const countryFieldsFragment = `
-fragment countryFields on Country {
-  id
-  name
-  code
-  phone
-  order
+let countryMap: Record<string, Country>;
+export function getCountryById(id: string): Country | undefined {
+	if (!id) {
+		return;
+	}
+	if (!countryMap) {
+		countryMap = {};
+		for (const country of get(countryStore)) {
+			countryMap[country.id] = country;
+		}
+	}
+	return countryMap[id];
 }
-`;

@@ -1,17 +1,13 @@
 <script lang="ts" context="module">
 	import type { Load } from '@sveltejs/kit';
-	import { get } from 'svelte/store';
-	import { authStore } from '$lib/store/auth';
 	import '$lib/utils/firebase';
-	import Toast from '$lib/components/Toast.svelte';
 	import { redirect } from '$lib/helpers/redirect.svelte';
 	import { Link } from 'carbon-components-svelte';
 	import OysteoLogo from '$lib/components/icons/OysteoLogo.svelte';
 
-	export const load: Load = async () => {
-		const { user } = get(authStore);
+	export const load: Load = async ({ session: { user, agencyMe } }) => {
 		if (user) {
-			return redirect('/account');
+			return redirect('/profile');
 		}
 		return {};
 	};
@@ -21,7 +17,7 @@
 	<div class="login-wrapper">
 		<div class="section-logo">
 			<div class="logo login-logo">
-				<Link href="/">
+				<Link href="/profile">
 					<OysteoLogo width={130} height={17.217} />
 				</Link>
 			</div>
@@ -133,7 +129,7 @@
 			position: relative;
 			height: 100vh;
 			background-size: cover;
-			background-image: url('/static/bg-login.jpg');
+			background-image: url('/bg-login.jpg');
 		}
 	}
 	@include mixins.mobile {
@@ -141,7 +137,7 @@
 			position: relative;
 			height: 100vh;
 			background-size: cover;
-			background-image: url('/static/bg-login.jpg');
+			background-image: url('/bg-login.jpg');
 		}
 		.login-wrapper {
 			max-width: 100%;

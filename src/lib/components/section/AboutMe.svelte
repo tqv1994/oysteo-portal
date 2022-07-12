@@ -1,16 +1,18 @@
 <script lang="ts">
 	import {
-		formatOutputDatePicker,
-		handleDisplayTimeZone,
-		normalizeInputDatePicker,
-		validateMMDDYYYY
+		isValidDateString,
+		reformatDateToEn,
+		reformatDateToIso,
+		toIsoString
 	} from '$lib/helpers/datetime';
-	import { isValidEmail, validateWebsite } from '$lib/helpers/utils';
+	import { isValidEmail } from '$lib/helpers/utils';
+	import { clear } from '$lib/store/activeForm';
 	import type { Advisor } from '$lib/store/advisor';
+	import type { Kind } from '$lib/store/category';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
-	import { Language, languageStore } from '$lib/store/language';
+	import type { DatePickerDate, DatePickerEvent } from '$lib/store/types';
 	import { INVALID_DELAY_TIME, TIME_ZONES } from '$lib/utils/constants';
-	import { sortByName } from '$lib/utils/sort';
+	import { ppatch } from '$lib/utils/fetch';
 	import {
 		DatePicker,
 		DatePickerInput,
@@ -18,18 +20,19 @@
 		SelectItem,
 		TextInput
 	} from 'carbon-components-svelte';
-	import { onDestroy } from 'svelte';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
+	import { notify } from '../Toast.svelte';
 
-	export let type: string;
+	export let target: string;
 	export let advisor: Advisor;
-	const languages = sortByName(Object.values($languageStore.items));
 	export let activeSection = '';
+	export let languages;
 
 	type AboutMeInput = {
-		email2: string;
+		alternateEmail: string;
 		website: string;
 		language1: string | null;
 		language2: string | null;
@@ -39,26 +42,32 @@
 		language6: string | null;
 		timezone: string;
 		joined_at: string | null;
-		languageSelected: Language | null;
-		languageSelected2: Language | null;
-		languageSelected3: Language | null;
-		languageSelected4: Language | null;
-		languageSelected5: Language | null;
-		languageSelected6: Language | null;
+		languageSelected: Kind | null;
+		languageSelected2: Kind | null;
+		languageSelected3: Kind | null;
+		languageSelected4: Kind | null;
+		languageSelected5: Kind | null;
+		languageSelected6: Kind | null;
 	};
 
-	let aboutMeInput: AboutMeInput;
-	const resetAboutMe = () => {
-		aboutMeInput = {
-			email2: '',
-			website: '',
+	$: timezone = TIME_ZONES.find((z) => {
+		return z.locale == advisor.timezone;
+	});
+
+	const dispatch = createEventDispatcher();
+
+	let formData: AboutMeInput;
+	function resetAboutMe() {
+		formData = {
+			alternateEmail: advisor.alternateEmail || '',
+			website: advisor.website || '',
 			language1: null,
 			language2: null,
 			language3: null,
 			language4: null,
 			language5: null,
 			language6: null,
-			timezone: '',
+			timezone: advisor.timezone || '',
 			joined_at: '',
 			languageSelected: null,
 			languageSelected2: null,
@@ -70,37 +79,35 @@
 	};
 
 	resetAboutMe();
-	onDestroy(() => {
-		resetAboutMe();
-	});
+	onDestroy(resetAboutMe);
 
-	const onEdit = (groupName: string) => {
-		activeSection = groupName;
-		aboutMeInput = {
-			email2: advisor.email2 || '',
-			website: advisor.website || '',
-			language1: advisor.language1?.id || null,
-			language2: advisor.language2?.id || null,
-			language3: advisor.language3?.id || null,
-			language4: advisor.language4?.id || null,
-			language5: advisor.language5?.id || null,
-			language6: advisor.language6?.id || null,
-			timezone: advisor.timezone || '',
-			joined_at: advisor.joined_at || null,
-			languageSelected: advisor.language1 || null,
-			languageSelected2: advisor.language2 || null,
-			languageSelected3: advisor.language3 || null,
-			languageSelected4: advisor.language4 || null,
-			languageSelected5: advisor.language5 || null,
-			languageSelected6: advisor.language6 || null
-		};
-	};
-	const onCancel = () => {
-		activeSection = '';
-	};
+	// const onEdit = (groupName: string = '') => {
+	// 	activeSection = groupName;
+	// 	formData = {
+	// 		alternateEmail: advisor.alternateEmail || '',
+	// 		website: advisor.website || '',
+	// 		language1: advisor.language1?.id || null,
+	// 		language2: advisor.language2?.id || null,
+	// 		language3: advisor.language3?.id || null,
+	// 		language4: advisor.language4?.id || null,
+	// 		language5: advisor.language5?.id || null,
+	// 		language6: advisor.language6?.id || null,
+	// 		timezone: advisor.timezone || '',
+	// 		joined_at: advisor.joined_at || null,
+	// 		languageSelected: advisor.language1 || null,
+	// 		languageSelected2: advisor.language2 || null,
+	// 		languageSelected3: advisor.language3 || null,
+	// 		languageSelected4: advisor.language4 || null,
+	// 		languageSelected5: advisor.language5 || null,
+	// 		languageSelected6: advisor.language6 || null
+	// 	};
+	// };
+	// function onCancel() {
+	// 	activeSection = '';
+	// }
 
 	type FormError = {
-		email2?: string;
+		alternateEmail?: string;
 		website?: string;
 		joined_at?: string;
 	};
@@ -114,83 +121,127 @@
 		}, INVALID_DELAY_TIME);
 	}
 
-	const updateAboutMe = async (field: string) => {
-		const errors: FormError = {};
-		if (field == 'email2' && !isValidEmail(aboutMeInput.email2)) {
-			errors.email2 = 'Email address is invalid';
-		}
-
-		if (field == 'website' && !validateWebsite(aboutMeInput.website)) {
-			errors.website = 'Website address is invalid';
-		}
-
-		if (field == 'joined_at') {
-			aboutMeInput.joined_at = formatOutputDatePicker(aboutMeInput.joined_at);
-			if (!validateMMDDYYYY(aboutMeInput.joined_at)) {
-				errors.joined_at = 'Date is invalid';
-			}
-			aboutMeInput.joined_at = normalizeInputDatePicker(aboutMeInput.joined_at);
-		}
-
+	async function _ppatch(errors: FormError, payload: Record<string, unknown>) {
 		if (Object.keys(errors).length) {
 			showErrors(errors);
 			return;
 		}
-		const {
-			languageSelected,
-			languageSelected2,
-			languageSelected3,
-			languageSelected4,
-			languageSelected5,
-			languageSelected6,
-			...data
-		} = aboutMeInput;
-		try {
-			isFormSavingStore.set({ saving: true });
-			const res = await fetch(`/common/${type}-${advisor.id}.json`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ ...data })
-			});
 
+		isFormSavingStore.set({ saving: true });
+		try {
+			const res = await ppatch(target, payload);
 			if (res.ok) {
-				for (const key in aboutMeInput) {
-					if (
-						key == 'language1' ||
-						key == 'language2' ||
-						key == 'language3' ||
-						key == 'language4' ||
-						key == 'language5' ||
-						key == 'language6'
-					) {
-						advisor[key] = languageSelected;
-						advisor.language2 = languageSelected2;
-						advisor.language3 = languageSelected3;
-						advisor.language4 = languageSelected4;
-						advisor.language5 = languageSelected5;
-						advisor.language6 = languageSelected6;
-					} else {
-						advisor[key] = aboutMeInput[key];
-					}
-				}
-				resetAboutMe();
-				onCancel();
+				dispatch('change', await res.json());
+				activeSection = '';
+				clear();
+			} else {
+				notify({
+					title: 'An error has occured',
+					subtitle:
+						'Something unexpected has happened. Please refresh the browser and sign-in again.'
+				});
+				console.error(await res.text());
+				// location.reload();
 			}
-		} catch (error) {
-			console.log(error);
+		} catch (err) {
+			notify({
+				title: 'An error has occured',
+				subtitle: 'Something unexpected has happened. Please try again later.'
+			});
+			console.error(err);
 		}
 		isFormSavingStore.set({ saving: false });
-	};
+	}
+
+	async function onSubmitWebsite() {
+		const errors: FormError = {};
+		if (!formData.website) {
+			errors.website = 'Website is required';
+		}
+
+		return _ppatch(errors, { website: formData.website });
+	}
+
+	async function onSubmitAltEmail() {
+		const errors: FormError = {};
+		if (!formData.alternateEmail) {
+			errors.alternateEmail = 'Email is required';
+		} else if (!isValidEmail(formData.alternateEmail)) {
+			errors.alternateEmail = 'Email is invalid';
+		}
+
+		return _ppatch(errors, { alternateEmail: formData.alternateEmail });
+	}
+
+	async function onSubmitTimeZone() {
+		return _ppatch({}, { timezone: formData.timezone });
+	}
+
+	async function onSubmitKind1() {
+		await convertDataKindEmptyToNull(formData);
+		return _ppatch({}, { language1: formData.language1 });
+	}
+
+	async function onSubmitOtherKinds() {
+		await convertDataKindEmptyToNull(formData);
+		return _ppatch(
+			{},
+			{
+				language2: formData.language2,
+				language3: formData.language3,
+				language4: formData.language4,
+				language5: formData.language5,
+				language6: formData.language6
+			}
+		);
+	}
+
+	async function onSubmitJoinedAt() {
+		const errors: FormError = {};
+		if (!isValidDateString(formData.joined_at)) {
+			errors.joined_at = 'Established date is required';
+		}
+		if (Object.keys(errors).length) {
+			showErrors(errors);
+			return;
+		}
+		return _ppatch({}, { joined_at: reformatDateToIso(formData.joined_at) });
+	}
+
+	function onJoinedDateChange(e: DatePickerEvent) {
+		const date = (e.detail as DatePickerDate).selectedDates[0];
+		formData.joined_at = toIsoString(date);
+	}
+
+	function convertDataKindEmptyToNull(formData) {
+		const pattern = /(language)([0-9])/;
+		for (let property in formData) {
+			if (pattern.test(property) && formData[property] == '') {
+				formData[property] = null;
+			}
+		}
+	}
+
+	function getKindName(languageId) {
+		if (!languageId) {
+			return '';
+		}
+		let languageName;
+		languages.forEach((element) => {
+			if (element.id == languageId) {
+				languageName = element.name;
+			}
+		});
+		return languageName;
+	}
+	
 </script>
 
 <FormGroup
 	let:isEditing
-	isEditing={activeSection === 'website'}
-	on:edit={() => onEdit('website')}
-	on:cancel={onCancel}
-	on:submit={() => updateAboutMe('website')}
+	on:submit={onSubmitWebsite}
+	on:cancel={resetAboutMe}
+	data={{ website: formData.website }}
 	groupClass={'group group-aboutme'}
 >
 	<FormRow label="Website" {isEditing}>
@@ -198,10 +249,11 @@
 		<div slot="fields">
 			<TextInput
 				autofocus
-				bind:value={aboutMeInput.website}
+				bind:value={formData.website}
 				placeholder="Enter website"
 				invalid={!!formErrors?.website}
 				invalidText={formErrors?.website}
+				name="website"
 			/>
 		</div>
 	</FormRow>
@@ -210,20 +262,20 @@
 <FormGroup
 	let:isEditing
 	isEditing={activeSection === 'alternate-email'}
-	on:edit={() => onEdit('alternate-email')}
-	on:cancel={onCancel}
-	on:submit={() => updateAboutMe('email2')}
+	on:submit={onSubmitAltEmail}
 	groupClass={'group group-aboutme'}
+	data={{ alternateEmail: formData.alternateEmail }}
 >
 	<FormRow label="Alternate email" {isEditing}>
-		<div slot="value">{advisor.email2 || ''}</div>
+		<div slot="value">{advisor.alternateEmail || ''}</div>
 		<div slot="fields">
 			<TextInput
 				autofocus
-				bind:value={aboutMeInput.email2}
+				bind:value={formData.alternateEmail}
 				placeholder="Enter alternate email"
-				invalid={!!formErrors?.email2}
-				invalidText={formErrors?.email2}
+				invalid={!!formErrors?.alternateEmail}
+				invalidText={formErrors?.alternateEmail}
+				name="alternateEmail"
 			/>
 		</div>
 	</FormRow>
@@ -232,15 +284,18 @@
 <FormGroup
 	let:isEditing
 	isEditing={activeSection === 'timezone'}
-	on:edit={() => onEdit('timezone')}
-	on:cancel={onCancel}
-	on:submit={() => updateAboutMe('timezone')}
+	on:submit={onSubmitTimeZone}
 	groupClass={'group group-aboutme'}
+	data={{ timezone: formData?.timezone || '' }}
 >
 	<FormRow label="Time Zone" {isEditing}>
-		<div slot="value">{handleDisplayTimeZone(advisor.timezone)}</div>
+		<div slot="value">
+			{#if timezone}
+				{timezone.gmt} {timezone.zone}
+			{/if}
+		</div>
 		<div slot="fields">
-			<Select bind:selected={aboutMeInput.timezone}>
+			<Select bind:selected={formData.timezone} name="timezone">
 				<SelectItem value="" text="Choose" />
 				{#each TIME_ZONES as timeZone}
 					<SelectItem value={timeZone.locale} text={`(${timeZone.gmt}) ${timeZone.zone}`} />
@@ -253,31 +308,21 @@
 <FormGroup
 	let:isEditing
 	isEditing={activeSection === 'language1'}
-	on:edit={() => onEdit('language1')}
-	on:cancel={onCancel}
-	on:submit={() => updateAboutMe('language1')}
+	on:submit={onSubmitKind1}
+	data={{ language1: advisor?.language1?.id?.toString() ?? advisor?.language1?.toString() }}
 	groupClass={'group group-aboutme'}
 >
 	<FormRow label="Preferred Language" {isEditing}>
 		<div slot="value">
-			{advisor.language1 ? advisor.language1.name : ''}
+			{advisor?.language1?.name ?? getKindName(advisor.language1)}
 		</div>
 		<div slot="fields">
 			<Select
 				on:change={(e) => {
-					const languageSelected = languages.filter((ele) => ele.id.toString() == e.detail);
-					if (languageSelected.length > 0) {
-						aboutMeInput.languageSelected = {
-							id: languageSelected[0].id,
-							name: languageSelected[0].name
-						};
-						aboutMeInput.language1 = languageSelected[0].id;
-					} else {
-						aboutMeInput.languageSelected = null;
-						aboutMeInput.language1 = null;
-					}
+					formData.language1 = e.detail;
 				}}
-				selected={advisor?.language1 === null ? '' : advisor?.language1.id.toString()}
+				selected={advisor?.language1?.id?.toString() ?? advisor?.language1?.toString()}
+				name="language1"
 			>
 				<SelectItem value="" text="Choose" />
 				{#each languages as language}
@@ -291,35 +336,31 @@
 <FormGroup
 	let:isEditing
 	isEditing={activeSection === 'languages'}
-	on:edit={() => onEdit('languages')}
-	on:cancel={onCancel}
-	on:submit={() => updateAboutMe('languages')}
+	on:submit={onSubmitOtherKinds}
 	groupClass={'group group-aboutme'}
+	data={{
+		language2: advisor?.language2?.id?.toString() ?? advisor?.language2?.toString(),
+		language3: advisor?.language3?.id?.toString() ?? advisor?.language3?.toString(),
+		language4: advisor?.language4?.id?.toString() ?? advisor?.language4?.toString(),
+		language5: advisor?.language5?.id?.toString() ?? advisor?.language5?.toString(),
+		language6: advisor?.language6?.id?.toString() ?? advisor?.language6?.toString()
+	}}
 >
 	<FormRow label="Other Languages" {isEditing}>
 		<div slot="value">
-			{advisor.language2 ? advisor.language2.name : ''}
-			{advisor.language3 ? advisor.language3.name : ''}
-			{advisor.language4 ? advisor.language4.name : ''}
-			{advisor.language5 ? advisor.language5.name : ''}
-			{advisor.language6 ? advisor.language6.name : ''}
+			{advisor?.language2?.name ?? getKindName(advisor?.language2)}
+			{advisor?.language3?.name ?? getKindName(advisor?.language3)}
+			{advisor?.language4?.name ?? getKindName(advisor?.language4)}
+			{advisor?.language5?.name ?? getKindName(advisor?.language5)}
+			{advisor?.language6?.name ?? getKindName(advisor?.language6)}
 		</div>
 		<div slot="fields">
 			<Select
 				on:change={(e) => {
-					const languageSelected2 = languages.filter((ele) => ele.id.toString() == e.detail);
-					if (languageSelected2.length > 0) {
-						aboutMeInput.languageSelected2 = {
-							id: languageSelected2[0].id,
-							name: languageSelected2[0].name
-						};
-						aboutMeInput.language2 = languageSelected2[0].id;
-					} else {
-						aboutMeInput.languageSelected2 = null;
-						aboutMeInput.language2 = null;
-					}
+					formData.language2 = e.detail;
 				}}
-				selected={advisor?.language2 === null ? '' : advisor?.language2.id.toString()}
+				selected={advisor?.language2?.id?.toString() ?? advisor?.language2?.toString()}
+				name="language2"
 			>
 				<SelectItem value="" text="Choose" />
 				{#each languages as language}
@@ -328,19 +369,10 @@
 			</Select>
 			<Select
 				on:change={(e) => {
-					const languageSelected3 = languages.filter((ele) => ele.id.toString() == e.detail);
-					if (languageSelected3.length > 0) {
-						aboutMeInput.languageSelected3 = {
-							id: languageSelected3[0].id,
-							name: languageSelected3[0].name
-						};
-						aboutMeInput.language3 = languageSelected3[0].id;
-					} else {
-						aboutMeInput.languageSelected3 = null;
-						aboutMeInput.language3 = null;
-					}
+					formData.language3 = e.detail;
 				}}
-				selected={advisor?.language3 === null ? '' : advisor?.language3.id.toString()}
+				name="language3"
+				selected={advisor?.language3?.id?.toString() ?? advisor?.language3?.toString()}
 			>
 				<SelectItem value="" text="Choose" />
 				{#each languages as language}
@@ -349,19 +381,10 @@
 			</Select>
 			<Select
 				on:change={(e) => {
-					const languageSelected4 = languages.filter((ele) => ele.id.toString() == e.detail);
-					if (languageSelected4.length > 0) {
-						aboutMeInput.languageSelected4 = {
-							id: languageSelected4[0].id,
-							name: languageSelected4[0].name
-						};
-						aboutMeInput.language4 = languageSelected4[0].id;
-					} else {
-						aboutMeInput.languageSelected4 = null;
-						aboutMeInput.language4 = null;
-					}
+					formData.language4 = e.detail;
 				}}
-				selected={advisor?.language4 === null ? '' : advisor?.language4.id.toString()}
+				selected={advisor?.language4?.id?.toString() ?? advisor?.language4?.toString()}
+				name="language4"
 			>
 				<SelectItem value="" text="Choose" />
 				{#each languages as language}
@@ -370,19 +393,10 @@
 			</Select>
 			<Select
 				on:change={(e) => {
-					const languageSelected5 = languages.filter((ele) => ele.id.toString() == e.detail);
-					if (languageSelected5.length > 0) {
-						aboutMeInput.languageSelected5 = {
-							id: languageSelected5[0].id,
-							name: languageSelected5[0].name
-						};
-						aboutMeInput.language5 = languageSelected5[0].id;
-					} else {
-						aboutMeInput.languageSelected5 = null;
-						aboutMeInput.language5 = null;
-					}
+					formData.language5 = e.detail;
 				}}
-				selected={advisor?.language5 === null ? '' : advisor?.language5.id.toString()}
+				selected={advisor?.language5?.id?.toString() ?? advisor?.language5?.toString()}
+				name="language5"
 			>
 				<SelectItem value="" text="Choose" />
 				{#each languages as language}
@@ -391,19 +405,10 @@
 			</Select>
 			<Select
 				on:change={(e) => {
-					const languageSelected6 = languages.filter((ele) => ele.id.toString() == e.detail);
-					if (languageSelected6.length > 0) {
-						aboutMeInput.languageSelected6 = {
-							id: languageSelected6[0].id,
-							name: languageSelected6[0].name
-						};
-						aboutMeInput.language6 = languageSelected6[0].id;
-					} else {
-						aboutMeInput.languageSelected6 = null;
-						aboutMeInput.language6 = null;
-					}
+					formData.language6 = e.detail;
 				}}
-				selected={advisor?.language6 === null ? '' : advisor?.language6.id.toString()}
+				selected={advisor?.language6?.id?.toString() ?? advisor?.language6?.toString()}
+				name="language6"
 			>
 				<SelectItem value="" text="Choose" />
 				{#each languages as language}
@@ -417,21 +422,19 @@
 <FormGroup
 	let:isEditing
 	isEditing={activeSection === 'joined_at'}
-	on:edit={() => onEdit('joined_at')}
-	on:cancel={onCancel}
-	on:submit={() => updateAboutMe('joined_at')}
+	on:submit={onSubmitJoinedAt}
 	groupClass={'group group-aboutme'}
+	data={{ joined_at: reformatDateToEn(advisor.joined_at) }}
 >
 	<FormRow label="Travel Advisor since" {isEditing}>
 		<div slot="value">
-			{advisor?.joined_at === null ? '' : formatOutputDatePicker(advisor?.joined_at)}
+			{reformatDateToEn(advisor?.joined_at)}
 		</div>
 		<div slot="fields" style="position:relative">
 			<DatePicker
-				on:change={(e) => {
-					aboutMeInput.joined_at = e.detail.dateStr;
-				}}
-				value={formatOutputDatePicker(advisor.joined_at)}
+				on:change={onJoinedDateChange}
+				value={reformatDateToEn(advisor.joined_at)}
+				dateFormat="d/m/Y"
 				datePickerType="single"
 				maxDate={new Date()}
 			>
@@ -440,6 +443,7 @@
 					placeholder="mm/dd/yyyy"
 					invalid={!!formErrors?.joined_at}
 					invalidText={formErrors?.joined_at}
+					name="joined_at"
 				/>
 			</DatePicker>
 		</div>

@@ -1,183 +1,153 @@
 <script lang="ts">
-	import type { Address } from '$lib/store/address';
-	import { countryStore } from '$lib/store/country';
-	import { isFormSavingStore } from '$lib/store/isFormSaving';
-import { sortByName, sortByOrder } from '$lib/utils/sort';
-	import { Select, SelectItem, TextInput } from 'carbon-components-svelte';
-	import { onDestroy } from 'svelte';
+	import { clear } from '$lib/store/activeForm';
 
+	import type { Address } from '$lib/store/address';
+	import type { Country } from '$lib/store/country';
+	import { isFormSavingStore } from '$lib/store/isFormSaving';
+	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
+	import { ppatch } from '$lib/utils/fetch';
+	import { Select, SelectItem, TextInput } from 'carbon-components-svelte';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
-	export let userId: string;
-	export let objectId: string;
-	export let type: string;
-	export let activeSection = '';
-	export let address: Address[];
+	import { notify } from '../Toast.svelte';
 
-	const countries = sortByOrder(sortByName(Object.values($countryStore.items)));
-	
-	let haveAddress: boolean;
-	type AddressInput = {
+	export let activeSection = '';
+	export let address: Address;
+	export let target: string;
+	export let countries: Country[];
+
+	type FormData = {
 		line1: string;
 		line2: string;
 		city: string;
-		zipcode: string;
+		postcode: string;
 		country: string | null;
 		province: string;
 	};
 
-	let addressInput: AddressInput;
+	type FormError = {
+		line1?: string;
+		line2?: string;
+		city?: string;
+		postcode?: string;
+		country?: string;
+		province?: string;
+	};
 
-	const resetAddresInput = () => {
-		addressInput = {
-			line1: '',
-			line2: '',
-			city: '',
-			zipcode: '',
-			country: null,
-			province: ''
+	const dispatch = createEventDispatcher();
+
+	let formErrors: FormError;
+	let formData: FormData;
+
+	function showErrors(errors: FormError) {
+		formErrors = errors;
+		setTimeout(() => {
+			formErrors = undefined;
+		}, INVALID_DELAY_TIME);
+	}
+
+	function reset() {
+		formData = {
+			line1: address?.line1 || '',
+			line2: address?.line2 || '',
+			city: address?.city || '',
+			postcode: address?.postcode || '',
+			country: address?.country?.id || null,
+			province: address?.province || ''
 		};
-	};
+	}
 
-	resetAddresInput();
-	onDestroy(() => {
-		resetAddresInput();
-	});
+	onMount(reset);
+	onDestroy(reset);
 
-	const onEdit = (groupName: string) => {
-		activeSection = groupName;
-		if (address.length == 0) {
-			haveAddress = false;
-			resetAddresInput();
-		} else {
-			haveAddress = true;
-			addressInput = {
-				line1: address[0].line1 || '',
-				line2: address[0].line2 || '',
-				city: address[0].city || '',
-				zipcode: address[0].zipcode || '',
-				country: address[0].country?.id || null,
-				province: address[0].province || ''
-			};
+	async function onSubmit() {
+		const errors: FormError = {};
+		if (!formData.city) {
+			errors.city = 'City is required';
 		}
-	};
-	const onCancel = () => {
-		activeSection = '';
-	};
-
-	const handleDisplay = (field: string) => {
-		if (!address || address.length == 0) {
-			return '';
-		} else if (!address[0][field]) {
-			return '';
-		} else if (field == 'country') {
-			return address[0][field].name;
+		if (!formData.line1) {
+			errors.line1 = 'Street address is required';
 		}
-		return address[0][field];
-	};
+		if (!formData.country) {
+			errors.country = 'Country is required';
+		}
+		if (!formData.postcode) {
+			errors.postcode = 'Zip code / potal code is required';
+		}
 
-	const createAddress = async () => {
-		addressInput.zipcode = addressInput.zipcode.toString();
+		if (Object.keys(errors).length) {
+			showErrors(errors);
+			return;
+		}
+
+		isFormSavingStore.set({ saving: true });
 		try {
-			const res = await fetch(`/address/create.json`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ ...addressInput })
-			});
+			let data = { address: formData };
+			const res = await ppatch(target, data);
+
 			if (res.ok) {
-				const data = await res.json();
-				return data.createAddress.address.id;
-			}
-		} catch (error) {}
-	};
-
-	const updateAddress = async () => {
-		try {
-			isFormSavingStore.set({ saving: true });
-			let data: string | AddressInput;
-			let url = ``;
-			addressInput.zipcode = addressInput.zipcode.toString();
-			if (haveAddress) {
-				// true when address created
-				url = `/address/update-${address[0].id}.json`;
-				data = { ...addressInput };
+				dispatch('change', await res.json());
+				activeSection = '';
+				clear();
+				// Object.assign(address, formData);
 			} else {
-				data = await createAddress();
-				url = `/address/assign-${type}-${objectId}.json`;
+				notify({
+					title: 'An error has occured',
+					subtitle:
+						'Something unexpected has happened. Please refresh the browser and sign-in again.'
+				});
+				console.error(await res.text());
+				// location.reload();
 			}
-
-			const res = await fetch(url, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ data })
+		} catch (err) {
+			notify({
+				title: 'An error has occured',
+				subtitle: 'Something unexpected has happened. Please try again later.'
 			});
-			if (res.ok) {
-				const data = await res.json();
-				if (haveAddress) {
-					address[0] = data.updateAddress.address;
-				} else {
-					if (type == 'agency') {
-						address = data.updateAgency.agency.addresses;
-					} else if (type == 'advisor') {
-						address = data.updateAdvisor.advisor.address;
-					}
-				}
-				resetAddresInput();
-				onCancel();
-			}
-		} catch (error) {}
+			console.error(err);
+		}
 		isFormSavingStore.set({ saving: false });
-	};
+	}
 </script>
 
 <FormGroup
 	let:isEditing
-	isEditing={activeSection === 'address'}
-	on:edit={() => onEdit('address')}
-	on:cancel={onCancel}
-	on:submit={updateAddress}
+	on:submit={onSubmit}
+	on:cancel={reset}
+	data={{...formData}}
 	groupClass={'group group-aboutme'}
 >
 	<FormRow label="Address" {isEditing} contentClass={'mtop-5'}>
 		<div slot="value">
 			<p class="advisor-address">
-				{handleDisplay('line1')}
+				{address?.line1 || ''}
 			</p>
 			<p class="advisor-address">
-				{handleDisplay('line2')}
+				{address?.line2 || ''}
 			</p>
 			<p class="advisor-address">
-				{handleDisplay('city')}
+				{address?.city || ''}
 			</p>
 			<p class="advisor-address">
-				{handleDisplay('province')}
+				{address?.province || ''}
 			</p>
 			<p class="advisor-address">
-				{handleDisplay('country')}
-				{handleDisplay('zipcode')}
+				{address?.country?.name || ''}
+				{address?.postcode || ''}
 			</p>
 		</div>
 		<div slot="fields">
 			<div class="select-container">
 				<Select
 					on:change={(e) => {
-						const countrySelected = countries.filter((ele) => ele.id.toString() == e.detail);
-						if (countrySelected.length > 0) {
-							addressInput.country = countrySelected[0].id;
-						} else {
-							addressInput.country = null;
-						}
+						formData.country = e.detail;
 					}}
 					labelText="Country"
-					selected={address == null || address.length == 0
-						? ''
-						: address[0].country == null
-						? ''
-						: address[0].country.id.toString()}
+					invalid={!!formErrors?.country}
+					invalidText={formErrors?.country}
+					selected={address?.country?.id.toString()}
+					name="country"
 				>
 					<SelectItem value="" text="Choose" />
 					{#each countries as country}
@@ -189,26 +159,45 @@ import { sortByName, sortByOrder } from '$lib/utils/sort';
 					autofocus
 					labelText="Province / State"
 					placeholder="Your province or state"
-					bind:value={addressInput.province}
+					bind:value={formData.province}
+					invalid={!!formErrors?.province}
+					invalidText={formErrors?.province}
+					name="province"
 				/>
 			</div>
 
 			<TextInput
 				labelText="Street address"
 				placeholder="Your street"
-				bind:value={addressInput.line1}
+				bind:value={formData.line1}
+				invalid={!!formErrors?.line1}
+				invalidText={formErrors?.line1}
+				name="line1"
 			/>
 			<TextInput
 				labelText="Street address #2"
 				placeholder="Your street #2"
-				bind:value={addressInput.line2}
+				bind:value={formData.line2}
+				invalid={!!formErrors?.line2}
+				invalidText={formErrors?.line2}
+				name="line2"
 			/>
 			<div class="select-container">
-				<TextInput labelText="City" placeholder="Your city" bind:value={addressInput.city} />
+				<TextInput
+					labelText="City"
+					placeholder="Your city"
+					bind:value={formData.city}
+					invalid={!!formErrors?.city}
+					invalidText={formErrors?.city}
+					name="city"
+				/>
 				<TextInput
 					labelText="Zip code / Postal code"
 					placeholder="Your zip code"
-					bind:value={addressInput.zipcode}
+					bind:value={formData.postcode}
+					invalid={!!formErrors?.postcode}
+					invalidText={formErrors?.postcode}
+					name="postcode"
 				/>
 			</div>
 		</div>

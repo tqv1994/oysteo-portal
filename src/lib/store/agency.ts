@@ -1,9 +1,8 @@
 import type { Address } from './address';
-import type { AdvisorAgency } from './advisor';
-import type { AffiliateAgencies, AffiliateBenefitPrograms, AffiliateNetwork } from './affiliate';
 import type { Base, Nameable } from './types';
 import type { Media } from './media';
-import type { Payment } from './payment';
+import type { Kind } from './category';
+import type { Advisor } from './advisor';
 
 export type Agency = Base &
 	Nameable & {
@@ -36,72 +35,22 @@ export type Agency = Base &
 		whatsapp_code?: string;
 		emergency?: string;
 		emergency_code?: string;
-		affiliate_networks?: AffiliateNetwork[];
-		affiliate_agencies?: AffiliateAgencies[];
-		affiliate_benefit_programs?: AffiliateBenefitPrograms[];
-		addresses?: Address[];
-		advisors?: AdvisorAgency[];
-		payments: Payment[];
+		affiliate_networks?: Kind[];
+		affiliate_agencies?: Kind[];
+		affiliate_benefit_programs?: Kind[];
+		address?: Address;
+		advisors?: Advisor[];
+		billingPhone?: string;
+		billingEmail?: string;
+		billingInitials?: string;
+		billingFirstName?: string;
+		billingLastName?: string;
+		billingPaymentMethod?: Kind;
+		billingCountryCode?: string;
+		billingSalutationType?: Kind;
 	};
+
 export enum AGENCY_TYPE {
 	company = 'company',
 	individual = 'individual'
 }
-
-export const agencyFieldsFragment = `
-fragment agencyFields on Agency {
-    id
-    name
-    description
-    legalName
-    state
-    type
-    profile
-    logo{
-        ...uploadFileFields
-    }
-    images{
-        ...uploadFileFields
-    }
-    website
-    registrationId
-    taxId
-    timezone
-    insurance_company
-    insurance_policy
-    iata
-    abta
-    arc
-    tids
-    clia
-    atol
-    established_at
-    email
-    phone_number
-    phone_number_code
-    cell_mobile
-    cell_mobile_code
-    whatsapp
-    whatsapp_code
-    emergency
-    emergency_code
-    affiliate_networks{
-        ...affiliateNetworkFields
-    }
-    affiliate_agencies{
-        ...affiliateAgencyFields
-    }
-    affiliate_benefit_programs{
-        ...affiliateBenefitProgramFields
-    }
-    addresses{
-        ...addressFields
-    }
-    advisors{
-        ...advisorAgencyFields
-    }
-    payments{
-        ...paymentFields
-    }
-}
-`;

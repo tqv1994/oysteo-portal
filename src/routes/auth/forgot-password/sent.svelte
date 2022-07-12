@@ -3,14 +3,13 @@
 	import { browser } from '$app/env';
 	import { goto } from '$app/navigation';
 	import { get } from 'svelte/store';
-	import { authStore } from '$lib/store/auth';
+	import { session } from '$app/stores';
 
 	import type { Load } from '@sveltejs/kit';
 
 	let email: string;
 
-	export const load: Load = async ({ url, params }) => {
-		const { user } = get(authStore);
+	export const load: Load = async ({ url, session: { user } }) => {
 		if (user) {
 			const redirect = '/';
 			if (browser) {
@@ -42,6 +41,7 @@
 	import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 	import { notify } from '$lib/components/Toast.svelte';
 	import ODeviceDetector from '$lib/components/ODeviceDetector.svelte';
+	import { ppost } from '$lib/utils/fetch';
 	export let email: string;
 	let count = TIME_RESEND_EMAIL_FORGOT_PW;
 	let countDownStart = true;
@@ -58,13 +58,7 @@
 
 	const reSendPasswordResetEmail = async () => {
 		try {
-			const res = await fetch('/auth/forgot-password.json', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ email: email.trim().replace(' ', '+') })
-			});
+			const res = await ppost('auth/forgot-password', { email });
 			if (res.ok) {
 				countDownStart = true;
 				countDown();
@@ -79,6 +73,10 @@
 			}
 		} catch (error) {
 			console.error(error);
+			notify({
+				title: 'Something went wrong',
+				subtitle: 'Please try again later'
+			});
 		}
 	};
 </script>

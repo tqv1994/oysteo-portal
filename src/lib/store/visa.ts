@@ -9,16 +9,3 @@ export type Visa = {
 	document: UploadFile;
 	expiry: string;
 };
-
-export const visaFieldsFragment = `
-fragment visaFields on Visa {
-  id,
-  document {
-    ...uploadFileFields
-  },
-  country {
-      ...countryFields
-  },
-  expiry
-}
-`;

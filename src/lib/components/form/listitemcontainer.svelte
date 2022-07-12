@@ -1,55 +1,74 @@
 <script lang="ts">
-	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
+	import { activateOrHighlight, clear, subscribe } from '$lib/store/activeForm';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	import { Button, Form, FormGroup, InlineLoading, Link, Modal } from 'carbon-components-svelte';
-	import { RequestQuote16 } from 'carbon-icons-svelte';
-	import { createEventDispatcher } from 'svelte';
-	import { openWarningSaveForm } from './PopupWarningSaveForm.svelte';
+	import {
+		CloseOutline as CloseOutlineIcon,
+		RequestQuote as RequestQuoteIcon
+	} from 'carbon-icons-svelte';
 
+	import { createEventDispatcher } from 'svelte';
 	export let isEditing = false;
 	export let customGroupStyle = '';
 	export let reSend = false;
 	export let hasDelete = false;
 	const dispatch = createEventDispatcher();
+	export let data: Record<string, string | number | boolean> = undefined;
+	export let form: HTMLFormElement | undefined = undefined;
+	let root: HTMLDivElement;
 
 	function onEdit() {
-		if ($formChangeStatusStore.changing === false) {
-			dispatch('edit');
-			setTimeout(() => {
-				const form = document.querySelector('form');
-				form.addEventListener('input', function () {
-					formChangeStatusStore.set({ changing: true });
-				});
-			}, 0);
-		} else {
-			openWarningSaveForm({ handleConfirm: onEdit });
-		}
+		dispatch('edit');
+		activate();
+		// if ($formChangeStatusStore.changing === false) {
+		// 	dispatch('edit');
+		// 	root.querySelector('input, select, textarea')?.focus();
+		// 	root.addEventListener('input', function () {
+		// 		formChangeStatusStore.set({ changing: true });
+		// 	});
+		// } else {
+		// 	openWarningSaveForm({ handleConfirm: onEdit });
+		// }
 	}
 
 	function onSubmit() {
 		dispatch('submit');
-		formChangeStatusStore.set({ changing: false });
+		// formChangeStatusStore.set({ changing: false });
 	}
 
 	function onCancel() {
+		clear();
 		dispatch('cancel');
-		formChangeStatusStore.set({ changing: false });
+		// formChangeStatusStore.set({ changing: false });
 	}
 	function onSend() {
 		dispatch('send');
-		formChangeStatusStore.set({ changing: false });
+		// formChangeStatusStore.set({ changing: false });
 	}
 
 	function onDelete() {
 		dispatch('delete');
-		formChangeStatusStore.set({ changing: false });
+		// formChangeStatusStore.set({ changing: false });
 	}
+
+	export function activate() {
+		activateOrHighlight(id, data);
+	}
+
+	const id = new Date().getTime().toString(36) + Math.random().toString(36).substring(2);
+
+	subscribe((s) => {
+		isEditing = s && s.id === id;
+	});
 </script>
 
-<div class="group" style={customGroupStyle}>
+<div class="group" style={customGroupStyle} bind:this={root}>
 	{#if isEditing}
 		<div class="form">
-			<Form on:submit={onSubmit}>
+			{#if hasDelete}
+				<CloseOutlineIcon size={20} class="icon-right" on:click={onDelete} />
+			{/if}
+			<Form on:submit={onSubmit} {id}>
 				<FormGroup>
 					<slot {isEditing} />
 					{#if $isFormSavingStore.saving}
@@ -65,9 +84,6 @@
 						{#if reSend}
 							<Button class="re-send" on:click={onSend}>Re-send invitation</Button>
 						{/if}
-						{#if hasDelete}
-							<Button class="re-send" on:click={onDelete}>Delete</Button>
-						{/if}
 					{/if}
 				</div>
 			</Form>
@@ -77,7 +93,7 @@
 			<slot {isEditing} />
 		</div>
 		<div class="actions">
-			<Link on:click={onEdit} class="btn-edit">Edit&nbsp;<RequestQuote16 /></Link>
+			<Link on:click={onEdit} class="btn-edit">Edit&nbsp;<RequestQuoteIcon size={16} /></Link>
 		</div>
 	{/if}
 </div>

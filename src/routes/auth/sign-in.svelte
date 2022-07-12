@@ -15,16 +15,21 @@
 	import { isPasswordComplex, isValidEmail } from '$lib/helpers/utils';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
-	import { authStore } from '$lib/store/auth';
+	import { session } from '$app/stores';
 	import { notify } from '$lib/components/Toast.svelte';
 	import { tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import ODeviceDetector from '$lib/components/ODeviceDetector.svelte';
+	import { ppost } from '$lib/utils/fetch';
 
 	type FormError = {
 		email?: string;
 		password?: string;
 	};
+
+	$: if ($session.user) {
+		goto('/');
+	}
 
 	let formErrors: FormError;
 
@@ -40,7 +45,8 @@
 		}, INVALID_DELAY_TIME);
 	}
 
-	async function onSubmit() {
+	async function onSubmit(event: SubmitEvent) {
+		event.preventDefault();
 		const errors: FormError = {};
 		if (!loginData.email) {
 			errors.email = 'Email address is required';
@@ -67,55 +73,55 @@
 			if (cred && cred.user) {
 				if (cred.user.emailVerified) {
 					const token = await cred.user.getIdToken();
-					const res = await fetch('/auth.json', {
+					const res = await fetch('/auth', {
 						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify({
-							token
-						})
+						headers: { accept: 'application/json' },
+						body: JSON.stringify({ token })
 					});
 
 					if (res.ok) {
-						const user = await res.json();
-						if (!user.advisorMe) {
+						const authRes = await res.json();
+						if (!authRes.advisorMe) {
 							loginData.password = '';
-							errors.email = 'Only advisors may sign in to MyOYSTEO';
-
-							await fetch(`/auth/sign-out.json?_z=${Date.now()}`);
-							authStore.set({ user: undefined });
-							setTimeout(() => {
-								location.reload();
-							}, 1000);
+							errors.email = '';
+							notify({
+								title: 'Unable to sign in',
+								subtitle: 'MyOYSTEO is exclusively for travel advisors'
+							});
+							await ppost('auth/sign-out', {});
 							isFormSavingStore.set({ saving: false });
 							return;
 						}
-						// TODO: Restore redirect when My OYSTEO tab is enabled
-						// redirect('/account');
+						session.update((s) => {
+							s.user = authRes.user;
+							s.agencyMe = authRes.agencyMe;
+							s.advisorMe = authRes.advisorMe;
+							return s;
+						});
 						isFormSavingStore.set({ saving: false });
-						authStore.set({ user });
-						await tick();
-						if (user.agencyMe && !user.agencyMe.legalName) {
-							goto('/account/agency');
-						} else {
-							goto('/account/advisor');
-						}
-						// TODO end
+						tick();
+						
+						// Check agencyMe
+						authRes.agencyMe ? goto('/profile/agency') : goto('/profile/advisor');
+						// goto('/');
 						return;
 					} else if (res.status === 406) {
-						authStore.set({ user: undefined });
+						session.update((s) => {
+							s.user = undefined;
+							return s;
+						});
 						document.cookie = 'session=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
 						await tick();
 						goto('/auth/verify');
 					} else {
 						const error = await res.json();
-						console.log(error);
+						console.error(error);
 					}
 				} else {
-					authStore.set({ user: undefined });
-					document.cookie = 'session=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
-					await tick();
+					session.update((s) => {
+						s.user = undefined;
+						return s;
+					});
 					goto(`/auth/verify?email=${encodeURIComponent(loginData.email)}`);
 				}
 			} else {
@@ -126,10 +132,10 @@
 				});
 			}
 		} catch (error) {
-			console.log('error');
-			// console.log(error);
-			console.log('error code', error.code);
-			console.log(error.message);
+			console.error(error);
+			// console.error(error);
+			// console.log('error code', error.code);
+			// console.error(error.message);
 			switch (error.code) {
 				case 'auth/user-not-found':
 					errors.email = 'Email is not linked to an account';

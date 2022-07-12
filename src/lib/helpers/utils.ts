@@ -1,21 +1,12 @@
 export function isValidEmail(email: string) {
-	return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-		email
+	return /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(
+		email.trim()
 	);
 }
 
 export function isPasswordComplex(password: string) {
-  const re = new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})');
-  return re.test(password);
-}
-
-export function validateWebsite(website: string): boolean {
-	if (website == null || website == '') {
-		return true;
-	}
-	return /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi.test(
-		website
-	);
+	const re = new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})');
+	return re.test(password);
 }
 
 function* iter_range(begin: number, end: number, step: number) {
@@ -42,31 +33,6 @@ function* iter_range(begin: number, end: number, step: number) {
 
 export function range(begin: number, end: number, step: number) {
 	return Array.from(iter_range(begin, end, step));
-}
-
-export function separateFirstAndLastName(name: string) {
-	let firstName = '',
-		lastName = '';
-	const nameArray = name.split(/\s+/);
-	if (nameArray.length == 1) {
-		lastName = nameArray.pop();
-	} else {
-		lastName = nameArray.pop();
-		firstName = nameArray.join(' ');
-	}
-	return {
-		firstName,
-		lastName
-	};
-}
-
-type AdvisorName = {
-	firstName: string;
-	lastName: string;
-};
-
-export function mergeName(nameObject: AdvisorName): string {
-	return nameObject.firstName + ' ' + nameObject.lastName;
 }
 
 function checkLowerCase(str: string): boolean {
@@ -121,8 +87,8 @@ export const queryURLParamToJSON = (query: string) => {
 		return decodeURIComponent(str.replace(decodeRE, ' '));
 	};
 
-	let params: any = {},
-		e;
+	const params: any = {};
+	let e;
 	while ((e = re.exec(query))) {
 		let k = decode(e[1]),
 			v = decode(e[2]);
@@ -145,7 +111,7 @@ export const queryURLParamToJSON = (query: string) => {
 	for (const prop in params) {
 		const structure = prop.split('[');
 		if (structure.length > 1) {
-			var levels: any = [];
+			const levels: any = [];
 			structure.forEach(function (item, i) {
 				const key = item.replace(/[?[\]\\ ]/g, '');
 				levels.push(key);
@@ -157,20 +123,6 @@ export const queryURLParamToJSON = (query: string) => {
 	return params;
 };
 
-export const objectToQueryString = (obj: any, prefix?: string): string => {
-	const query = Object.keys(obj).map((key) => {
-		const value = obj[key];
-
-		if (obj.constructor === Array) key = `${prefix}[]`;
-		else if (obj.constructor === Object) key = prefix ? `${prefix}[${key}]` : key;
-
-		if (typeof value === 'object') return objectToQueryString(value, key);
-		else return `${key}=${encodeURIComponent(value)}`;
-	});
-
-	return [].concat.apply([], query).join('&');
-};
-
 export const formatNumber = (num) => {
 	const p = num.toFixed(0);
 	return p
@@ -180,3 +132,22 @@ export const formatNumber = (num) => {
 			return num + (num != '-' && i && !(i % 3) ? ',' : '') + acc;
 		}, '');
 };
+
+export const isInstagram = (str: string) => {
+	if (str.indexOf('@') == 0) {
+		return true;
+	}
+	return false;
+};
+
+export function getFormValues(form: HTMLFormElement): Record<string, string | number> {
+  if (!form) {
+    return {};
+  }
+	return Array.from(form.elements).reduce((acc, el: HTMLInputElement) => {
+		if (el.name) {
+			acc[el.name] = el.value;
+		}
+		return acc;
+	}, {});
+}

@@ -1,9 +1,7 @@
 import { writable } from 'svelte/store';
-import type { CollectionStore, Publishable } from './types';
+import type { Publishable } from './types';
 
-export const FileStore = writable<CollectionStore<File>>({
-	items: {}
-});
+export const FileStore = writable<File[]>([]);
 
 export type UploadFile = Publishable & {
 	name?: string;
@@ -32,20 +30,3 @@ export type Image = {
 	path: string;
 	url: string;
 };
-
-export const uploadFileFieldsFragment = `
-fragment uploadFileFields on UploadFile {
-  id
-  name
-  alternativeText
-  caption
-  blurHash
-  width
-  height
-  formats
-  hash
-  size
-  url
-  previewUrl
-}
-`;

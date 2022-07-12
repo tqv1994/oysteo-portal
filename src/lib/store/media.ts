@@ -10,20 +10,3 @@ export type Media = {
 	url: string;
 	previewUrl: string;
 };
-
-export const uploadFileFieldsFragment = `
-fragment uploadFileFields on UploadFile {
-    id
-    name
-    alternativeText
-    caption
-    blurHash
-    width
-    height
-    formats
-    hash
-    size
-    url
-    previewUrl
-}
-`;

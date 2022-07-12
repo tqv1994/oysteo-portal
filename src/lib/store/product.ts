@@ -1,9 +1,7 @@
 import { writable } from 'svelte/store';
-import type { CollectionStore, Exhibitable, Identifiable } from './types';
+import type { Exhibitable, Identifiable } from './types';
 
-export const productStore = writable<CollectionStore<Product>>({
-	items: {}
-});
+export const productStore = writable<Product[]>([]);
 
 export type Product = Identifiable &
 	Exhibitable & {
@@ -12,19 +10,3 @@ export type Product = Identifiable &
 		intro: string;
 		available: boolean;
 	};
-
-export const productFieldsFragment = `
-fragment productFields on Product {
-  id,
-  name,
-  intro
-  description,
-  brand,
-  price
-  gallery {
-    ...uploadFileFields
-  }
-  tags
-  available
-}
-`;

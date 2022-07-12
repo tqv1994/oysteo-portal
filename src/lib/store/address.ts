@@ -1,5 +1,5 @@
 import type { Country } from './country';
-import type { Base, Identifiable, Nameable } from './types';
+import type { Identifiable } from './types';
 
 export type Address = Identifiable & {
 	line1: string;
@@ -8,15 +8,14 @@ export type Address = Identifiable & {
 	city: string;
 	country: Country;
 	province: string;
-	zipcode: string;
-	users_permissions_user?: string;
+	postcode: string;
 };
 
 export type AddressInput = {
 	line1: string;
 	line2: string;
 	locality: string;
-	zipcode: string;
+	postcode: string;
 	city: string;
 	country: string; // ID
 	province: string;
@@ -31,18 +30,3 @@ export function convertAddressToInput(address: Address): AddressInput {
 	result = data;
 	return result;
 }
-
-export const addressFieldsFragment = `
-  fragment addressFields on Address {
-    id
-    line1
-    line2
-    locality
-    zipcode
-    city
-    country{
-      ...countryFields
-    }
-    province
-  }
-`;

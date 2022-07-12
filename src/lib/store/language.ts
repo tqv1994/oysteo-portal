@@ -1,15 +1,4 @@
 import { writable } from 'svelte/store';
-import type { Base, CollectionStore, Identifiable, Nameable } from './types';
+import type { Kind } from './category';
 
-export type Language = Identifiable & Nameable;
-
-export const languageStore = writable<CollectionStore<Language>>({
-	items: {}
-});
-
-export const languageFieldsFragment = `
-fragment languageFields on Language {
-  id
-  name
-}
-`;
+export const languageStore = writable<Kind[]>([]);

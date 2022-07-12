@@ -30,14 +30,3 @@ export const convertTripWhereToInput = (tripWhere: TripWhere): TripWhereInput =>
 	result = new TripWhereInput(data);
 	return result;
 };
-
-export const tripWhereFieldsFragment = `
-fragment tripWhereFields on TripWhere{
-    id
-    description
-    noNights
-    country{
-        ...countryFields
-    }
-}
-`;

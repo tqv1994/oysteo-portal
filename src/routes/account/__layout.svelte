@@ -5,25 +5,35 @@
 	import OHeader from '$lib/components/navigation/OHeader.svelte';
 	import type { Load } from '@sveltejs/kit';
 	import { get } from 'svelte/store';
-	import { authStore } from '$lib/store/auth';
 	import { afterUpdate } from 'svelte';
 	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 	import { redirect } from '$lib/helpers/redirect.svelte';
+	import { beforeNavigate } from '$app/navigation';
+	import { globalState } from '$lib/store/state';
+	import Toast, { notify } from '$lib/components/Toast.svelte';
+	import { tripStore } from '$lib/store/trip';
+	import { pget } from '$lib/utils/fetch';
 
-	export const load: Load = async () => {
-		const { user } = get(authStore);
+	export const load: Load = async ({ fetch, session: { user } }) => {
 		if (!user) {
-			return redirect('/auth/sign-in');
+			return redirect('/');
+		}
+		try {
+			const res = await pget(fetch, `trips`);
+			if (res.ok) {
+				const trips = await res.json();
+				tripStore.set(trips);
+			} else {
+				console.error('Failed to fetch trips', await res.text());
+			}
+		} catch (err) {
+			console.log('Error fetch trips:', err);
 		}
 		return {};
 	};
 </script>
 
 <script lang="ts">
-	import { beforeNavigate } from '$app/navigation';
-	import { globalState } from '$lib/store/state';
-	import { notify } from '$lib/components/Toast.svelte';
-
 	beforeNavigate(({ cancel }) => {
 		const anchor = get(globalState).editingAnchor;
 		if (anchor) {
@@ -47,7 +57,6 @@
 		if (desktopNavSectionEl && contentEl && divFakeHeight) {
 			desktopNavSectionEl.querySelectorAll('a').forEach((element) => {
 				element.addEventListener('click', () => {
-					console.log('clickky');
 					const target = element.getAttribute('href');
 
 					if (target.indexOf('#') > -1) {
@@ -128,10 +137,10 @@
 		};
 	};
 
-	afterUpdate(onLoad);
+	// afterUpdate(onLoad);
 </script>
 
-<svelte:window on:scroll={onScroll} />
+<!-- <svelte:window on:scroll={onScroll} /> -->
 <OHeader />
 <Content>
 	<slot />

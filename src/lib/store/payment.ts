@@ -1,5 +1,4 @@
-import type { PaymentMethod } from './paymentMethod';
-import type { SalutationType } from './salutationType';
+import type { Kind } from './category';
 import type { Identifiable } from './types';
 
 export type Payment = Identifiable & {
@@ -9,24 +8,6 @@ export type Payment = Identifiable & {
 	countryCode: string;
 	email: string;
 	initials: string;
-	paymentMethod: PaymentMethod;
-	salutationType: SalutationType;
+	paymentMethod: Kind;
+	salutationType: Kind;
 };
-
-export const paymentFieldsFragment = `
-fragment paymentFields on BillPayment{
-    id
-    firstName
-    lastName
-    phone
-    countryCode
-    email
-    initials
-    paymentMethod{
-        ...paymentMethodFields
-    }
-    salutationType{
-        ...salutationTypeFields
-    }
-}
-`;

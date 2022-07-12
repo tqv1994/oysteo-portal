@@ -17,6 +17,7 @@
 		<div class="label">{label}</div>
 	{/if}
 	<div class="content {additionalContentClasses}">
+		<slot />
 		{#if isEditing}
 			<slot name="fields" />
 		{:else}

@@ -79,3 +79,48 @@ export const dateDiffInDays = (d1, d2) => {
 
 	return Math.floor((t2 - t1) / (24 * 3600 * 1000));
 };
+
+export function isValidDateString(str: string): boolean {
+	return /^(0?[1-9]|[1-2][0-9]|3[01])[\/.-](0?[1-9]|1[0-2])[\/.-](19|20)\d{2}$/.test(str);
+}
+
+export function toIsoString(date: Date): string {
+	if (!date) {
+		return '';
+	}
+	return `${addLeadingZero(date.getDate())}/${addLeadingZero(
+		date.getMonth() + 1
+	)}/${date.getFullYear()}`;
+}
+
+export function reformatDateToMonthYear(date: string): string {
+  if (!date) {
+    return '';
+  }
+	try {
+		const d = new Date(date);
+		return d.toLocaleDateString('en', { month: 'long', year: 'numeric' });
+	} catch (err) {
+		return '';
+	}
+}
+
+export function reformatDateToIso(str: string): string {
+	if (!str) {
+		return '';
+	}
+	const [d, m, y] = str.split('/');
+	return [y, m, d].join('-');
+}
+
+export function reformatDateToEn(str: string): string {
+	if (!str) {
+		return '';
+	}
+	const [y, m, d] = str.split('-');
+	return [d, m, y].join('/').replace('//','');
+}
+
+function addLeadingZero(num: number | string): string {
+	return ('0' + num).slice(-2);
+}

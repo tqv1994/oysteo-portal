@@ -67,21 +67,3 @@ export function convertIdentificationToInput(identification: Identification): Id
 	result = data;
 	return result;
 }
-
-export const identificationFieldsFragment = `
-fragment identificationFields on Identification {
-  id,
-  type,
-  documentId,
-  country {
-      ...countryFields
-  },
-  front {
-      ...uploadFileFields
-  },
-  expiry,
-  back{
-    ...uploadFileFields
-  }
-}
-`;

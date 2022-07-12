@@ -11,8 +11,7 @@
 		SideNav,
 		SideNavItems,
 		SideNavLink,
-		Content,
-		Link
+		Content
 	} from 'carbon-components-svelte';
 	import PopupWarningSaveForm from '$lib/components/form/PopupWarningSaveForm.svelte';
 	import { expoIn } from 'svelte/easing';
@@ -21,9 +20,9 @@
 	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 	import { goto } from '$app/navigation';
 	import OysteoLogo from '$lib/components/icons/OysteoLogo.svelte';
-	import { User20 } from 'carbon-icons-svelte';
-	import { authStore } from '$lib/store/auth';
-	import { afterUpdate, beforeUpdate, onDestroy, onMount } from 'svelte';
+	import { User as UserIcon } from 'carbon-icons-svelte';
+	import { session } from '$app/stores';
+	import { afterUpdate } from 'svelte';
 
 	let isSideNavOpen = false;
 	let isOpen = false;
@@ -107,7 +106,6 @@
 		const doc = document.documentElement;
 		const desktopNavSectionEl = document.getElementById('desktop-nav-section');
 		const contentEl = document.querySelector('.content');
-		console.log(1);
 
 		if (desktopNavSectionEl) {
 			let scrollDistance: number = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
@@ -133,17 +131,17 @@
 		};
 	};
 
-	afterUpdate(onLoad);
+	// afterUpdate(onLoad);
 
 	const gotoAgency = () => {
 		formChangeStatusStore.subscribe((s) => {
 			s.changing = false;
 		});
-		goto('/account/agency');
+		goto('/profile/agency');
 		isSideNavOpen = false;
 
 		// if (!$formChangeStatusStore.changing) {
-		// 	goto('/account/agency');
+		// 	goto('/profile/agency');
 		// 	isSideNavOpen = false;
 		// } else {
 		// 	openWarningSaveForm({ handleConfirm: gotoAgency });
@@ -155,7 +153,7 @@
 			s.changing = false;
 		});
 		if (!$formChangeStatusStore.changing) {
-			goto('/account/advisor');
+			goto('/profile/advisor');
 			isSideNavOpen = false;
 		} else {
 			// openWarningSaveForm({ handleConfirm: gotoAdvisor });
@@ -180,7 +178,7 @@
 		formChangeStatusStore.subscribe((s) => {
 			s.changing = false;
 		});
-		goto('/account/sign-out');
+		goto('/auth/sign-out');
 		isSideNavOpen = false;
 		// if (!$formChangeStatusStore.changing) {
 		// 	goto('/logout');
@@ -191,7 +189,7 @@
 	};
 </script>
 
-<svelte:window on:scroll={onScroll} />
+<!-- <svelte:window on:scroll={onScroll} /> -->
 <Header
 	bind:isSideNavOpen
 	persistentHamburgerMenu={true}
@@ -205,7 +203,7 @@
 	</div>
 
 	<HeaderNav>
-		<!-- <HeaderNavItem href="#" text="My OYSTEO" on:click={gotoAccount} /> -->
+		<HeaderNavItem href="/profile" text="My OYSTEO" on:click={gotoAccount} />
 		<HeaderNavItem
 			isSelected={navSelected == 'advisor'}
 			href="#"
@@ -214,7 +212,7 @@
 				gotoAdvisor();
 			}}
 		/>
-		{#if $authStore.user.agencyMe}
+		{#if $session.agencyMe}
 			<HeaderNavItem
 				isSelected={navSelected == 'agency'}
 				href="#"
@@ -230,12 +228,12 @@
 	<HeaderUtilities>
 		<HeaderAction
 			bind:isOpen
-			icon={User20}
+			icon={UserIcon}
 			transition={transitions[selected].value}
 			class="ultilities-logout"
 		>
 			<HeaderPanelLinks>
-				<p id="account-name">{$authStore.user?.email || ''}</p>
+				<p id="account-name">{$session.user?.email || ''}</p>
 				<HeaderPanelLink class="btn-logout" href="#" on:click={gotoLogout}>Sign out</HeaderPanelLink
 				>
 			</HeaderPanelLinks>
@@ -245,7 +243,7 @@
 
 <SideNav isOpen={isSideNavOpen} id="main-sidebar">
 	<SideNavItems>
-		<!-- <SideNavLink text="My OYSTEO" href="#" on:click={gotoAccount} /> -->
+		<SideNavLink text="My OYSTEO" href="#" on:click={gotoAccount} />
 		<SideNavLink
 			text="Advisor"
 			href="#"
@@ -254,7 +252,7 @@
 				gotoAdvisor();
 			}}
 		/>
-		{#if $authStore.user.agencyMe}
+		{#if $session.agencyMe}
 			<SideNavLink
 				text="Agency"
 				href="#"

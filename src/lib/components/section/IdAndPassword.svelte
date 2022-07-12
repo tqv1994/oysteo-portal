@@ -4,38 +4,50 @@
 	import FormRow from '../form/row.svelte';
 	import { ListItem, PasswordInput, TextInput, UnorderedList } from 'carbon-components-svelte';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
-	import { checkPasswordRule, isPasswordComplex } from '$lib/helpers/utils';
+	import { isPasswordComplex } from '$lib/helpers/utils';
 	import {
 		browserSessionPersistence,
 		EmailAuthProvider,
 		getAuth,
 		reauthenticateWithCredential,
-		signInWithEmailAndPassword
+		signInWithEmailAndPassword,
+		updatePassword
 	} from 'firebase/auth';
-	import { authStore } from '$lib/store/auth';
-	import { onDestroy } from 'svelte';
+	import { session } from '$app/stores';
+	import { onDestroy, onMount } from 'svelte';
 	import { notify } from '../Toast.svelte';
-	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
-	import { redirect } from '$lib/helpers/redirect.svelte';
 	import { goto } from '$app/navigation';
+	import { pauth, ppost } from '$lib/utils/fetch';
+	import { clear } from '$lib/store/activeForm';
 
 	export let user: User | undefined;
-	export let activeSection = '';
-	const onEdit = (groupName: string) => {
-		activeSection = groupName;
-	};
-	const onCancel = () => {
-		activeSection = '';
+
+	type FormData = {
+		currentPassword?: string;
+		password?: string;
+		confirm?: string;
 	};
 
 	type FormError = {
 		currentPassword?: string;
-		newPassword?: string;
-		confirmPassword?: string;
+		password?: string;
+		confirm?: string;
 	};
 
 	let formErrors: FormError;
+	let formData: FormData;
+
+	function reset() {
+		formData = {
+			currentPassword: '',
+			password: '',
+			confirm: ''
+		};
+	}
+
+	onMount(reset);
+	onDestroy(reset);
 
 	function showErrors(errors: FormError) {
 		formErrors = errors;
@@ -43,41 +55,31 @@
 			formErrors = undefined;
 		}, INVALID_DELAY_TIME);
 	}
-	let passwordData = {
-		currentPassword: '',
-		newPassword: '',
-		confirmPassword: ''
-	};
 
-	const resetPasswordData = () => {
-		passwordData = {
-			currentPassword: '',
-			newPassword: '',
-			confirmPassword: ''
-		};
-	};
-
-	onDestroy(() => {
-		resetPasswordData();
-	});
+	function clearFormData() {
+		formData.currentPassword = '';
+		formData.confirm = '';
+		formData.password = '';
+	}
 
 	const onUpdatePassword = async () => {
 		const errors: FormError = {};
-		if (!passwordData.currentPassword) {
-			errors.currentPassword = 'A password is required';
-		} else if (passwordData.currentPassword == passwordData.newPassword) {
-			errors.newPassword = 'The new password must be different from the current password.';
+		if (!formData.currentPassword) {
+			errors.currentPassword = 'Your current password is required';
+		} else if (formData.currentPassword == formData.password) {
+			errors.password = 'The new password must be different from the current password.';
 		}
-		if (!passwordData.newPassword) {
-			errors.newPassword = 'A password is required';
-		} else if (!isPasswordComplex(passwordData.newPassword)) {
-			errors.newPassword =
+		if (!formData.password) {
+			errors.password = 'A new password is required';
+		} else if (!isPasswordComplex(formData.password)) {
+			errors.password =
 				'Password must be at least 8 characters (including 1 uppercase letter, 1 number and 1 lowercase letter)';
 		}
-		if (!passwordData.confirmPassword) {
-			errors.confirmPassword = 'A password is required';
-		} else if (passwordData.confirmPassword != passwordData.newPassword) {
-			errors.confirmPassword = 'Confirmation password is incorrect';
+		if (!formData.confirm) {
+			errors.confirm = 'A password is required';
+		} else if (formData.confirm != formData.password) {
+			errors.password = 'Passwords do not match';
+			errors.confirm = 'Passwords do not match';
 		}
 
 		if (Object.keys(errors).length) {
@@ -89,62 +91,51 @@
 			isFormSavingStore.set({ saving: true });
 			const auth = await getAuth();
 			await auth.setPersistence(browserSessionPersistence); // To get the user from browser session
-			const user = auth.currentUser;
-			if (user) {
+			if (auth.currentUser) {
 				try {
 					// Check current password
-					const credential = EmailAuthProvider.credential(user.email, passwordData.currentPassword);
-					await reauthenticateWithCredential(user, credential);
-					const res = await fetch('/auth/change-password.json', {
-						method: 'PUT',
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify({
-							password: passwordData.newPassword,
-							passwordConfirmation: passwordData.confirmPassword
-						})
-					});
+					await reauthenticateWithCredential(
+						auth.currentUser,
+						EmailAuthProvider.credential(auth.currentUser.email, formData.currentPassword)
+					);
+					await updatePassword(auth.currentUser, formData.password);
+					const cred = await signInWithEmailAndPassword(auth, user.email, formData.password);
+					const token = await cred.user.getIdToken();
+					await ppost('auth/sign-out', {});
+					const res = await pauth(token);
+
 					if (res.ok) {
-						try {
-							await fetch(`/auth/sign-out.json?_z=${Date.now()}`);
-						} catch (error) {}
-						try {
-							const cred = await signInWithEmailAndPassword(
-								auth,
-								user.email,
-								passwordData.newPassword
-							);
-							if (cred.user) {
-								const token = await cred.user.getIdToken();
-								const res = await fetch('/auth.json', {
-									method: 'POST',
-									headers: {
-										'Content-Type': 'application/json'
-									},
-									body: JSON.stringify({
-										token
-									})
-								});
-								if (res.ok) {
-									const user = await res.json();
-									authStore.set({ user });
-									activeSection = '';
-								} else {
-									const error = await res.json();
-									console.log(error);
-								}
-							}
-						} catch (error) {
-							console.error(error);
-						}
+						let user = await res.json();
+						session.update((s) => {
+							s.user = user;
+							return s;
+						});
+						notify({
+							kind: 'success',
+							title: 'Password changed',
+							subtitle: 'Your password has been changed. Please sign-in again.'
+						});
+						reset();
+						clear();
 					} else {
-						const error = await res.json();
-						console.log(error);
+						notify({
+							title: 'An error has occured',
+							subtitle:
+								'Something unexpected has happened. Please refresh the browser and sign-in again.'
+						});
+						console.error(await res.text());
+						// location.reload();
 					}
+					// setTimeout(location.reload, 4000);
 				} catch (error) {
-					// Current password is invalid
-					errors.currentPassword = 'Password was wrong';
+					switch (error.code) {
+						case 'auth/wrong-password':
+							errors.currentPassword = 'The current password supplied does not match our records';
+							break;
+						default:
+							console.error(error.errorInfo);
+					}
+
 					isFormSavingStore.set({ saving: false });
 					if (Object.keys(errors).length) {
 						showErrors(errors);
@@ -167,12 +158,14 @@
 			});
 		}
 		isFormSavingStore.set({ saving: false });
+
+		clearFormData();
 	};
 </script>
 
 <FormGroup groupName="ID">
 	<FormRow label="OYSTEO ID">
-		<div slot="value">{user.email}</div>
+		<div slot="value">{user.email || ''}</div>
 		<div slot="fields">
 			<TextInput autofocus labelText="OYSTEO ID" placeholder={user.email} />
 		</div>
@@ -182,10 +175,9 @@
 <FormGroup
 	groupClass="group custom-invalid"
 	let:isEditing
-	isEditing={activeSection === 'password'}
-	on:edit={() => onEdit('password')}
-	on:cancel={onCancel}
 	on:submit={onUpdatePassword}
+	on:cancel={reset}
+	data={{...formData}}
 >
 	<FormRow label="Password" {isEditing}>
 		<div slot="value">********</div>
@@ -197,15 +189,17 @@
 				placeholder="Enter your current password"
 				invalid={!!formErrors?.currentPassword}
 				invalidText={formErrors?.currentPassword}
-				bind:value={passwordData.currentPassword}
+				bind:value={formData.currentPassword}
+				name="currentPassword"
 			/>
 			<PasswordInput
 				type="password"
 				labelText="New Password"
 				placeholder="Enter a new password"
-				invalid={!!formErrors?.newPassword}
-				invalidText={formErrors?.newPassword}
-				bind:value={passwordData.newPassword}
+				invalid={!!formErrors?.password}
+				invalidText={formErrors?.password}
+				bind:value={formData.password}
+				name="password"
 			/>
 
 			<UnorderedList class="rules-password">
@@ -218,10 +212,11 @@
 			<PasswordInput
 				type="password"
 				labelText="Confirm New Password"
-				bind:value={passwordData.confirmPassword}
+				bind:value={formData.confirm}
 				placeholder="Confirm the new password again"
-				invalid={!!formErrors?.confirmPassword}
-				invalidText={formErrors?.confirmPassword}
+				invalid={!!formErrors?.confirm}
+				invalidText={formErrors?.confirm}
+				name="confirm"
 			/>
 		</div>
 	</FormRow>

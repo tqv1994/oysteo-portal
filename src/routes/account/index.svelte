@@ -8,22 +8,28 @@
 	import IconHome4 from '$lib/components/icons/IconHome4.svelte';
 	import IconHome5 from '$lib/components/icons/IconHome5.svelte';
 	import IconHome6 from '$lib/components/icons/IconHome6.svelte';
-	import { Forum32 } from 'carbon-icons-svelte';
+	import { Forum as ForumIcon } from 'carbon-icons-svelte';
 	import type { Load } from '@sveltejs/kit';
-	import { authStore } from '$lib/store/auth';
-	import { get } from 'svelte/store';
+	import { session } from '$app/stores';
 	import { redirect } from '$lib/helpers/redirect.svelte';
+	import { notify } from '$lib/components/Toast.svelte';
 
-	export const load: Load = async () => {
-		const { user } = get(authStore);
-		if (user) {
-			if (user.agencyMe && !user.agencyMe.legalName) {
-				return redirect('/account/agency');
-			}
-			return {};
-		} else {
-			return redirect('/register');
+	export const load: Load = async ({ session: { user, agencyMe, advisorMe } }) => {
+		if (agencyMe && !agencyMe.legalName) {
+			notify({
+				title: 'Business information',
+				subtitle:
+					'If you have not entered legal name (agency), you will can not see My OYSTEO page.'
+			});
+			return redirect('/account/agency');
+		} else if (advisorMe && !advisorMe.name) {
+			notify({
+				title: 'Contacts',
+				subtitle: 'If you have not entered advisor name, you will can not see My OYSTEO page.'
+			});
+			return redirect('/profile/advisor');
 		}
+		return {};
 	};
 </script>
 
@@ -31,14 +37,14 @@
 	<div class="page-container">
 		<Grid>
 			<div class="text-right mobile-message">
-				<Link href="/account/messages"><span> 0 </span><Forum32 /></Link>
+				<Link href="/account/messages"><span> 0 </span><ForumIcon size={32} /></Link>
 			</div>
 			<Row class="mt-25">
 				<Column>
-					<h1 class="pt-0">Hello {$authStore.user?.advisorMe?.name || 'there'}</h1>
+					<h1 class="pt-0">Hello {$session.advisorMe?.name || ''}</h1>
 				</Column>
 				<Column class="text-right">
-					<Button kind="secondary" class="pl-30 pr-30" href="/account/trips/trip-detail"
+					<Button kind="secondary" class="pl-30 pr-30" href="/trips/trips/trip-detail"
 						>Create New Trip</Button
 					>
 					<Button kind="primary" class="pl-30 pr-30 desktop-message" href="/account/messages"
@@ -54,7 +60,7 @@
 	<section class="boxes">
 		<div class="row">
 			<div class="d-col-4 m-col-6">
-				<Link href="/account/trips/enquiries">
+				<Link href="/trips/enquiries">
 					<div class="boxes--item-content">
 						<h3 class="boxes--item-title">Enquiries</h3>
 						<IconHome3 class="boxes--item-icon" width="91" height="91" />
@@ -62,7 +68,7 @@
 				</Link>
 			</div>
 			<div class="d-col-4 m-col-6">
-				<Link href="/account/trips">
+				<Link href="/trips/trips">
 					<div class="boxes--item-content">
 						<h3 class="boxes--item-title">Trips</h3>
 						<IconHome1 class="boxes--item-icon" width="91" height="91" />
@@ -107,11 +113,10 @@
 </div>
 
 <style lang="scss">
-	@use '../../styles/grid';
 	.content-header {
 		background: rgb(231, 239, 255);
 		background: linear-gradient(90deg, rgba(231, 239, 255, 1) 0%, rgba(15, 97, 253, 1) 100%);
-		padding-top: 55px;
+		padding-top: 64px;
 		padding-bottom: 46px;
 		margin-left: calc(-100vw / 2 + (100vw - 8rem) / 2);
 		margin-right: calc(-100vw / 2 + (100vw - 8rem) / 2);

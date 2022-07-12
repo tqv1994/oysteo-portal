@@ -99,10 +99,6 @@
 			flex-basis: 14rem;
 			font-size: 0.875rem;
 		}
-		.flatpickr-calendar {
-			top: 42px !important;
-			left: 169px !important;
-		}
 	}
 
 	.mobile-table,
@@ -160,6 +156,22 @@
 	.desktop-profile{
 		.custom-col{
 			margin-right: 17px;
+		}
+	}
+
+	.icon-right{
+		margin-left: 0.5rem;
+	}
+	.custom-flex-collumn {
+		.bx--date-picker-container {
+			padding-bottom: 16px;
+			margin-bottom: -16px;
+			.bx--form-requirement {
+				left: 175px;
+				right: 0;
+				bottom: 0;
+				position: absolute;
+			}
 		}
 	}
 }

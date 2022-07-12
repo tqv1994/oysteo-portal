@@ -1,5 +1,5 @@
 import type { UploadFile } from '$lib/store/upload-file';
-import { cmsUrlPrefix } from '$lib/utils/_env';
+import { cmsUrlPrefix } from '$lib/env';
 
 export const uploadFileService = async (
 	file: File,

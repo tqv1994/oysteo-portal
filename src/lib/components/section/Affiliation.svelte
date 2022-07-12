@@ -1,46 +1,44 @@
 <script lang="ts">
-	import type { Advisor } from '$lib/store/advisor';
-	import type {
-		AffiliateAgencies,
-		AffiliateBenefitPrograms,
-		AffiliateNetwork
-	} from '$lib/store/affiliate';
-	import { CloseOutline20 } from 'carbon-icons-svelte';
-	import { Link, Select, SelectItem } from 'carbon-components-svelte';
+	import { CloseOutline as CloseOutlineIcon } from 'carbon-icons-svelte';
+	import { Button, FormItem, Link, Select, SelectItem } from 'carbon-components-svelte';
 
 	import FormGroup from '../form/group.svelte';
 	import FormRow from '../form/row.svelte';
-	import { onDestroy } from 'svelte';
+	import { createEventDispatcher, onDestroy } from 'svelte';
 	import { focusInput } from '$lib/helpers/scripts';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
-	import { authStore } from '$lib/store/auth';
+	import { ppatch } from '$lib/utils/fetch';
+	import { notify } from '../Toast.svelte';
+	import { clear } from '$lib/store/activeForm';
 
-	export let type: string;
+	export let target: string = undefined;
 	export let name: string;
 	export let label: string;
-	export let affiliate: AffiliateAgencies[] | AffiliateBenefitPrograms[] | AffiliateNetwork[];
-	export let list: AffiliateAgencies[] | AffiliateBenefitPrograms[] | AffiliateNetwork[];
-	export let objectId: string;
+	export let affiliate;
+	export let list;
 	export let activeSection = '';
-	export let allowEdit = false;
 
-	let affiliateInput: AffiliateAgencies[] | AffiliateBenefitPrograms[] | AffiliateNetwork[];
+	let formGroup;
+	const dispatch = createEventDispatcher();
+
+	let affiliateInput;
 
 	const resetAffiliateInput = () => {
-		affiliateInput = [];
+		if (Array.isArray(affiliate)) {
+			affiliateInput = [...affiliate];
+		} else {
+			affiliateInput = [];
+		}
 	};
 
 	resetAffiliateInput();
 	onDestroy(() => {
 		resetAffiliateInput();
 	});
-	const onEdit = (groupName: string) => {
-		activeSection = groupName;
-		affiliateInput = [...affiliate];
-	};
-	const onCancel = () => {
-		activeSection = '';
-	};
+
+	function onCancel() {
+		resetAffiliateInput();
+	}
 
 	const handleName = (name: string) => {
 		if (name === 'Benefit Programs') {
@@ -50,6 +48,9 @@
 	};
 
 	const updateAffiliate = async () => {
+		if (!target) {
+			return;
+		}
 		try {
 			let affID: string[] = [];
 			affID = affiliateInput.filter((item) => item.id !== '0').map((item) => item.id);
@@ -61,39 +62,48 @@
 			data[`affiliate_${handleName(name)}`] = affID;
 			isFormSavingStore.set({ saving: true });
 
-			const res = await fetch(`/common/${type}-${objectId}.json`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ ...data })
-			});
+			const res = await ppatch(target, data);
 			if (res.ok) {
-				const data = await res.json();
-				if (type == 'advisor') {
-					affiliate = data.updateAdvisor.advisor[`affiliate_${handleName(name)}`];
-				} else if (type == 'agency') {
-					affiliate = data.updateAgency.agency[`affiliate_${handleName(name)}`];
-					let user = $authStore.user;
-					user.agencyMe[`affiliate_${handleName(name)}`] = affiliate;
-					authStore.set({ user });
-				}
-				resetAffiliateInput();
-				onCancel();
+				dispatch('change', await res.json());
+				activeSection = '';
+				affiliate = listIDToListItemAffliate(affID, list);
+				clear();
+			} else {
+				notify({
+					title: 'Update failed',
+					subtitle: 'Failed to update information, please try again later.'
+				});
 			}
-		} catch (error) {}
+		} catch (error) {
+			notify({
+				title: 'Update failed',
+				subtitle: 'Failed to update information, please try again later.'
+			});
+			console.error('Failed to update phone numbers', error);
+		}
 		isFormSavingStore.set({ saving: false });
 	};
+
+	function listIDToListItemAffliate(listId, affiliates) {
+		affiliates = affiliates.filter((aff, index) => {
+			let check = listId.find((id) => id == aff.id);
+			if (check) {
+				return aff;
+			}
+		});
+		return affiliates;
+	}
 </script>
 
-{#if allowEdit == true}
+{#if !!target}
 	<FormGroup
 		let:isEditing
-		isEditing={activeSection === `affiliate-${name}`}
-		on:edit={() => onEdit(`affiliate-${name}`)}
-		on:cancel={onCancel}
 		on:submit={updateAffiliate}
+		on:cancel={onCancel}
 		groupClass={'group group-affiliations'}
+		on:cancel={onCancel}
+		data={affiliateInput}
+		bind:this={formGroup}
 	>
 		<FormRow label={`Affiliate ${label}`} {isEditing} contentClass={'mtop-7'}>
 			<div slot="value">
@@ -107,9 +117,10 @@
 						<Select
 							labelText={`Affiliation ${label}`}
 							hideLabel
-							name="InaffiliateInput-{index}"
+							name="id"
 							selected={aff.id.toString()}
 							on:change={(e) => {
+								formGroup.activate();
 								const affSelected = list.filter((ele) => ele.id.toString() == e.detail);
 								if (affSelected.length > 0) {
 									affiliateInput[index] = affSelected[0];
@@ -123,14 +134,27 @@
 								<SelectItem value={item.id.toString()} text={item.name} />
 							{/each}
 						</Select>
-						<CloseOutline20
+						<Button
+							sizes="field"
+							kind="ghost"
 							class="remove-aff-item"
+							iconDescription="Remove"
+							icon={CloseOutlineIcon}
 							on:click={() => {
 								affiliateInput = affiliateInput.filter(
 									(ele) => ele.id !== affiliateInput[index].id
 								);
 							}}
 						/>
+						<!-- <CloseOutlineIcon
+							size={20}
+							class="remove-aff-item"
+							on:click={() => {
+								affiliateInput = affiliateInput.filter(
+									(ele) => ele.id !== affiliateInput[index].id
+								);
+							}}
+						/> -->
 					</div>
 				{/each}
 				<Link

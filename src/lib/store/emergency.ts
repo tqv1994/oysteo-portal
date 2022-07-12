@@ -1,3 +1,4 @@
+import type { Kind } from './category';
 import type { Identifiable, Nameable } from './types';
 import type { UploadFile } from './upload-file';
 
@@ -26,7 +27,7 @@ export class EmergencyInput {
 export const convertEmergencyToInput = (emergency: Emergency): EmergencyInput => {
 	const data: any = { ...emergency };
 
-	data.documents = emergency.documents.map((item) => item.id + '');
+	data.documents = (emergency.documents || []).map((item) => item.id + '');
 	delete data.id;
 	delete data.published_at;
 	delete data.__typename;
@@ -50,8 +51,7 @@ export const emergencyFieldsFragments = `
     }
 `;
 
-export type EmergencyTrip = Identifiable &
-	Nameable & {
+export type EmergencyTrip = Kind & {
 		name: string;
 		Role: string;
 		phoneCode: string;

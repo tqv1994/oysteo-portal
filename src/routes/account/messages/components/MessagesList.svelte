@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { formatDate } from '$lib/helpers/datetime';
+	import { sortDate } from '$lib/utils/sort';
 	import {
 		Button,
 		Column,
@@ -11,21 +12,20 @@
 	} from 'carbon-components-svelte';
 	import type { DataTableHeader } from 'carbon-components-svelte/types/DataTable/DataTable.svelte';
 	import {
-		Email24,
-		EmailNew24,
-		FolderOpen32,
-		Forum32,
-		Phone32,
-		Slisor32,
-		Star24,
-		Star32,
-		TrashCan32
+		Email as EmailIcon,
+		EmailNew as EmailNewIcon,
+		FolderOpen as FolderOpenIcon,
+		Forum as ForumIcon,
+		Phone as PhoneIcon,
+		Slisor as SlisorIcon,
+		Star as StarIcon,
+		TrashCan as TrashCanIcon
 	} from 'carbon-icons-svelte';
 	let headers: DataTableHeader[] = [
 		{
 			key: 'created_at',
 			value: 'Date',
-			sort: (a, b) => new Date(a) - new Date(b)
+			sort: sortDate
 		},
 		{
 			key: 'type',
@@ -69,7 +69,7 @@
 			isRead: true
 		}
 	];
-	export let detailLinkPrefix = '/account/trips/trip-detail?id=';
+	export let detailLinkPrefix = '/trips/trips/trip-detail?id=';
 </script>
 
 <div>
@@ -77,12 +77,12 @@
 		<div slot="cell" let:cell let:row>
 			{#if cell.key === 'action'}
 				<div class="actions">
-					<Button kind="ghost" icon={Star32} iconDescription="Like" />
-					<Button kind="ghost" icon={Slisor32} iconDescription="Open" />
-					<Button kind="ghost" icon={TrashCan32} iconDescription="Delete" />
-					<Button kind="ghost" icon={FolderOpen32} iconDescription="Download" />
-					<Button kind="ghost" icon={Phone32} iconDescription="Call" />
-					<Button kind="ghost" icon={Forum32} iconDescription="Chat" />
+					<Button kind="ghost" size="lg" icon={StarIcon} iconDescription="Like" />
+					<Button kind="ghost" size="lg" icon={SlisorIcon} iconDescription="Open" />
+					<Button kind="ghost" size="lg" icon={TrashCanIcon} iconDescription="Delete" />
+					<Button kind="ghost" size="lg" icon={FolderOpenIcon} iconDescription="Download" />
+					<Button kind="ghost" size="lg" icon={PhoneIcon} iconDescription="Call" />
+					<Button kind="ghost" size="lg" icon={ForumIcon} iconDescription="Chat" />
 				</div>
 			{:else if cell.key === 'created_at'}
 				<Link href={`#`}>
@@ -109,13 +109,13 @@
 				<Column class="col-button" lg={1}>
 					<Row>
 						{#if message.isRead}
-							<Email24 />
+							<EmailIcon sizr={24} />
 						{:else}
-							<EmailNew24 />
+							<EmailNewIcon sizr={24} />
 						{/if}
 					</Row>
 					<Row>
-						<Star24 />
+						<StarIcon sizr={24} />
 					</Row>
 				</Column>
 				<Column>
@@ -149,7 +149,6 @@
 </div>
 
 <style lang="scss">
-	@use '../../../../styles/datatable';
 	div {
 		.active {
 			font-weight: bold;

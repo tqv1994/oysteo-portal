@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { extractSetCookieHeader, getSessionCookie } from '$lib/utils/session';
-import { cmsUrlPrefix } from '$lib/utils/_env';
+import { cmsUrlPrefix } from '$lib/env';
 import { makeEmptyResponse } from '$lib/utils/fetch';
 /**
  * @type {import('@sveltejs/kit').Delete}

@@ -15,38 +15,43 @@
 	import { countryStore } from '$lib/store/country';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	import { sortByName, sortByOrder } from '$lib/utils/sort';
+	import { session } from '$app/stores';
+	import { ppost } from '$lib/utils/fetch';
+	import { onMount } from 'svelte';
+	import { getCollection } from '$lib/store/collection';
 
 	export let advisorId: string;
 	export let destinations: Destination[];
 	export let activeSection = '';
 	export let userId: string;
 	export let type1: string;
-	const countries = sortByOrder(sortByName(Object.values($countryStore.items)));
 
 	type CreateDestinationInput = {
-		name: string;
 		location: string;
 		description: string;
-		author: string;
 		visible: boolean;
-		type1: string;
 		country: string;
-	};
-
-	const onCancel = () => {
-		activeSection = '';
 	};
 
 	let createDestinationData: CreateDestinationInput;
 
+	onMount(async () => {
+		let countries = sortByOrder(sortByName(await getCollection(fetch, 'country')));
+		countries.map(function (item) {
+			item.id = item.id.substring(item.id.lastIndexOf('-') + 1);
+		});
+		$countryStore = countries;
+	});
+
+	function onCancel() {
+		activeSection = '';
+	}
+
 	const resetCreateDestination = () => {
 		createDestinationData = {
-			name: '',
 			location: '',
 			description: '',
-			author: userId,
 			visible: true,
-			type1: type1,
 			country: ''
 		};
 	};
@@ -72,37 +77,18 @@
 		}
 		isFormSavingStore.set({ saving: true });
 		try {
-			const res = await fetch('/destination/create.json', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ ...createDestinationData })
-			});
-
-			if (res.ok) {
-				const data = await res.json();
-				const destinationInserted = data.createDestination.destination;
-
-				const insertedId = destinationInserted.id;
-				let destinationIds = [insertedId];
-				destinations.forEach((item) => {
-					destinationIds = [item.id, ...destinationIds];
-				});
-				const res_assign = await fetch(`/destination/assign-${advisorId}.json`, {
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({ destinationIds })
-				});
-
-				if (res_assign.ok) {
-					destinations = [...destinations, destinationInserted];
-					resetCreateDestination();
-					activeSection = '';
+			const res = await ppost('destinations', createDestinationData);
+			const destination = await res.json();
+			session.update((s) => {
+				if (s.advisorMe.destinations) {
+					s.advisorMe.destinations.push(destination);
+				} else {
+					s.advisorMe.destinations = [destination];
 				}
-			}
+				return s;
+			});
+			activeSection = '';
+			resetCreateDestination();
 		} catch (error) {}
 		isFormSavingStore.set({ saving: false });
 	};
@@ -132,7 +118,7 @@
 				}}
 			>
 				<SelectItem value="" text="Choose" />
-				{#each countries as country}
+				{#each $countryStore as country}
 					<SelectItem value={country.id} text={`${country.name}`} />
 				{/each}
 			</Select>

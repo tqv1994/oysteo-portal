@@ -1,67 +1,61 @@
 <script lang="ts">
 	import { notify } from '$lib/components/Toast.svelte';
-
-	import { mergeName, isValidEmail } from '$lib/helpers/utils';
-
-	import type { Advisor, AdvisorAgency } from '$lib/store/advisor';
-	import { authStore } from '$lib/store/auth';
+	import { isValidEmail } from '$lib/helpers/utils';
+	import type { Advisor } from '$lib/store/advisor';
+	import { session } from '$app/stores';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
-	import { SalutationType, salutationTypeStore } from '$lib/store/salutationType';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
+	import { ppost } from '$lib/utils/fetch';
 	import { Checkbox, Select, SelectItem, TextInput } from 'carbon-components-svelte';
-	import { getAuth, inMemoryPersistence, sendPasswordResetEmail } from 'firebase/auth';
-
 	import FormGroup from '../../form/group.svelte';
 	import FormRow from '../../form/row.svelte';
+	import { onDestroy, onMount } from 'svelte';
+	import { clear } from '$lib/store/activeForm';
 
 	export let agencyId: string;
-	export let advisors: AdvisorAgency[];
+	export let advisors: Advisor[];
 	export let activeSection = '';
+	export let salutationTypes;
 
-	const salutationTypes = Object.values($salutationTypeStore.items);
+	export function activate() {
+		formGroup.activate();
+	}
 
-	let firstName = '';
-	let lastName = '';
-
-	const onEdit = (groupName: string) => {
-		activeSection = groupName;
-		resetAdvisorData();
-	};
-	const onCancel = () => {
-		activeSection = '';
-		resetAdvisorData();
-	};
-
-	const resetAdvisorData = () => {
-		createAdvisorData = {
+	const reset = () => {
+		formData = {
 			salutationType: salutationTypes[0]?.id || '',
-			name: '',
+			firstname: '',
 			initials: '',
+			lastname: '',
 			email: '',
 			reference: '',
-			active: false
+			active: true
 		};
-		firstName = '';
-		lastName = '';
 	};
 
-	let createAdvisorData = {
-		salutationType: '',
-		name: '',
-		initials: '',
-		email: '',
-		reference: '',
-		active: false
+	let formGroup: FormGroup;
+
+	type FormData = {
+		salutationType: string;
+		firstname: string;
+		initials?: string;
+		lastname: string;
+		email: string;
+		reference?: string;
+		active: boolean;
 	};
-	resetAdvisorData();
 
 	type FormError = {
 		email?: string;
-		firstName?: string;
-		lastName?: string;
+		firstname?: string;
+		lastname?: string;
 	};
 
+	let formData: FormData;
 	let formErrors: FormError;
+
+	onMount(reset);
+	onDestroy(reset);
 
 	function showErrors(errors: FormError) {
 		formErrors = errors;
@@ -70,75 +64,74 @@
 		}, INVALID_DELAY_TIME);
 	}
 
-	let invalidAdvisorEmail = {
-		status: false,
-		message: 'Invalid email'
-	};
-	let invalidAdvisorFirstName = {
-		status: false,
-		message: 'Firstname is required'
-	};
-	let invalidAdvisorLastName = {
-		status: false,
-		message: 'Lastname is required'
-	};
-	const createAdvisor = async () => {
+	const onSubmit = async () => {
 		const errors: FormError = {};
-		if (!isValidEmail(createAdvisorData.email)) {
+		if (!formData.email) {
+			errors.email = 'Email address is required';
+		} else if (!isValidEmail(formData.email)) {
 			errors.email = 'Email address is invalid';
 		}
-		if (firstName == '') {
-			errors.firstName = 'First name is required';
+		if (!formData.firstname) {
+			errors.firstname = 'First name is required';
 		}
-		if (lastName == '') {
-			errors.lastName = 'Last name is required';
+		if (!formData.lastname) {
+			errors.lastname = 'Last name is required';
 		}
+
 		if (Object.keys(errors).length) {
 			showErrors(errors);
 			return;
 		}
-		createAdvisorData.name = firstName + ' ' + lastName;
+		let finalFormData = { ...formData, salutationType: parseInt(formData.salutationType) };
 
 		isFormSavingStore.set({ saving: true });
 		try {
-			const res = await fetch('/account/agency/advisors/create.json', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					...createAdvisorData,
-					salutationType: createAdvisorData.salutationType || null
-				})
-			});
-
+			const res = await ppost('advisors/createAdvisor', finalFormData);
 			if (res.ok) {
-				const data: AdvisorAgency = await res.json();
-				advisors = advisors || [];
-				advisors.push(data);
-				if ($authStore.user.agencyMe) {
-					$authStore.user.agencyMe.advisors = advisors;
-				}
-				authStore.set({ user: $authStore.user });
-				const auth = getAuth();
-				onCancel();
+				const data: Advisor = await res.json();
+				session.update((s) => {
+					const advisors = s.agencyMe.advisors || [];
+					advisors.unshift(data);
+					s.agencyMe.advisors = advisors;
+					return s;
+				});
+				activeSection = '';
+				reset();
+				clear();
 			} else {
-				let error = await res.json();
-				notify({ kind: 'error', title: 'Error', subtitle: error.message });
+				switch (res.status) {
+					case 400:
+						errors.email = 'Email address is invalid';
+						showErrors(errors);
+						break;
+					case 409:
+						errors.email = 'A user with this email already exists';
+						showErrors(errors);
+						break;
+					default:
+						notify({
+							title: 'Update failed',
+							subtitle: 'Failed to update information, please try again later.'
+						});
+				}
 			}
 		} catch (error) {
-			notify({ kind: 'error', title: 'Error', subtitle: error.message });
+			notify({
+				title: 'Update failed',
+				subtitle: 'Failed to update information, please try again later.'
+			});
+			console.error('Failed to update phone numbers', error);
 		}
 		isFormSavingStore.set({ saving: false });
 	};
 </script>
 
 <FormGroup
+	bind:this={formGroup}
 	let:isEditing
-	isEditing={activeSection === 'advisor-add'}
-	on:edit={() => onEdit('advisor-add')}
-	on:cancel={onCancel}
-	on:submit={createAdvisor}
+	on:submit={onSubmit}
+	on:cancel={reset}
+	data={{ ...formData }}
 	groupClass={'group group-add'}
 >
 	<FormRow label="" {isEditing} contentClass={'add-advisor'}>
@@ -146,7 +139,11 @@
 			<Select
 				labelText="Salutation"
 				class="half-width"
-				bind:selected={createAdvisorData.salutationType}
+				bind:selected={formData.salutationType}
+				on:change={(e) => {
+					formData.salutationType = e.detail;
+				}}
+				name="salutationType"
 			>
 				{#each salutationTypes || [] as salutation}
 					<SelectItem value={salutation.id} text={salutation.name} />
@@ -156,40 +153,50 @@
 				autofocus
 				labelText="First name"
 				placeholder="Enter advisor first name"
-				bind:value={firstName}
-				invalid={!!formErrors?.firstName}
-				invalidText={formErrors?.firstName}
+				bind:value={formData.firstname}
+				invalid={!!formErrors?.firstname}
+				invalidText={formErrors?.firstname}
+				name="firstname"
 			/>
 			<TextInput
 				labelText="Middle Initial (optional)"
 				placeholder=""
 				class="agency-advisors-initials"
-				bind:value={createAdvisorData.initials}
+				bind:value={formData.initials}
+				name="initials"
 			/>
 			<TextInput
 				labelText="Last name"
 				placeholder="Enter advisor last name"
-				bind:value={lastName}
-				invalid={!!formErrors?.lastName}
-				invalidText={formErrors?.lastName}
+				bind:value={formData.lastname}
+				invalid={!!formErrors?.lastname}
+				invalidText={formErrors?.lastname}
+				name="lastname"
 			/>
 
 			<TextInput
 				labelText="Email Address"
 				placeholder="Enter advisor email"
-				bind:value={createAdvisorData.email}
+				bind:value={formData.email}
 				invalid={!!formErrors?.email}
 				invalidText={formErrors?.email}
+				name="email"
 			/>
 			<TextInput
 				labelText="Agency Reference"
 				placeholder="Enter agency reference"
-				bind:value={createAdvisorData.reference}
+				bind:value={formData.reference}
+				name="reference"
 			/>
 
 			<fieldset class="bx--fieldset">
 				<legend class="bx--label">Check if active</legend>
-				<Checkbox id="agency-active-status" bind:checked={createAdvisorData.active} />
+				<Checkbox
+					name="active"
+					id="agency-active-status"
+					bind:checked={formData.active}
+					value={formData.active}
+				/>
 			</fieldset>
 		</div>
 	</FormRow>

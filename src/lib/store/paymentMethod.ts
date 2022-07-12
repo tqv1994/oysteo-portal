@@ -1,16 +1,4 @@
 import { writable } from 'svelte/store';
-import type { Category } from './category';
-import type { CollectionStore, Identifiable, Nameable } from './types';
+import type { Kind } from './category';
 
-export type PaymentMethod = Identifiable & Nameable;
-
-export const paymentMethodStore = writable<CollectionStore<Category>>({
-	items: {}
-});
-
-export const paymentMethodFieldsFragment = `
-fragment paymentMethodFields on PaymentMethod{
-    id
-    name
-}
-`;
+export const paymentMethodStore = writable<Kind[]>([]);

@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { makeEmptyResponse } from '$lib/utils/fetch';
-import { cmsUrlPrefix } from '$lib/utils/_env';
+import { cmsUrlPrefix } from '$lib/env';
 /**
  * @type {import('@sveltejs/kit').Post}
  */
@@ -17,11 +17,10 @@ export const post: RequestHandler = async (event) => {
 		});
 		if (res.ok) {
 			const body = await res.text();
-      console.log(body)
 			return new Response(body);
 		} else {
 			const error = await res.json();
-      console.log(error)
+      console.error(error)
 			return makeEmptyResponse(500);
 		}
 	} catch (error) {

@@ -52,14 +52,3 @@ export const ENUM_DOCUMENT_TYPE_LABEL = {
 	other: 'Other'
 };
 
-export const docmentFieldsFragment = `
-fragment documentFields on Document{
-    id
-    type
-    documents{
-        ...uploadFileFields
-    }
-    description
-    created_at
-}
-`;

@@ -11,12 +11,10 @@
 			searchString = '?' + new URLSearchParams(search);
 		}
 		const path = pathname + searchString;
-		console.log('redirecting to', path);
 		if (browser) {
 			goto(path);
 			return {};
 		} else {
-			console.log('on server');
 			return {
 				status: 302,
 				redirect: path

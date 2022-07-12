@@ -18,18 +18,26 @@ export function sortByPublishedAt<T extends Publishable>(items: T[]): T[] {
 	);
 }
 
+export function sortDate(a, b) {
+	const diff = new Date(a).getTime() - new Date(b).getTime();
+	if (diff > 0) {
+		return 1;
+	} else if (diff < 0) {
+		return -1;
+	}
+	return 0;
+}
+
 export function sortByOrder<T extends Country>(items: T[]): T[] {
 	return items.sort((a, b) => {
 		if (a.order === null) {
 			return 1;
-		}
-		else if (b.order === null) {
+		} else if (b.order === null) {
 			return -1;
 		} else if (a.order > b.order) {
 			return 1;
 		} else if (a.order < b.order) {
 			return -1;
-		} else 
-		return 0;
+		} else return 0;
 	});
 }

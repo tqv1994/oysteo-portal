@@ -1,27 +1,21 @@
-<script>
+<script lang="ts">
 	import '../../../theme/oysteo.scss';
-	export let items = [];
-	export let className = '';
-	let itemActiveID = items.reduce((acc, item) => {
-		if (item.link || acc != '') {
-			return acc;
-		}
-		acc = item.id;
-		return acc;
-	}, '');
+	import type { SideNavItem } from '$lib/store/types';
 
-	const handleClick = (itemId) => {
-		itemActiveID = itemId;
-	};
+	export let items: SideNavItem[];
+	export { className as class };
+	export let activeIndex: number = 0;
+
+	let className = '';
 </script>
 
 <ul id="desktop-nav-section" class={className}>
-	{#each items as item (item.id)}
-		<li class={itemActiveID == item.id ? 'active' : ''}>
-			<a href={item.link || `#${item.id}`}>{item.text}</a>
+	<li>
+		<a href="/profile">Home</a>
+	</li>
+	{#each items as item, i (item.id)}
+		<li class:active={activeIndex === i}>
+			<a href="#{item.id}">{item.text}</a>
 		</li>
 	{/each}
 </ul>
-
-<style lang="scss">
-</style>

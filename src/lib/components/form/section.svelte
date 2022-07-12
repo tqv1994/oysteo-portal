@@ -1,42 +1,45 @@
 <script lang="ts">
 	import { formChangeStatusStore } from '$lib/store/formChangeStatus';
-
 	import { Tile } from 'carbon-components-svelte';
-	import { Add20 } from 'carbon-icons-svelte';
-	import { createEventDispatcher } from 'svelte';
+	import { Add as AddIcon } from 'carbon-icons-svelte';
+	import { createEventDispatcher, SvelteComponent } from 'svelte';
 	import { openWarningSaveForm } from './PopupWarningSaveForm.svelte';
-	const dispatch = createEventDispatcher();
 
 	export let title: string;
-	export let icon: any | undefined;
-	export let rightIcon = false;
+	export let icon: typeof SvelteComponent = null;
 	export let id = '';
-	export let titleRightIcon = '';
+	export let actionLabel: string = undefined;
+	export function scrollIntoView() {
+		root.scrollIntoView();
+	}
+
+	const dispatch = createEventDispatcher();
+	let root: HTMLDivElement;
 
 	const handleClick = () => {
-		if ($formChangeStatusStore.changing === false) {
-			dispatch('add');
-			setTimeout(() => {
-				const form = document.querySelector('form');
-				form.addEventListener('input', function () {
-					formChangeStatusStore.set({ changing: true });
-				});
-			}, 0);
-		} else {
-			openWarningSaveForm({ handleConfirm: handleClick });
-		}
+		dispatch('add');
+		// if ($formChangeStatusStore.changing === false) {
+		// 	(root.querySelector('input, select, textarea') as HTMLFormElement)?.focus();
+		// 	root.addEventListener('input', function () {
+		// 		formChangeStatusStore.set({ changing: true });
+		// 	});
+		// } else {
+		// 	openWarningSaveForm({ handleConfirm: handleClick });
+		// }
 	};
 </script>
 
-<div class="section" {id}>
+<div class="section" {id} bind:this={root}>
 	<Tile>
-		<h4>{title} <svelte:component this={icon} style={'transform: translate(0,.15rem);'} /></h4>
-
+		<h4>
+			{title}
+			<svelte:component this={icon} size={20} style={'transform: translate(0,.15rem);'} />
+		</h4>
 		<slot />
 	</Tile>
-	{#if rightIcon}
+	{#if actionLabel}
 		<div class="right-icon btn-edit" on:click={handleClick}>
-			<span class="title-right-icon">{titleRightIcon}</span><Add20 style="fill:white;" />
+			<span class="title-right-icon">{actionLabel}</span><AddIcon size={20} style="fill:white;" />
 		</div>
 	{/if}
 </div>

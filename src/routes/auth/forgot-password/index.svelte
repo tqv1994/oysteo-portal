@@ -10,10 +10,8 @@
 		TextInput,
 		InlineLoading
 	} from 'carbon-components-svelte';
-	import { getAuth, inMemoryPersistence, sendPasswordResetEmail } from 'firebase/auth';
 	import { isValidEmail } from '$lib/helpers/utils';
-	import { INVALID_DELAY_TIME, TIME_RESEND_EMAIL_FORGOT_PW } from '$lib/utils/constants';
-	import OysteoLogo from '$lib/components/icons/OysteoLogo.svelte';
+	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	import { redirect } from '$lib/helpers/redirect.svelte';
 	import { notify } from '$lib/components/Toast.svelte';
@@ -35,7 +33,8 @@
 		}, INVALID_DELAY_TIME);
 	}
 
-	async function onSubmit() {
+	async function onSubmit(event: SubmitEvent) {
+		event.preventDefault();
 		const errors: FormError = {};
 		if (!formData.email) {
 			errors.email = 'Email address is required';
@@ -49,7 +48,7 @@
 		}
 
 		isFormSavingStore.set({ saving: true });
-		const res = await fetch('/auth/forgot-password.json', {
+		const res = await fetch('/p/auth/forgot-password', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -60,7 +59,7 @@
 			redirect(`/auth/forgot-password/sent`, { email: formData.email });
 		} else {
 			const error = await res.json();
-			console.log(error);
+			console.error(error);
 			notify({
 				title: 'Something went wrong',
 				subtitle: 'Please try again later'

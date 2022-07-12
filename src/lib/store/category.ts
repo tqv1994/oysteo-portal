@@ -1,3 +1,3 @@
-import type { Base, Nameable } from './types';
+import type { Identifiable, Nameable } from './types';
 
-export type Category = Base & Nameable;
+export type Kind = Identifiable & Nameable;
