@@ -14,7 +14,7 @@
 	import type { Traveller, travellersStore } from '$lib/store/traveller';
 	import FormSection from '$lib/components/form/section.svelte';
 
-	export const load: Load = async ({ fetch, session, params }) => {
+	export const load: Load = async ({ session, params }) => {
 		let trip: Trip;
 		try {
 			const res = await pget(fetch, `trips/${params.id}`);
