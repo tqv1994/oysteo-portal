@@ -9,7 +9,7 @@
 	import type { User } from '$lib/store/auth';
 	import FormSection from '$lib/components/form/section.svelte';
 
-	export const load: Load = async ({ fetch, session, params }) => {
+	export const load: Load = async ({ session, params }) => {
 		let travelPreferenceTypes = await getCollection(fetch, 'travel-preference-type');
 		let personalPreferenceTypes = await getCollection(fetch, 'personal-preference-type');
 

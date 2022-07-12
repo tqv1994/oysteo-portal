@@ -8,7 +8,7 @@
 	import { travellersStore } from '$lib/store/traveller';
 
 	export const load: Load = async ({ session: { user, advisorMe } }) => {
-		if (!user || !advisorMe) {
+		if (!user) {
 			return redirect('/');
 		}
 		try {

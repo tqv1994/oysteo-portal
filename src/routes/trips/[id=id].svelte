@@ -8,7 +8,7 @@
 	import { type Trip, TripState, tripStore } from '$lib/store/trip';
 	import FormSection from '$lib/components/form/section.svelte';
 
-	export const load: Load = async ({ fetch, params: { id } }) => {
+	export const load: Load = async ({ params: { id } }) => {
 		const countries = await getCollection<Country>(fetch, 'country');
 
 		let trip: Trip;
