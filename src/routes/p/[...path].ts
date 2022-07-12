@@ -16,6 +16,7 @@ const proxy: RequestHandler = async ({ request, params, url }) => {
 	try {
 		request.headers.delete('host');
 		request.headers.delete('connection');
+		console.log('cookie',request.headers.get('cookie'));
 		const res = await fetch(`${cmsUrlPrefix}/${params.path}${url.search}`, request);
 		const body = await res.text();
 		const headers = filterUnsafeHeaders(res.headers);
