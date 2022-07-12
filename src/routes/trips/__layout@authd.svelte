@@ -7,7 +7,7 @@
 	import { pget, ppost } from '$lib/utils/fetch';
 	import { travellersStore } from '$lib/store/traveller';
 
-	export const load: Load = async ({ fetch, session: { user, advisorMe } }) => {
+	export const load: Load = async ({ session: { user, advisorMe } }) => {
 		if (!user || !advisorMe) {
 			return redirect('/');
 		}
