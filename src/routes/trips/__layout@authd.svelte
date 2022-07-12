@@ -6,13 +6,21 @@
 	import { tripLeadStore, tripStore, type Trip } from '$lib/store/trip';
 	import { pget, ppost } from '$lib/utils/fetch';
 	import { travellersStore } from '$lib/store/traveller';
+import { onMount } from 'svelte';
+import { session } from '$app/stores';
 
 	export const load: Load = async ({ fetch, session: { user, advisorMe } }) => {
 		if (!user || !advisorMe) {
 			return redirect('/');
 		}
+		
+		return {};
+	};
+</script>
+<script lang="ts">
+	onMount(async()=>{
 		try {
-			const res = await pget(fetch, `trips?advisor=${advisorMe.id}`);
+			const res = await pget(fetch, `trips?advisor=${$session.advisorMe.id}`);
 			console.log(res);
 			
 			if (res.ok) {
@@ -50,8 +58,6 @@
 		} catch (err) {
 			console.log('Error fetch trip leads:', err);
 		}
-		return {};
-	};
+	})
 </script>
-
 <slot />
