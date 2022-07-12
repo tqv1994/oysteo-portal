@@ -12,7 +12,7 @@
 			return redirect('/');
 		}
 		try {
-			const res = await fetch(`/p/trips?advisor=${advisorMe.id}`);
+			const res = await pget(fetch, `trips?advisor=${advisorMe.id}`);
 			console.log(res);
 			
 			if (res.ok) {
@@ -26,7 +26,7 @@
 		}
 
 		try {
-			const res = await fetch(`/p/travellers`);
+			const res = await pget(fetch, `travellers`);
 
 			if (res.ok) {
 				const travellers = await res.json();
@@ -39,7 +39,7 @@
 		}
 
 		try {
-			const res = await fetch(`/p/trips/leads`);
+			const res = await pget(fetch, `trips/leads`);
 			
 			if (res.ok) {
 				const trips = await res.json();
