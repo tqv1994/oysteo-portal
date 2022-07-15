@@ -23,6 +23,7 @@
 	import { User as UserIcon } from 'carbon-icons-svelte';
 	import { session } from '$app/stores';
 	import { afterUpdate } from 'svelte';
+	import { disableMyOysteo } from '$lib/env';
 
 	let isSideNavOpen = false;
 	let isOpen = false;
@@ -203,7 +204,9 @@
 	</div>
 
 	<HeaderNav>
-		<HeaderNavItem href="/profile" text="My OYSTEO" on:click={gotoAccount} />
+		{#if !disableMyOysteo}
+			<HeaderNavItem href="/profile" text="My OYSTEO" on:click={gotoAccount} />
+		{/if}
 		<HeaderNavItem
 			isSelected={navSelected == 'advisor'}
 			href="#"
@@ -243,7 +246,9 @@
 
 <SideNav isOpen={isSideNavOpen} id="main-sidebar">
 	<SideNavItems>
-		<SideNavLink text="My OYSTEO" href="#" on:click={gotoAccount} />
+		{#if !disableMyOysteo}
+			<SideNavLink text="My OYSTEO" href="#" on:click={gotoAccount} />
+		{/if}
 		<SideNavLink
 			text="Advisor"
 			href="#"

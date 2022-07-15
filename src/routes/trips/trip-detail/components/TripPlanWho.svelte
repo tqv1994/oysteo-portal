@@ -21,10 +21,9 @@
 	import { ppatch, ppost } from '$lib/utils/fetch';
 	import { clear } from '$lib/store/activeForm';
 	import CreateTraveller from '$lib/components/section/trip-traveller/CreateTraveller.svelte';
+	import { onMount } from 'svelte';
 
 	export let trip: Trip;
-	export let travellers: Traveller[] = [...$travellersStore];
-	export let traveller: Traveller;
 
 	type FormData = {
 		travellers?: string[];
@@ -34,13 +33,32 @@
 	};
 
 	let activeSection = '';
-	let relatives: Traveller[];
-	let leadTraveller: Traveller | undefined;
-	let otherTravellers: Traveller[];
 	let travellerIds: string[] = (trip?.travellers || []).map((item) => item.id.toString());
 	let formErrors: FormError;
 	let formData: FormData = reset();
 	let open = false;
+
+	const getTravellers = (): Traveller[] => {
+		let result: Traveller[] = [];
+		const travellerSelected = getTripCreator();
+		if (travellerSelected) {
+			result.push(travellerSelected);
+			for (let key in RELATIVES) {
+				if (key == 'children' && travellerSelected.children) {
+					result.push({ ...travellerSelected.children });
+				} else {
+					if (travellerSelected[key]) {
+						travellerSelected[key].map((traveller) => {
+							result.push(traveller);
+						});
+					}
+				}
+			}
+		}else{
+			result = [...$travellersStore];
+		}
+		return result;
+	};
 
 	function showErrors(errors: FormError) {
 		formErrors = errors;
@@ -96,43 +114,6 @@
 		isFormSavingStore.set({ saving: false });
 	};
 
-	$: if (trip?.travellers?.length) {
-		[travellers[0], ...otherTravellers] = trip.travellers;
-		relatives = getRelativesByLeader(travellers[0]);
-	}
-
-	const getRelativesByLeader = (leader: Traveller): Traveller[] => {
-		let result: Traveller[] = [];
-		for (let key in RELATIVES) {
-			if (key == 'children' && leader.children) {
-				result.push({ ...leader.children });
-			} else {
-				if (leader[key]) {
-					leader[key].map((traveller) => {
-						result.push(traveller);
-					});
-				}
-			}
-		}
-		return result;
-	};
-
-	const onChangeLeaderOption = (event: CustomEvent) => {
-		if (event.detail == '') {
-			relatives = [];
-		}
-		const selected = travellers.reduce((acc: Traveller, item: Traveller) => {
-			if (!acc && event.detail?.toString() === item.id.toString()) {
-				acc = item;
-			}
-			return acc;
-		}, undefined);
-
-		if (selected) {
-			relatives = getRelativesByLeader(selected);
-		}
-	};
-
 	const getFullName = (traveller: Traveller) => {
 		let result = '';
 		if (traveller) {
@@ -150,21 +131,23 @@
 	function onCreatedTraveller(event: CustomEvent<Traveller>) {
 		if (trip.travellers && trip.travellers.length > 0) {
 			trip.travellers.push(event.detail);
-			if ((trip.travellers[0].otherRelations || []).length > 0) {
-				trip.travellers[0].otherRelations.push(event.detail);
-			} else {
-				trip.travellers[0].otherRelations = [event.detail];
-			}
 		} else {
 			trip.travellers = [event.detail];
 		}
 		travellerIds = (trip?.travellers || []).map((item) => item.id.toString());
 		formData = reset();
 	}
-	
+
+	function getTripCreator(): Traveller | undefined{
+		return (trip.travellers || []).find(item=>item?.userMe && (item?.userMe || '').toString() === (trip.user || '').toString());
+	}
 </script>
 
-<CreateTraveller bind:open bind:trip {relatives} on:created={onCreatedTraveller} />
+<CreateTraveller
+	bind:open
+	bind:trip
+	on:created={onCreatedTraveller}
+/>
 <FormGroup
 	let:isEditing
 	on:edit={() => {
@@ -177,109 +160,63 @@
 	data={{ ...formData }}
 >
 	<h6>Who</h6>
-	<FormRow label="Lead Traveler" {isEditing} class="mb-20">
-		<div slot="value">
-			<Grid>
-				<Row>
-					<Column lg={6} md={6}>
-						<label>Name</label>
-						{#if trip?.travellers[0]}
-							<p>
-								{trip?.travellers[0]?.forename}
-								{trip?.travellers[0]?.surname}
-							</p>
-						{/if}
-					</Column>
-					<Column lg={6} md={6}>
-						<label>DOB</label>
-						{#if trip?.travellers[0]}
-							<p>
-								{traveller?.birthday ? formatDate(trip?.travellers[0]?.birthday) : ''}
-							</p>
-						{/if}
-					</Column>
-				</Row>
-			</Grid>
-		</div>
-		<div slot="fields">
-			{#if trip?.user != null}
-				<TextInput
-					autofocus
-					value={`${trip?.travellers[0]?.forename} ${trip?.travellers[0]?.surname}`}
-					disabled
-				/>
-			{:else}
-				<Select
-					hideLabel
-					bind:selected={formData.travellers[0]}
-					on:change={onChangeLeaderOption}
-					invalid={!!formErrors?.travellers[0]}
-					invalidText={formErrors?.travellers[0]}
-				>
-					<SelectItem text="Choose" value="" />
-					{#each $travellersStore || [] as item}
-						<SelectItem value={item.id.toString()} text={`${item.forename} ${item.surname}`} />
-					{/each}
-				</Select>
-			{/if}
-		</div>
-	</FormRow>
 	<FormRow label="Travelers" {isEditing}>
 		<div slot="value">
 			<Grid>
 				{#each trip?.travellers || [] as traveller, index}
-					{#if index != 0}
-						<Row>
-							<Column lg={6} md={6}>
-								{getFullName(traveller)}
-							</Column>
-							<Column lg={6} md={6}>
-								{formatDate(traveller?.birthday)}
-							</Column>
-						</Row>
-					{/if}
+					<Row>
+						<Column lg={6} md={6}>
+							{getFullName(traveller)}
+						</Column>
+						<Column lg={6} md={6}>
+							{formatDate(traveller?.birthday)}
+						</Column>
+					</Row>
 				{/each}
 			</Grid>
 		</div>
 		<div slot="fields">
 			{#each formData.travellers || [] as id, index}
-				{#if index > 0}
-					<div class="travellers-container">
-						<Select
-							labelText="Traveller"
-							hideLabel
-							name="relative-{id}"
-							bind:selected={id}
-							invalid={!!formErrors?.travellers[index]}
-							invalidText={formErrors?.travellers[index]}
-						>
-							<SelectItem text="Choose" value="" />
-							{#each relatives as item}
-								<SelectItem
-									value={item.id.toString()}
-									text={`${item.forename ?? 'No'} ${item.surname ?? 'Name'}`}
-								/>
-							{/each}
-						</Select>
-						<Button
-							sizes="field"
-							kind="ghost"
-							class="remove-aff-item"
-							iconDescription="Remove"
-							icon={CloseOutlineIcon}
-							on:click={() => {
-								formData.travellers = formData.travellers.filter(
-									(ele, key) => ele !== formData.travellers[index]
-								);
-							}}
-						/>
-					</div>
-				{/if}
+				<div class="travellers-container">
+					<Select
+						labelText="Traveller"
+						hideLabel
+						name="relative-{id}"
+						bind:selected={id}
+						invalid={!!formErrors?.travellers[index]}
+						invalidText={formErrors?.travellers[index]}
+						disabled={getTripCreator() && index === 0 ? true : false}
+					>
+						<SelectItem text="Choose" value="" />
+						{#each (getTravellers() || []) as item}
+							<SelectItem
+								value={item.id.toString()}
+								text={`${item.forename ?? 'No'} ${item.surname ?? 'Name'}`}
+							/>
+						{/each}
+					</Select>
+					{#if !getTripCreator() || index > 0}
+					<Button
+						sizes="field"
+						kind="ghost"
+						class="remove-aff-item"
+						iconDescription="Remove"
+						icon={CloseOutlineIcon}
+						on:click={() => {
+							formData.travellers = formData.travellers.filter(
+								(ele, key) => ele !== formData.travellers[index]
+							);
+						}}
+					/>
+					{/if}
+				</div>
 			{/each}
-			{#if relatives}
+			{#if getTravellers().length > 1}
 				<Link on:click={onAddTraveller} id="bx--link-add" class="w-100">Add Member</Link>
 			{/if}
-			<Link on:click={() => (open = true)} id="bx--link-add">Add Traveller</Link>
+			{#if !trip.user}
+				<Link on:click={() => (open = true)} id="bx--link-add">Add Traveller</Link>
+			{/if}
 		</div>
 	</FormRow>
 </FormGroup>

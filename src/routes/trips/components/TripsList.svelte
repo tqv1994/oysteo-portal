@@ -41,12 +41,19 @@
 	let depart_at: string;
 	let updated_at: string;
 
-	const getFullNameTraveller = (travellerId) => {
-		if (typeof travellerId == 'object') {
-			return `${travellerId?.forename ?? ''} ${travellerId?.surname ?? ''}`;
+	const getFullNameTraveller = (trip: Trip) => {
+		let fullname = ''
+		if (trip.travellers || [].length > 0) {
+			let travellers = [...trip.travellers];
+			travellers.sort(function (a, b) {
+				if (a.id < b.id) return -1;
+				if (a.id > b.id) return 1;
+				return 0;
+			});
+			const traveller = travellers[0];
+			fullname = `${traveller?.forename ?? ''} ${traveller?.surname ?? ''}`;
 		}
-		const traveller = $travellersStore.filter((item) => item.id == travellerId);
-		const fullname = `${traveller[0]?.forename ?? ''} ${traveller[0]?.surname ?? ''}`;
+		
 		return fullname;
 	};
 </script>
@@ -61,8 +68,7 @@
 		{:else if cell.key === 'trip_id'}
 			{#if row?.travellers[0]}
 				<Link href={`${detailLinkPrefix}${row.id}`}>
-					{row?.travellers[0]?.forename ?? ''}
-					{row?.travellers[0]?.surname ?? ''}
+					{getFullNameTraveller(row)}
 				</Link>
 			{/if}
 		{:else if cell.key === 'depart_at'}

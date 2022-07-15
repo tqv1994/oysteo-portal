@@ -27,6 +27,7 @@
 
 		try {
 			const res = await pget(fetch, `travellers`);
+			console.log(res);
 
 			if (res.ok) {
 				const travellers = await res.json();

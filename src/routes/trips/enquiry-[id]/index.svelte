@@ -164,8 +164,8 @@
 			</Accordion>
 		</div>
 		<FormSection title="Traveler" id="traveler">
-			{#if trip?.travellers[0]}
-				<TravellerSection bind:traveller={trip.travellers[0]} />
+			{#if (trip?.travellers || []).length > 0}
+				<TravellerSection travellers={trip.travellers} />
 			{:else}
 				<p>No traveler</p>
 			{/if}

@@ -17,8 +17,12 @@
 	import { ppatch, ppost } from '$lib/utils/fetch';
 	import { goto } from '$app/navigation';
 	import { tripStore } from '$lib/store/trip';
+	import { disableMyOysteo } from '$lib/env';
 
 	export const load: Load = async ({ session: { agencyMe, advisorMe } }) => {
+		if (disableMyOysteo) {
+			return redirect(agencyMe ? '/profile/agency' : '/profile/advisor');
+		}
 		if (agencyMe && agencyMe.legalName == null) {
 			return redirect('/profile/agency');
 		} else if (advisorMe && advisorMe.name == null) {

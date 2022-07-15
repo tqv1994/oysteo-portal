@@ -4,7 +4,7 @@
 	import { Button, Column, Grid, Link, Row } from 'carbon-components-svelte';
 	import { Forum as ForumIcon } from 'carbon-icons-svelte';
 
-	export let traveller: Traveller;
+	export let travellers: Traveller[] = [];
 </script>
 
 <div class="mt-15 ml-2 desktop-profile">
@@ -12,31 +12,37 @@
 		<Row>
 			<Column>
 				<Row class="label-12">Name</Row>
-				<Row>{` ${traveller.forename || ''} ${traveller.surname || ''}`}</Row>
 			</Column>
 			<Column>
 				<Row class="label-12">Language</Row>
-				<Row>{traveller.language || ''}</Row>
 			</Column>
 			<Column>
 				<Row class="label-12">Phone</Row>
-				<Row>{traveller.mobilePhone || ''}</Row>
 			</Column>
 			<Column>
 				<Row class="label-12">Pref. Contact</Row>
-				<Row>{traveller.whatsapp || ''}</Row>
 			</Column>
 			<Column>
 				<Row class="label-12">Email</Row>
-				<Row>{traveller.email || ''}</Row>
 			</Column>
 		</Row>
+		{#each travellers as traveller}
+		<Row>
+			<Column><Row>{` ${traveller.forename || ''} ${traveller.surname || ''}`}</Row></Column>
+			<Column><Row>{traveller.language || ''}</Row></Column>
+			<Column><Row>{traveller.mobilePhone || ''}</Row></Column>
+			<Column><Row>{traveller.whatsapp || ''}</Row></Column>
+			<Column><Row>{traveller.email || ''}</Row></Column>
+		</Row>
+		
+		{/each}
 	</Grid>
 </div>
 
 <div class="mt-15 mobile-profile">
 	<Grid narrow padding>
 		<Row>
+			{#each travellers as traveller}
 			<Column class="custom-col">
 				<Row><label>Name: {` ${traveller.forename || ''} ${traveller.surname || ''}`}</label></Row>
 				<Row><label>Language: {traveller.language || ''}</label></Row>
@@ -44,6 +50,7 @@
 				<Row><label>Pref. Contact: {traveller.whatsapp || ''}</label></Row>
 				<Row><label>Email: {traveller.email || ''}</label></Row>
 			</Column>
+			{/each}
 			<div class="mobile-icon">
 				<ForumIcon size={32} />
 			</div>

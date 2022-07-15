@@ -5,35 +5,29 @@
 	import { isFormSavingStore } from '$lib/store/isFormSaving';
 	import { INVALID_DELAY_TIME } from '$lib/utils/constants';
 	import { ppost } from '$lib/utils/fetch';
-	import {
-		DatePicker,
-		DatePickerInput,
-		Modal,
-		TextInput
-	} from 'carbon-components-svelte';
+	import { DatePicker, DatePickerInput, Modal, TextInput } from 'carbon-components-svelte';
 	import FormRow from '../../form/row.svelte';
 	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import { clear } from '$lib/store/activeForm';
 	import type { tripStore, Trip } from '$lib/store/trip';
 	import { reformatDateToEn, reformatDateToIso, toIsoString } from '$lib/helpers/datetime';
 	import type { DatePickerDate, DatePickerEvent } from '$lib/store/types';
-	import { travellersStore } from '$lib/store/traveller';
+	import { travellersStore, type Traveller } from '$lib/store/traveller';
 	export let trip: Trip;
 	export let open = false;
-	export let relatives;
 
-	let formData: Traveller;
+	let formData: TravellerForm;
 	const dispatch = createEventDispatcher();
 
 	function reset() {
 		formData = {
 			forename: '',
 			surname: '',
-			birthday: ''
+			birthday: '',
 		};
 	}
 
-	type Traveller = {
+	type TravellerForm = {
 		forename: string;
 		surname: string;
 		birthday: string;
@@ -81,6 +75,18 @@
 			const res = await ppost('trip/createTraveller', finalFormData);
 			if (res.ok) {
 				const traveller = await res.json();
+				travellersStore.update((s) => {
+						const travellerSelectedIndex = (s || []).findIndex(
+							(item) => item.id.toString() === traveller.id.toString()
+						);
+						if (travellerSelectedIndex >= 0) {
+							s[travellerSelectedIndex] = traveller;
+						} else {
+							s.push(traveller);
+						}
+
+					return s;
+				});
 				dispatch('created', traveller);
 				// tripStore.update((s) => {
 				// 	const idx = s.findIndex((t) => t.id === trip.id);
@@ -127,7 +133,6 @@
 	on:close
 	on:submit={onSubmit}
 >
-	<br />
 	<TextInput
 		labelText="Surname"
 		placeholder="Enter traveller surname"

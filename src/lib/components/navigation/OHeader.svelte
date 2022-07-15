@@ -18,6 +18,7 @@
 	import { page } from '$app/stores';
 	import { User as UserIcon } from 'carbon-icons-svelte';
 	import { beforeNavigate } from '$app/navigation';
+	import { disableMyOysteo } from '$lib/env';
 
 	let isToolbarOpen = false;
 	let isSideNavOpen = false;
@@ -43,7 +44,9 @@
 	</div>
 
 	<HeaderNav>
-		<HeaderNavItem href="/profile" text="My OYSTEO" />
+		{#if !disableMyOysteo}
+			<HeaderNavItem href="/profile" text="My OYSTEO" />
+		{/if}
 		<HeaderNavItem
 			isSelected={$page.url.pathname === '/profile/advisor'}
 			text="Advisor"
@@ -74,7 +77,9 @@
 
 <SideNav isOpen={isSideNavOpen} id="main-sidebar">
 	<SideNavItems>
-		<SideNavLink text="My OYSTEO" href="/profile" />
+		{#if !disableMyOysteo}
+			<SideNavLink text="My OYSTEO" href="/profile" />
+		{/if}
 		<SideNavLink
 			text="Advisor"
 			isSelected={$page.url.pathname === '/profile/advisor'}
